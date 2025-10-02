@@ -85,6 +85,7 @@
         .animate-pulse-slow {
             animation: pulse 2s infinite;
         }
+        
     </style>
 </head>
 <body class="bg-gray-50 antialiased">
@@ -292,12 +293,27 @@
                             </div>
                         </div>
                         
+                        <!-- Language Selector -->
+                        <div class="relative group">
+                            <select class="appearance-none bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 pr-10 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-100 cursor-pointer min-w-[140px]">
+                                <option value="en" class="py-2">🇺🇸 English</option>
+                                <option value="fa" class="py-2">🇮🇷 فارسی</option>
+                                <option value="ps" class="py-2">🇦🇫 پښتو</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 group-hover:text-indigo-500 transition-colors duration-200"></i>
+                            </div>
+                            <!-- Decorative gradient overlay -->
+                            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-transparent to-indigo-50/30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+
                         <!-- Notifications -->
                         <button class="relative p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 btn-modern group">
                             <i data-lucide="bell" class="w-5 h-5 group-hover:scale-110 transition-transform duration-200"></i>
                             <span class="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white animate-pulse-slow"></span>
                         </button>
                         
+
                         <!-- Quick Actions -->
                         <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 btn-modern group">
                             <i data-lucide="plus" class="w-5 h-5 group-hover:scale-110 transition-transform duration-200"></i>
@@ -449,7 +465,6 @@
         headerUserMenuButton?.addEventListener('click', toggleHeaderUserMenu);
         
         
-        
         // Close menus when clicking outside
         document.addEventListener('click', function(e) {
             if (headerUserDropdown && !headerUserMenuButton?.contains(e.target) && !headerUserDropdown.contains(e.target)) {
@@ -551,6 +566,7 @@
                 }
             });
         });
+        
     </script>
 </body>
 </html>
