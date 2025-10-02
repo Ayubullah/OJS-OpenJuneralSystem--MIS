@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\JournalController;
+use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SubmissionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,12 +29,21 @@ Route::middleware('auth')->group(function () {
 
 
 // Start Admin Role
-    Route::middleware(['auth', 'role:admin'])->group(function () {
-        // Route::get('/admin', function () {
-        //     return "Hello Admin";
-        // })->name('admin.dashboard');
-
-        Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Dashboard
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        
+        // Journals Management
+        Route::resource('journals', JournalController::class);
+        
+        // Articles Management
+        Route::resource('articles', ArticleController::class);
+        
+        // Users Management
+        Route::resource('users', UserController::class);
+        
+        // Submissions Management
+        Route::resource('submissions', SubmissionController::class);
     });
 // End Admin Role
 
