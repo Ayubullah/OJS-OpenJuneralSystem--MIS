@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email', 100)->unique();
             $table->string('affiliation', 200)->nullable();
             $table->string('specialization', 100)->nullable();
+            $table->string('orcid_id', 50)->nullable()->comment('Author\'s ORCID identifier');
+            $table->text('author_contributions')->nullable()->comment('Describes author\'s specific contributions to the research');
             $table->timestamps();
         });
     }

@@ -14,6 +14,15 @@ class Article extends Model
         'journal_id',
         'author_id',
         'category_id',
+        'manuscript_type',
+        'abstract',
+        'word_count',
+        'number_of_tables',
+        'number_of_figures',
+        'previously_submitted',
+        'funded_by_outside_source',
+        'confirm_not_published_elsewhere',
+        'confirm_prepared_as_per_guidelines',
         'status'
     ];
 

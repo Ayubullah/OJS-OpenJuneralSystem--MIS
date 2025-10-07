@@ -11,7 +11,9 @@ class Author extends Model
         'name',
         'email',
         'affiliation',
-        'specialization'
+        'specialization',
+        'orcid_id',
+        'author_contributions'
     ];
 
     public function articles(): HasMany
