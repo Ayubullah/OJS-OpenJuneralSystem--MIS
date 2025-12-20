@@ -34,6 +34,8 @@ class AuthenticatedSessionController extends Controller
             $url = 'editor';
         }elseif(Auth::user()->role === 'author'){
             $url = 'author';
+        }elseif(Auth::user()->role === 'reviewer'){
+            $url = 'reviewer';
         }
 
         return redirect()->intended($url);
@@ -50,6 +52,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }

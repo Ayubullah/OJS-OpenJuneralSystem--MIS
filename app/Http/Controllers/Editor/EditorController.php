@@ -12,7 +12,8 @@ class EditorController extends Controller
      */
     public function index()
     {
-        //
+        // return "hellow from controller ";
+        return view('editor.dashboard');
     }
 
     /**

@@ -23,7 +23,8 @@ class Article extends Model
         'funded_by_outside_source',
         'confirm_not_published_elsewhere',
         'confirm_prepared_as_per_guidelines',
-        'status'
+        'status',
+        'manuscript_file'
     ];
 
     public function journal(): BelongsTo

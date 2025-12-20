@@ -13,7 +13,15 @@ class Submission extends Model
         'author_id',
         'submission_date',
         'status',
-        'version_number'
+        'version_number',
+        'file_path'
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     */
+    protected $casts = [
+        'submission_date' => 'datetime',
     ];
 
     public function article(): BelongsTo

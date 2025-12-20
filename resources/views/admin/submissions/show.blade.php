@@ -119,13 +119,20 @@
                                 </div>
                             </div>
                             @if($review->rating)
-                            <div class="flex items-center space-x-1">
+                            <div class="flex items-center space-x-2">
+                                @if((float)$review->rating == 10.0)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                    <i data-lucide="award" class="w-4 h-4 mr-1"></i>
+                                    Review Complete
+                                </span>
+                                @else
                                 <span class="text-sm font-bold text-gray-900">{{ $review->rating }}/10</span>
                                 <div class="flex space-x-1">
                                     @for($i = 1; $i <= 5; $i++)
                                     <i data-lucide="star" class="w-4 h-4 {{ $i <= ($review->rating / 2) ? 'text-yellow-400 fill-current' : 'text-gray-300' }}"></i>
                                     @endfor
                                 </div>
+                                @endif
                             </div>
                             @endif
                         </div>
@@ -159,7 +166,7 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Days Since Submission</span>
-                        <span class="text-sm font-bold text-gray-900">{{ $submission->submission_date->diffInDays(now()) }}</span>
+                        <span class="text-sm font-bold text-gray-900">{{ floor($submission->submission_date->diffInDays(now())) }}</span>
                     </div>
                 </div>
             </div>
@@ -177,7 +184,7 @@
                             <p class="text-xs text-gray-500">{{ $submission->submission_date->format('M d, Y H:i') }}</p>
                         </div>
                     </div>
-                    @if($submission->reviews->count() > 0)
+                    @if($submission->reviews->count() > 0 && $submission->reviews->first()?->created_at)
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                             <i data-lucide="eye" class="w-4 h-4 text-white"></i>

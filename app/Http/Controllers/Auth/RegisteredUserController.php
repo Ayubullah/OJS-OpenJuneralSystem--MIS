@@ -39,6 +39,13 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'author', // Set default role as author
+        ]);
+
+        // Auto-create author record for new user
+        \App\Models\Author::create([
+            'name' => $user->name,
+            'email' => $user->email,
         ]);
 
         event(new Registered($user));

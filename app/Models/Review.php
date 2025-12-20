@@ -15,6 +15,10 @@ class Review extends Model
         'review_date'
     ];
 
+    protected $casts = [
+        'review_date' => 'datetime',
+    ];
+
     public function submission(): BelongsTo
     {
         return $this->belongsTo(Submission::class);
