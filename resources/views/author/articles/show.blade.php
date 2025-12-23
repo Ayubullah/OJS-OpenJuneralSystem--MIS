@@ -1,8 +1,8 @@
 @extends('layout.app_author')
 
-@section('title', 'Article Details')
-@section('page-title', 'Article Details')
-@section('page-description', 'View your article submission details')
+@section('title', __('Article Details'))
+@section('page-title', __('Article Details'))
+@section('page-description', __('View your article submission details'))
 
 @section('content')
 <div class="py-6">
@@ -11,8 +11,8 @@
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Article Details</h1>
-                    <p class="mt-2 text-gray-600">Review your submitted article information</p>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ __('Article Details') }}</h1>
+                    <p class="mt-2 text-gray-600">{{ __('Review your submitted article information') }}</p>
                 </div>
                 <div class="mt-4 sm:mt-0 flex space-x-3">
                      @if(in_array($article->status, ['submitted', 'under_review', 'revision_required']))
@@ -21,7 +21,7 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
-                        Resubmit Article
+                        {{ __('Resubmit Article') }}
                     </a>
                     @endif
                     @if(in_array($article->status, ['submitted', 'under_review', 'revision_required']))
@@ -30,7 +30,7 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
-                        Edit Article
+                        {{ __('Edit Article') }}
                     </a>
                     @endif
                     <a href="{{ route('author.articles.index') }}" 
@@ -38,7 +38,7 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
-                        Back to List
+                        {{ __('Back to List') }}
                     </a>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                             $statusColor = $statusColors[$article->status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
                         @endphp
                         <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border-2 {{ $statusColor }}">
-                            {{ ucfirst(str_replace('_', ' ', $article->status)) }}
+                            {{ __(ucfirst(str_replace('_', ' ', $article->status))) }}
                         </span>
                     </div>
                 </div>
@@ -109,37 +109,37 @@
                         <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                             <span class="text-blue-600 font-bold">1</span>
                         </span>
-                        Basic Information
+                        {{ __('Basic Information') }}
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Journal</label>
-                            <p class="text-base text-gray-900">{{ $article->journal->name ?? 'N/A' }}</p>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Journal') }}</label>
+                            <p class="text-base text-gray-900">{{ $article->journal->name ?? __('N/A') }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Category</label>
-                            <p class="text-base text-gray-900">{{ $article->category->name ?? 'N/A' }}</p>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Category') }}</label>
+                            <p class="text-base text-gray-900">{{ $article->category->name ?? __('N/A') }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Manuscript Type</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Manuscript Type') }}</label>
                             <p class="text-base text-gray-900">{{ $article->manuscript_type }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Word Count</label>
-                            <p class="text-base text-gray-900">{{ number_format($article->word_count) }} words</p>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Word Count') }}</label>
+                            <p class="text-base text-gray-900">{{ number_format($article->word_count) }} {{ __('words') }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Number of Tables</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Number of Tables') }}</label>
                             <p class="text-base text-gray-900">{{ $article->number_of_tables }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Number of Figures</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Number of Figures') }}</label>
                             <p class="text-base text-gray-900">{{ $article->number_of_figures }}</p>
                         </div>
                     </div>
@@ -151,7 +151,7 @@
                         <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                             <span class="text-green-600 font-bold">2</span>
                         </span>
-                        Abstract
+                        {{ __('Abstract') }}
                     </h3>
                     <div class="bg-gray-50 rounded-lg p-4">
                         <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $article->abstract }}</p>
@@ -164,7 +164,7 @@
                         <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                             <span class="text-purple-600 font-bold">3</span>
                         </span>
-                        Manuscript File
+                        {{ __('Manuscript File') }}
                     </h3>
                     @if($article->manuscript_file)
                     <a href="{{ asset('storage/' . $article->manuscript_file) }}" target="_blank"
@@ -172,10 +172,10 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        Download Manuscript
+                        {{ __('Download Manuscript') }}
                     </a>
                     @else
-                    <p class="text-gray-500">No file uploaded</p>
+                    <p class="text-gray-500">{{ __('No file uploaded') }}</p>
                     @endif
                 </div>
 
@@ -185,7 +185,7 @@
                         <span class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
                             <span class="text-indigo-600 font-bold">4</span>
                         </span>
-                        Keywords
+                        {{ __('Keywords') }}
                     </h3>
                     @if($article->keywords->count() > 0)
                     <div class="flex flex-wrap gap-2">
@@ -196,7 +196,7 @@
                         @endforeach
                     </div>
                     @else
-                    <p class="text-gray-500">No keywords added</p>
+                    <p class="text-gray-500">{{ __('No keywords added') }}</p>
                     @endif
                 </div>
 
@@ -206,12 +206,12 @@
                         <span class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
                             <span class="text-orange-600 font-bold">5</span>
                         </span>
-                        Submission Details
+                        {{ __('Submission Details') }}
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Previously Submitted Elsewhere?</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Previously Submitted Elsewhere?') }}</label>
                             <p class="text-base text-gray-900">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $article->previously_submitted == 'Yes' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
                                     {{ $article->previously_submitted }}
@@ -220,7 +220,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Funded by Outside Source?</label>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Funded by Outside Source?') }}</label>
                             <p class="text-base text-gray-900">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $article->funded_by_outside_source == 'Yes' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
                                     {{ $article->funded_by_outside_source }}

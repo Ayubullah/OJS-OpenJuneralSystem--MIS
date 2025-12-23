@@ -1,8 +1,8 @@
 @extends('layout.app_author')
 
-@section('title', 'My Articles')
-@section('page-title', 'My Articles')
-@section('page-description', 'Manage and track your submitted articles')
+@section('title', __('My Articles'))
+@section('page-title', __('My Articles'))
+@section('page-description', __('Manage and track your submitted articles'))
 
 @section('content')
 <div class="py-6">
@@ -11,8 +11,8 @@
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">My Articles</h1>
-                    <p class="mt-2 text-gray-600">Manage and track your submitted articles</p>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ __('My Articles') }}</h1>
+                    <p class="mt-2 text-gray-600">{{ __('Manage and track your submitted articles') }}</p>
                 </div>
                 <div class="mt-4 sm:mt-0">
                     <a href="{{ route('author.articles.create') }}" 
@@ -20,7 +20,7 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        Submit New Article
+                        {{ __('Submit New Article') }}
                     </a>
                 </div>
             </div>
@@ -56,12 +56,12 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Journal</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Submitted Date</th>
-                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('Title') }}</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('Journal') }}</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('Category') }}</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('Status') }}</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('Submitted Date') }}</th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -90,7 +90,7 @@
                                     $statusColor = $statusColors[$article->status] ?? 'bg-gray-100 text-gray-800';
                                 @endphp
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $statusColor }}">
-                                    {{ ucfirst(str_replace('_', ' ', $article->status)) }}
+                                    {{ __(ucfirst(str_replace('_', ' ', $article->status))) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-700">
@@ -100,7 +100,7 @@
                                 <div class="flex items-center justify-end space-x-2">
                                     <a href="{{ route('author.articles.show', $article) }}" 
                                         class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-150"
-                                        title="View Details">
+                                        title="{{ __('View Details') }}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -110,7 +110,7 @@
 
                                     <a href="{{ route('author.articles.resubmit', $article) }}" 
                                         class="inline-flex items-center px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors duration-150"
-                                        title="Resubmit Article">
+                                        title="{{ __('Resubmit Article') }}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                         </svg>
@@ -119,7 +119,7 @@
                                     @if(in_array($article->status, ['submitted', 'under_review', 'revision_required']))
                                     <a href="{{ route('author.articles.edit', $article) }}" 
                                         class="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors duration-150"
-                                        title="Edit Article">
+                                        title="{{ __('Edit Article') }}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
@@ -146,15 +146,15 @@
                 <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <h3 class="mt-4 text-lg font-medium text-gray-900">No Articles Yet</h3>
-                <p class="mt-2 text-sm text-gray-500">Get started by submitting your first article.</p>
+                <h3 class="mt-4 text-lg font-medium text-gray-900">{{ __('No Articles Yet') }}</h3>
+                <p class="mt-2 text-sm text-gray-500">{{ __('Get started by submitting your first article.') }}</p>
                 <div class="mt-6">
                     <a href="{{ route('author.articles.create') }}" 
                         class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        Submit Your First Article
+                        {{ __('Submit Your First Article') }}
                     </a>
                 </div>
             </div>

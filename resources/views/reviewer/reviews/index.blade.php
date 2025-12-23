@@ -1,17 +1,17 @@
 @extends('layout.app_reviewer')
 
-@section('title', 'All Reviews')
-@section('page-title', 'All Reviews')
-@section('page-description', 'View and manage all your review assignments')
+@section('title', __('All Reviews'))
+@section('page-title', __('All Reviews'))
+@section('page-description', __('View and manage all your review assignments'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <a href="{{ route('reviewer.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">Dashboard</a>
+    <a href="{{ route('reviewer.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{{ __('Dashboard') }}</a>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">All Reviews</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('All Reviews') }}</span>
 </li>
 @endsection
 
@@ -20,8 +20,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100">
-                <h2 class="text-lg font-bold text-gray-900">All Reviews</h2>
-                <p class="text-sm text-gray-600">View and manage all your review assignments</p>
+                <h2 class="text-lg font-bold text-gray-900">{{ __('All Reviews') }}</h2>
+                <p class="text-sm text-gray-600">{{ __('View and manage all your review assignments') }}</p>
             </div>
             <div class="p-6">
                 @forelse($reviews as $review)
@@ -29,17 +29,17 @@
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                                {{ $review->submission->article->title ?? 'No Title' }}
+                                {{ $review->submission->article->title ?? __('No Title') }}
                             </h3>
                             
                             <div class="flex items-center space-x-6 text-sm text-gray-500 mb-3">
                                 <div class="flex items-center space-x-1">
                                     <i data-lucide="user" class="w-4 h-4"></i>
-                                    <span>{{ $review->submission->article->author->name ?? 'Unknown Author' }}</span>
+                                    <span>{{ $review->submission->article->author->name ?? __('Unknown Author') }}</span>
                                 </div>
                                 <div class="flex items-center space-x-1">
                                     <i data-lucide="book" class="w-4 h-4"></i>
-                                    <span>{{ $review->submission->article->journal->name ?? 'Unknown Journal' }}</span>
+                                    <span>{{ $review->submission->article->journal->name ?? __('Unknown Journal') }}</span>
                                 </div>
                                 @if($review->submission->article->category)
                                 <div class="flex items-center space-x-1">
@@ -53,24 +53,24 @@
                                 @if($review->rating)
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                         <i data-lucide="check-circle" class="w-4 h-4 mr-1"></i>
-                                        Completed
+                                        {{ __('Completed') }}
                                     </span>
                                     <span class="text-sm text-gray-600">
-                                        Rating: {{ $review->rating }}/10
+                                        {{ __('Rating') }}: {{ $review->rating }}/10
                                     </span>
                                 @elseif($review->comments)
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                         <i data-lucide="edit" class="w-4 h-4 mr-1"></i>
-                                        In Progress
+                                        {{ __('In Progress') }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                                         <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
-                                        Pending
+                                        {{ __('Pending') }}
                                     </span>
                                 @endif
                                 <span class="text-sm text-gray-500">
-                                    Assigned: {{ $review->created_at?->format('M d, Y') ?? 'N/A' }}
+                                    {{ __('Assigned') }}: {{ $review->created_at?->format('M d, Y') ?? __('N/A') }}
                                 </span>
                             </div>
                             
@@ -84,7 +84,7 @@
                         <div class="ml-4 flex items-center space-x-2">
                             <a href="{{ route('reviewer.reviews.show', $review->id) }}" 
                                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
-                                View Details
+                                {{ __('View Details') }}
                             </a>
                         </div>
                     </div>
@@ -94,8 +94,8 @@
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="clipboard-list" class="w-8 h-8 text-gray-400"></i>
                     </div>
-                    <p class="text-gray-500 font-medium">No reviews assigned yet</p>
-                    <p class="text-sm text-gray-400 mt-1">You'll see all your review assignments here</p>
+                    <p class="text-gray-500 font-medium">{{ __('No reviews assigned yet') }}</p>
+                    <p class="text-sm text-gray-400 mt-1">{{ __('You\'ll see all your review assignments here') }}</p>
                 </div>
                 @endforelse
                 

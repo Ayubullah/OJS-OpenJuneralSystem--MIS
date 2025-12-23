@@ -19,6 +19,7 @@ use App\Http\Controllers\Reviewer\ReviewerProfileController;
 use App\Http\Controllers\Reviewer\Reviewer_ReviewController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Container\Attributes\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,6 +34,17 @@ Route::get('/tailwind-test', function () { return view('tailwind-test');})->name
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Locale switcher for UI translations
+Route::post('/locale', function (Request $request) {
+    $validated = $request->validate([
+        'locale' => ['required', 'in:en,fa,ps'],
+    ]);
+
+    session(['locale' => $validated['locale']]);
+
+    return back();
+})->name('locale.switch');
 
 
 Route::middleware('auth')->group(function () {

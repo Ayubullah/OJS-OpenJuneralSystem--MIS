@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -182,7 +182,7 @@
                             <i data-lucide="layout-dashboard" class="w-4 h-4 text-blue-600"></i>
                         </div>
                          <div class="flex-1">
-                             <span class="font-medium text-sm">Dashboard</span>
+                             <span class="font-medium text-sm">{{ __('Dashboard') }}</span>
                          </div>
                         <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1"></i>
                     </a>
@@ -197,7 +197,7 @@
                                 <div class="w-5 h-5 bg-gradient-to-br from-teal-100 to-cyan-100 rounded flex items-center justify-center mr-2">
                                     <i data-lucide="file-text" class="w-3 h-3 text-teal-600"></i>
                                 </div>
-                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-teal-700">Articles</h3>
+                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-teal-700">{{ __('Articles') }}</h3>
                             </div>
                             <i data-lucide="chevron-down" id="articlesMenuIcon" class="w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-transform duration-300"></i>
                         </button>
@@ -209,7 +209,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-violet-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="file-text" class="w-4 h-4 text-violet-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">All Articles</span>
+                                    <span class="font-medium text-sm">{{ __('All Articles') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-violet-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -218,7 +218,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-emerald-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="inbox" class="w-4 h-4 text-emerald-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">All Submissions</span>
+                                    <span class="font-medium text-sm">{{ __('All Submissions') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -227,7 +227,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Published</span>
+                                    <span class="font-medium text-sm">{{ __('Published') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -236,7 +236,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-teal-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-teal-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="check" class="w-4 h-4 text-teal-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Accepted</span>
+                                    <span class="font-medium text-sm">{{ __('Accepted') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-teal-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -245,7 +245,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-yellow-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="send" class="w-4 h-4 text-yellow-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Submitted</span>
+                                    <span class="font-medium text-sm">{{ __('Submitted') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-yellow-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -254,7 +254,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="eye" class="w-4 h-4 text-blue-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Under Review</span>
+                                    <span class="font-medium text-sm">{{ __('Under Review') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -263,7 +263,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-orange-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="edit" class="w-4 h-4 text-orange-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Revision Required</span>
+                                    <span class="font-medium text-sm">{{ __('Revision Required') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-orange-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -272,7 +272,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-red-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Rejected</span>
+                                    <span class="font-medium text-sm">{{ __('Rejected') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -286,7 +286,7 @@
                                 <div class="w-5 h-5 bg-gradient-to-br from-teal-100 to-cyan-100 rounded flex items-center justify-center mr-2">
                                     <i data-lucide="users" class="w-3 h-3 text-teal-600"></i>
                                 </div>
-                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-blue-700">Users</h3>
+                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-blue-700">{{ __('Users') }}</h3>
                             </div>
                             <i data-lucide="chevron-down" id="usersMenuIcon" class="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-transform duration-300"></i>
                         </button>
@@ -298,7 +298,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">All Users</span>
+                                    <span class="font-medium text-sm">{{ __('All Users') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -307,7 +307,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-indigo-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-indigo-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="user-cog" class="w-4 h-4 text-indigo-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Editors</span>
+                                    <span class="font-medium text-sm">{{ __('Editors') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -316,7 +316,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-emerald-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Reviewers</span>
+                                    <span class="font-medium text-sm">{{ __('Reviewers') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -325,7 +325,7 @@
                                     <div class="submenu-icon w-7 h-7 bg-sky-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-sky-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="user-pen" class="w-4 h-4 text-sky-600"></i>
                                     </div>
-                                    <span class="font-medium text-sm">Authors</span>
+                                    <span class="font-medium text-sm">{{ __('Authors') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-sky-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
@@ -431,7 +431,7 @@
                             </div>
                         </div>
                         <p class="mt-1 text-xs text-gray-600 font-medium">
-                             @yield('page-description', 'Welcome to your OJS admin dashboard')
+                             @yield('page-description', __('Welcome to your OJS admin dashboard'))
                         </p>
                     </div>
                     
@@ -451,18 +451,29 @@
                         </div>
                         
                         <!-- Language Selector -->
-                        <div class="relative group">
-                            <select class="appearance-none bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 pr-10 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-100 cursor-pointer min-w-[140px]">
-                                <option value="en" class="py-2">🇺🇸 English</option>
-                                <option value="fa" class="py-2">🇮🇷 فارسی</option>
-                                <option value="ps" class="py-2">🇦🇫 پښتو</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 group-hover:text-indigo-500 transition-colors duration-200"></i>
+                        @php
+                            $flag = app()->getLocale() === 'en' ? '🇺🇸' : '🇦🇫';
+                        @endphp
+                        <form method="POST" action="{{ route('locale.switch') }}" class="relative group" id="localeSwitcher">
+                            @csrf
+                            <label for="locale-select" class="sr-only">{{ __('Select language') }}</label>
+                            <div class="relative">
+                                <div class="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+                                    <span class="h-8 w-8 flex items-center justify-center text-lg rounded-full bg-white shadow-sm border border-gray-200">
+                                        {{ $flag }}
+                                    </span>
+                                </div>
+                                <select id="locale-select" name="locale" aria-label="{{ __('Select language') }}" class="pl-14 pr-12 py-2.5 min-w-[180px] text-sm font-semibold text-gray-900 rounded-xl border border-gray-200 bg-white/90 backdrop-blur-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-px appearance-none cursor-pointer">
+                                    <option value="en" @selected(app()->getLocale() === 'en')>🇺🇸 {{ __('English') }}</option>
+                                    <option value="fa" @selected(app()->getLocale() === 'fa')>🇮🇷 {{ __('Dari / Farsi') }}</option>
+                                    <option value="ps" @selected(app()->getLocale() === 'ps')>🇦🇫 {{ __('Pashto') }}</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 group-hover:text-indigo-500 transition-colors duration-200"></i>
+                                </div>
+                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-indigo-50/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                             </div>
-                            <!-- Decorative gradient overlay -->
-                            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-transparent to-indigo-50/30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
+                        </form>
 
                         <!-- Notifications -->
                         <button class="relative p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 btn-modern group">
@@ -492,8 +503,8 @@
                                     <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border border-white"></div>
                                 </div>
                                  <div class="hidden lg:block text-left">
-                                     <p class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'Admin User' }}</p>
-                                     <p class="text-xs text-gray-500 font-medium">{{ ucfirst(auth()->user()->role ?? 'Administrator') }}</p>
+                                    <p class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? __('Admin User') }}</p>
+                                    <p class="text-xs text-gray-500 font-medium">{{ __(ucfirst(auth()->user()->role ?? 'Administrator')) }}</p>
                                  </div>
                                 <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 group-hover:text-gray-600 transition-colors duration-200"></i>
                             </button>
@@ -512,11 +523,11 @@
                                             </div>
                                         @endif
                                         <div>
-                                            <p class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'Admin User' }}</p>
+                                            <p class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? __('Admin User') }}</p>
                                             <p class="text-xs text-gray-500">{{ auth()->user()->email ?? 'admin@example.com' }}</p>
                                             <div class="flex items-center mt-1">
                                                 <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                                                <span class="text-xs text-green-600 font-medium">Online</span>
+                                                <span class="text-xs text-green-600 font-medium">{{ __('Online') }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -527,7 +538,7 @@
                                         <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors duration-200">
                                             <i data-lucide="user" class="w-4 h-4 text-blue-600"></i>
                                         </div>
-                                         <span class="font-medium">Profile Settings</span>
+                                         <span class="font-medium">{{ __('Profile Settings') }}</span>
                                         <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 ml-auto group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-200"></i>
                                     </a>
                                     
@@ -535,7 +546,7 @@
                                         <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-colors duration-200">
                                             <i data-lucide="settings" class="w-4 h-4 text-purple-600"></i>
                                         </div>
-                                         <span class="font-medium">Account Settings</span>
+                                         <span class="font-medium">{{ __('Account Settings') }}</span>
                                         <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 ml-auto group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-200"></i>
                                     </a>
                                     
@@ -543,7 +554,7 @@
                                         <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors duration-200">
                                             <i data-lucide="help-circle" class="w-4 h-4 text-green-600"></i>
                                         </div>
-                                         <span class="font-medium">Help & Support</span>
+                                         <span class="font-medium">{{ __('Help & Support') }}</span>
                                         <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 ml-auto group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-200"></i>
                                     </a>
                                     
@@ -551,7 +562,7 @@
                                         <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-yellow-200 transition-colors duration-200">
                                             <i data-lucide="moon" class="w-4 h-4 text-yellow-600"></i>
                                         </div>
-                                         <span class="font-medium">Dark Mode</span>
+                                         <span class="font-medium">{{ __('Dark Mode') }}</span>
                                         <div class="ml-auto">
                                             <div class="w-8 h-4 bg-gray-200 rounded-full relative">
                                                 <div class="w-3 h-3 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200"></div>
@@ -567,7 +578,7 @@
                                             <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors duration-200">
                                                 <i data-lucide="log-out" class="w-4 h-4 text-red-600"></i>
                                             </div>
-                                             <span class="font-medium">Sign Out</span>
+                                             <span class="font-medium">{{ __('Sign Out') }}</span>
                                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 ml-auto group-hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-200"></i>
                                         </button>
                                     </form>
@@ -709,6 +720,13 @@
                 }
             });
         }
+
+        // Locale switcher submit on change
+        const localeForm = document.getElementById('localeSwitcher');
+        const localeSelect = localeForm?.querySelector('select[name="locale"]');
+        if (localeSelect && localeForm) {
+            localeSelect.addEventListener('change', () => localeForm.submit());
+        }
         
         // Add smooth scroll behavior
         document.documentElement.style.scrollBehavior = 'smooth';
@@ -730,7 +748,7 @@
                 const submitBtn = form.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i>Signing out...';
+                    submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i>{{ __("Signing out...") }}';
                     lucide.createIcons();
                 }
             });

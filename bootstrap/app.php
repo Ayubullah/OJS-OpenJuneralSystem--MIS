@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => App\Http\Middleware\Role::class,
         ]);
+
+        // Apply locale stored in session for all web routes
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocaleFromSession::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

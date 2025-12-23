@@ -1,17 +1,17 @@
 @extends('layout.app_editor')
 
-@section('title', 'Submissions Management')
-@section('page-title', 'Submissions')
-@section('page-description', 'Manage all article submissions')
+@section('title', __('Submissions Management'))
+@section('page-title', __('Submissions'))
+@section('page-description', __('Manage all article submissions'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <span class="ml-2 text-sm font-medium text-gray-500">Dashboard</span>
+    <span class="ml-2 text-sm font-medium text-gray-500">{{ __('Dashboard') }}</span>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">Submissions</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('Submissions') }}</span>
 </li>
 @endsection
 
@@ -21,7 +21,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center space-x-3">
-                <h1 class="text-2xl font-bold text-gray-900">Submissions Management</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('Submissions Management') }}</h1>
                 @if(isset($statusFilter))
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
                     {{ $statusFilter === 'published' ? 'bg-green-100 text-green-800' : 
@@ -30,15 +30,15 @@
                        ($statusFilter === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 
                        ($statusFilter === 'rejected' ? 'bg-red-100 text-red-800' : 
                        ($statusFilter === 'revision_required' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'))))) }}">
-                    {{ ucfirst(str_replace('_', ' ', $statusFilter)) }}
+                    {{ __(ucfirst(str_replace('_', ' ', $statusFilter))) }}
                 </span>
                 @endif
             </div>
             <p class="mt-1 text-sm text-gray-600">
                 @if(isset($statusFilter))
-                    Showing {{ ucfirst(str_replace('_', ' ', $statusFilter)) }} submissions
+                    {{ __('Showing :status submissions', ['status' => __(ucfirst(str_replace('_', ' ', $statusFilter)))]) }}
                 @else
-                    Manage all article submissions and reviews
+                    {{ __('Manage all article submissions and reviews') }}
                 @endif
             </p>
         </div>
@@ -49,12 +49,12 @@
                 <div class="relative">
                     <select id="searchField" 
                             class="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                        <option value="all">All Fields</option>
-                        <option value="id">Article ID</option>
-                        <option value="title">Article Title</option>
-                        <option value="journal">Journal</option>
-                        <option value="author">Author</option>
-                        <option value="status">Status</option>
+                        <option value="all">{{ __('All Fields') }}</option>
+                        <option value="id">{{ __('Article ID') }}</option>
+                        <option value="title">{{ __('Article Title') }}</option>
+                        <option value="journal">{{ __('Journal') }}</option>
+                        <option value="author">{{ __('Author') }}</option>
+                        <option value="status">{{ __('Status') }}</option>
                     </select>
                     <i data-lucide="filter" class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
                 </div>
@@ -63,7 +63,7 @@
                 <div class="relative">
                     <input type="text" 
                            id="searchInput"
-                           placeholder="Search..." 
+                           placeholder="{{ __('Search...') }}" 
                            class="pl-10 pr-10 py-2 w-64 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                     <button id="clearSearch" 
@@ -76,19 +76,19 @@
             <!-- Filter Dropdown -->
             <div class="relative">
                 <select class="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    <option>All Status</option>
-                    <option>Submitted</option>
-                    <option>Under Review</option>
-                    <option>Accepted</option>
-                    <option>Published</option>
-                    <option>Rejected</option>
+                    <option>{{ __('All Status') }}</option>
+                    <option>{{ __('Submitted') }}</option>
+                    <option>{{ __('Under Review') }}</option>
+                    <option>{{ __('Accepted') }}</option>
+                    <option>{{ __('Published') }}</option>
+                    <option>{{ __('Rejected') }}</option>
                 </select>
                 <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
             </div>
             
             <a href="{{ route('editor.submissions.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-medium rounded-lg hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
                 <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                Add New Submission
+                {{ __('Add New Submission') }}
             </a>
         </div>
     </div>

@@ -1,8 +1,8 @@
 @extends('layout.app_editor')
 
-@section('title', 'My Articles')
-@section('page-title', 'My Articles')
-@section('page-description', 'Manage and track your submitted articles')
+@section('title', __('My Articles'))
+@section('page-title', __('My Articles'))
+@section('page-description', __('Manage and track your submitted articles'))
 
 @section('content')
 <div class="py-6">
@@ -11,8 +11,8 @@
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">My Articles</h1>
-                    <p class="mt-2 text-gray-600">Manage and track your submitted articles</p>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ __('My Articles') }}</h1>
+                    <p class="mt-2 text-gray-600">{{ __('Manage and track your submitted articles') }}</p>
                 </div>
                 <div class="mt-4 sm:mt-0">
                     <a href="{{ route('author.articles.create') }}" 
@@ -20,7 +20,7 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        Submit New Article
+                        {{ __('Submit New Article') }}
                     </a>
                 </div>
             </div>

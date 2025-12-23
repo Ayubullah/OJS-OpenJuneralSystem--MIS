@@ -1,8 +1,8 @@
 @extends('layout.app_author')
 
-@section('title', 'Resubmit Article')
-@section('page-title', 'Resubmit Article')
-@section('page-description', 'Upload a new version of your article')
+@section('title', __('Resubmit Article'))
+@section('page-title', __('Resubmit Article'))
+@section('page-description', __('Upload a new version of your article'))
 
 @section('content')
 <div class="py-6">

@@ -1,8 +1,8 @@
 @extends('layout.app_reviewer')
 
-@section('title', 'Reviewer Dashboard')
-@section('page-title', 'Reviewer Dashboard')
-@section('page-description', 'Manage your article reviews and assignments')
+@section('title', __('Reviewer Dashboard'))
+@section('page-title', __('Reviewer Dashboard'))
+@section('page-description', __('Manage your article reviews and assignments'))
 
 @section('content')
 <div class="py-6">
@@ -11,8 +11,8 @@
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Reviewer Dashboard</h1>
-                    <p class="mt-2 text-gray-600">Manage your article reviews and assignments</p>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ __('Reviewer Dashboard') }}</h1>
+                    <p class="mt-2 text-gray-600">{{ __('Manage your article reviews and assignments') }}</p>
                 </div>
             </div>
         </div>
@@ -46,7 +46,7 @@
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Pending Reviews</p>
+                        <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Pending Reviews') }}</p>
                         <p class="text-3xl font-bold text-yellow-600">{{ $pendingCount ?? 0 }}</p>
                     </div>
                     <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <a href="{{ route('reviewer.reviews.pending') }}" class="mt-4 text-sm text-yellow-600 hover:text-yellow-700 font-medium inline-flex items-center">
-                    View all <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                 </a>
             </div>
 
@@ -62,7 +62,7 @@
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">In Progress</p>
+                        <p class="text-sm font-medium text-gray-600 mb-1">{{ __('In Progress') }}</p>
                         <p class="text-3xl font-bold text-blue-600">{{ $inProgressCount ?? 0 }}</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <a href="{{ route('reviewer.reviews.in-progress') }}" class="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center">
-                    View all <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                 </a>
             </div>
 
@@ -78,7 +78,7 @@
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Completed</p>
+                        <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Completed') }}</p>
                         <p class="text-3xl font-bold text-green-600">{{ $completedCount ?? 0 }}</p>
                     </div>
                     <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <a href="{{ route('reviewer.reviews.completed') }}" class="mt-4 text-sm text-green-600 hover:text-green-700 font-medium inline-flex items-center">
-                    View all <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                 </a>
             </div>
 
@@ -94,7 +94,7 @@
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Total Reviews</p>
+                        <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Total Reviews') }}</p>
                         <p class="text-3xl font-bold text-purple-600">{{ $totalCount ?? 0 }}</p>
                     </div>
                     <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -102,7 +102,7 @@
                     </div>
                 </div>
                 <a href="{{ route('reviewer.reviews.index') }}" class="mt-4 text-sm text-purple-600 hover:text-purple-700 font-medium inline-flex items-center">
-                    View all <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                    {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
                 </a>
             </div>
         </div>
@@ -112,11 +112,11 @@
             <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-lg font-bold text-gray-900">Recent Reviews</h2>
-                        <p class="text-sm text-gray-600">Your latest review assignments</p>
+                        <h2 class="text-lg font-bold text-gray-900">{{ __('Recent Reviews') }}</h2>
+                        <p class="text-sm text-gray-600">{{ __('Your latest review assignments') }}</p>
                     </div>
                     <a href="{{ route('reviewer.reviews.index') }}" class="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                        View all
+                        {{ __('View all') }}
                     </a>
                 </div>
             </div>
@@ -126,12 +126,12 @@
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <h3 class="text-base font-semibold text-gray-900 mb-1">
-                                {{ $review->submission->article->title ?? 'No Title' }}
+                                {{ $review->submission->article->title ?? __('No Title') }}
                             </h3>
                             <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                <span>{{ $review->submission->article->author->name ?? 'Unknown Author' }}</span>
+                                <span>{{ $review->submission->article->author->name ?? __('Unknown Author') }}</span>
                                 <span>•</span>
-                                <span>{{ $review->submission->article->journal->name ?? 'Unknown Journal' }}</span>
+                                <span>{{ $review->submission->article->journal->name ?? __('Unknown Journal') }}</span>
                                 <span>•</span>
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
                                     @if($review->rating) bg-green-100 text-green-800
@@ -139,18 +139,18 @@
                                     @else bg-yellow-100 text-yellow-800
                                     @endif">
                                     @if($review->rating)
-                                        Completed
+                                        {{ __('Completed') }}
                                     @elseif($review->comments)
-                                        In Progress
+                                        {{ __('In Progress') }}
                                     @else
-                                        Pending
+                                        {{ __('Pending') }}
                                     @endif
                                 </span>
                             </div>
                         </div>
                         <a href="{{ route('reviewer.reviews.show', $review->id) }}" 
                            class="ml-4 px-3 py-1 text-sm text-purple-600 hover:text-purple-700 font-medium">
-                            View →
+                            {{ __('View') }} →
                         </a>
                     </div>
                 </div>
@@ -159,8 +159,8 @@
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="clipboard-list" class="w-8 h-8 text-gray-400"></i>
                     </div>
-                    <p class="text-gray-500 font-medium">No reviews assigned yet</p>
-                    <p class="text-sm text-gray-400 mt-1">You'll see your review assignments here</p>
+                    <p class="text-gray-500 font-medium">{{ __('No reviews assigned yet') }}</p>
+                    <p class="text-sm text-gray-400 mt-1">{{ __('You\'ll see your review assignments here') }}</p>
                 </div>
                 @endforelse
             </div>

@@ -1,17 +1,17 @@
 @extends('layout.app_admin')
 
-@section('title', 'Active Submissions')
-@section('page-title', 'Active Submissions')
-@section('page-description', 'Manage active article submissions')
+@section('title', __('Active Submissions'))
+@section('page-title', __('Active Submissions'))
+@section('page-description', __('Manage active article submissions'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <span class="ml-2 text-sm font-medium text-gray-500">Dashboard</span>
+    <span class="ml-2 text-sm font-medium text-gray-500">{{ __('Dashboard') }}</span>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">Active Submissions</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('Active Submissions') }}</span>
 </li>
 @endsection
 
@@ -21,7 +21,7 @@
     <div class="bg-gray-50 px-6 py-4 rounded-t-lg">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-                <h1 class="text-2xl font-bold text-gray-800">Active submissions ({{ $articles->count() }})</h1>
+                <h1 class="text-2xl font-bold text-gray-800">{{ __('Active submissions (:count)', ['count' => $articles->count()]) }}</h1>
         </div>
         <div class="mt-4 sm:mt-0 flex items-center space-x-3">
                 <!-- Filters Button -->
@@ -36,7 +36,7 @@
                 </button>
                 <!-- Search Bar -->
             <div class="relative">
-                    <input type="text" placeholder="Search submissions, ID, authors, k..." 
+                    <input type="text" placeholder="{{ __('Search submissions, ID, authors, k...') }}" 
                            class="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                 </div>
@@ -64,31 +64,31 @@
                 <tr>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         <div class="flex items-center space-x-1">
-                            <span>ID</span>
+                            <span>{{ __('ID') }}</span>
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
                             </svg>
                         </div>
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        SUBMISSIONS
+                        {{ __('Submissions') }}
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        STAGE
+                        {{ __('Stage') }}
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         <div class="flex items-center space-x-1">
-                            <span>DAYS</span>
+                            <span>{{ __('Days') }}</span>
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
                             </svg>
                     </div>
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        EDITORIAL ACTIVITY
+                        {{ __('Editorial Activity') }}
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        ACTIONS
+                        {{ __('Actions') }}
                     </th>
                 </tr>
             </thead>
@@ -105,7 +105,7 @@
                     <td class="px-6 py-4 text-sm text-gray-800">
                         <div class="max-w-xs">
                             <div class="font-medium truncate">
-                                {{ $article->author->name ?? 'Unknown Author' }} et al. — {{ Str::limit($article->title, 50) }}
+                                {{ $article->author->name ?? __('Unknown Author') }} {{ __('et al.') }} — {{ Str::limit($article->title, 50) }}
                     </div>
                 </div>
                     </td>
@@ -122,32 +122,32 @@
                             @if($article->status === 'under_review')
                                 <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
                                 <span class="text-sm text-gray-800">
-                                    Review (Round {{ $currentRound }})
+                                    {{ __('Review (Round :round)', ['round' => $currentRound]) }}
                                 </span>
                             @elseif($article->status === 'revision_required')
                                 <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
                                 <span class="text-sm text-gray-800">
-                                    Revision Required (Round {{ $currentRound }})
+                                    {{ __('Revision Required (Round :round)', ['round' => $currentRound]) }}
                                 </span>
                             @elseif($article->status === 'accepted')
                                 <div class="w-3 h-3 bg-green-500 rounded-full"></div>
                                 <span class="text-sm text-gray-800">
-                                    Accepted (Round {{ $currentRound }})
+                                    {{ __('Accepted (Round :round)', ['round' => $currentRound]) }}
                                 </span>
                             @elseif($article->status === 'submitted')
                                 <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
                                 <span class="text-sm text-gray-800">
-                                    Submitted (Round {{ $currentRound }})
+                                    {{ __('Submitted (Round :round)', ['round' => $currentRound]) }}
                                 </span>
                             @elseif($article->status === 'published')
                                 <div class="w-3 h-3 bg-green-600 rounded-full"></div>
                                 <span class="text-sm text-gray-800">
-                                    Published
+                                    {{ __('Published') }}
                                 </span>
                             @elseif($article->status === 'rejected')
                                 <div class="w-3 h-3 bg-red-500 rounded-full"></div>
                                 <span class="text-sm text-gray-800">
-                                    Rejected (Round {{ $currentRound }})
+                                    {{ __('Rejected (Round :round)', ['round' => $currentRound]) }}
                                 </span>
                             @else
                                 <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
@@ -183,28 +183,28 @@
                             @if($totalReviews > 0)
                                 <!-- Completed Reviews -->
                                 @if($completedCount > 0)
-                                    <div class="w-6 h-6 bg-green-100 border-2 border-green-300 rounded-full flex items-center justify-center" title="Completed Reviews">
+                            <div class="w-6 h-6 bg-green-100 border-2 border-green-300 rounded-full flex items-center justify-center" title="{{ __('Completed Reviews') }}">
                                         <span class="text-xs font-medium text-green-700">{{ $completedCount }}</span>
                                     </div>
                                 @endif
                                 
                                 <!-- Pending Reviews -->
                                 @if($pendingCount > 0)
-                                    <div class="w-6 h-6 bg-yellow-100 border-2 border-yellow-300 rounded-full flex items-center justify-center" title="Pending Reviews">
+                            <div class="w-6 h-6 bg-yellow-100 border-2 border-yellow-300 rounded-full flex items-center justify-center" title="{{ __('Pending Reviews') }}">
                                         <span class="text-xs font-medium text-yellow-700">{{ $pendingCount }}</span>
                                     </div>
                                 @endif
                                 
                                 <!-- Rejected Reviews -->
                                 @if($completedReviews->where('rating', '<', 3)->count() > 0)
-                                    <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center" title="Rejected Reviews">
+                            <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center" title="{{ __('Rejected Reviews') }}">
                                         <span class="text-xs font-bold text-white">{{ $completedReviews->where('rating', '<', 3)->count() }}</span>
                                     </div>
                                 @endif
                                 
                                 <!-- High Rating Reviews -->
                                 @if($completedReviews->where('rating', '>=', 4)->count() > 0)
-                                    <div class="w-6 h-6 bg-blue-100 border-2 border-blue-300 rounded-full flex items-center justify-center" title="High Rating Reviews">
+                            <div class="w-6 h-6 bg-blue-100 border-2 border-blue-300 rounded-full flex items-center justify-center" title="{{ __('High Rating Reviews') }}">
                                         <span class="text-xs font-medium text-blue-700">{{ $completedReviews->where('rating', '>=', 4)->count() }}</span>
                                     </div>
                                 @endif
@@ -212,20 +212,20 @@
                                 <!-- Average Rating -->
                                 @if($completedCount > 0)
                                     @php $avgRating = round($completedReviews->avg('rating'), 1); @endphp
-                                    <div class="w-6 h-6 bg-purple-100 border-2 border-purple-300 rounded-full flex items-center justify-center" title="Average Rating: {{ $avgRating }}">
+                                    <div class="w-6 h-6 bg-purple-100 border-2 border-purple-300 rounded-full flex items-center justify-center" title="{{ __('Average Rating: :rating', ['rating' => $avgRating]) }}">
                                         <span class="text-xs font-medium text-purple-700">{{ $avgRating }}</span>
                                     </div>
                                 @endif
                             @else
                                 <!-- No Reviews Yet -->
-                                <div class="w-6 h-6 bg-gray-100 border-2 border-gray-300 rounded-full flex items-center justify-center" title="No Reviews Yet">
+                                <div class="w-6 h-6 bg-gray-100 border-2 border-gray-300 rounded-full flex items-center justify-center" title="{{ __('No Reviews Yet') }}">
                                     <span class="text-xs font-medium text-gray-500">0</span>
                                 </div>
                             @endif
                             
                             <!-- Show review round indicator if multiple submissions -->
                             @if($article->submissions->count() > 1)
-                                <div class="w-6 h-6 bg-indigo-100 border-2 border-indigo-300 rounded-full flex items-center justify-center" title="Review Round: {{ $currentRound }}">
+                                <div class="w-6 h-6 bg-indigo-100 border-2 border-indigo-300 rounded-full flex items-center justify-center" title="{{ __('Review Round: :round', ['round' => $currentRound]) }}">
                                     <span class="text-xs font-medium text-indigo-700">R{{ $currentRound }}</span>
                                 </div>
                             @endif
@@ -236,7 +236,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <a href="{{ route('admin.articles.show', $article) }}" 
                            class="text-blue-600 hover:text-blue-900 transition-colors duration-150">
-                            View
+                            {{ __('View') }}
                         </a>
                     </td>
                 </tr>
@@ -247,12 +247,12 @@
                             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                 <i data-lucide="file-text" class="w-8 h-8 text-gray-400"></i>
                 </div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">No submissions found</h3>
-                            <p class="text-gray-500 mb-4">Get started by creating your first article submission.</p>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('No submissions found') }}</h3>
+                            <p class="text-gray-500 mb-4">{{ __('Get started by creating your first article submission.') }}</p>
                             <a href="{{ route('admin.articles.create') }}" 
                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
                     <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                    Add New Article
+                    {{ __('Add New Article') }}
                 </a>
             </div>
                     </td>
