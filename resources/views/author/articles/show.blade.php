@@ -388,9 +388,27 @@
                                             </div>
                                             @endif
                                         </div>
-                                        <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
+                                        <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-3">
                                             <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $review->comments }}</p>
                                         </div>
+                                        
+                                        <!-- Author Reply Section -->
+                                        @if($review->author_reply && trim($review->author_reply) !== '')
+                                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 mb-3">
+                                            <div class="flex items-center space-x-2 mb-2">
+                                                <i data-lucide="message-square" class="w-4 h-4 text-green-600"></i>
+                                                <p class="text-xs font-semibold text-green-800">Your Reply</p>
+                                            </div>
+                                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ trim($review->author_reply) }}</p>
+                                        </div>
+                                        @else
+                                        <div class="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                            <p class="text-xs text-gray-500 italic">
+                                                <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
+                                                You can send a reply to reviewers when you resubmit your article.
+                                            </p>
+                                        </div>
+                                        @endif
                                     </div>
                                     @endforeach
                                 </div>
@@ -405,5 +423,12 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
 @endsection
 

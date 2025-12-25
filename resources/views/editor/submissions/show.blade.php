@@ -86,6 +86,45 @@
                 </div>
             </div>
 
+            <!-- Submitted File -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Submitted File</h3>
+                    <a href="{{ route('editor.submissions.edit', $submission) }}" 
+                       class="inline-flex items-center px-3 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
+                        <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+                        Edit File
+                    </a>
+                </div>
+                @if($submission->file_path)
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ basename($submission->file_path) }}</p>
+                                <p class="text-xs text-gray-500">Version {{ $submission->version_number }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                            Download
+                        </a>
+                    </div>
+                </div>
+                @else
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                    <p class="text-sm text-gray-600 flex items-center">
+                        <i data-lucide="alert-circle" class="w-4 h-4 mr-2 text-gray-400"></i>
+                        No file uploaded yet
+                    </p>
+                </div>
+                @endif
+            </div>
+
             <!-- Author Information -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Author Information</h3>

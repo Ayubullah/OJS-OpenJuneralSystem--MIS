@@ -1,0 +1,5 @@
+[33md2abe3d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;33mtag: [m[1;33mv1.0[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Prepare for version 1.0 release
+[33m50673e0[m Update project files: add new controllers, views, migrations, and update existing files
+[33ma713ca3[m Update database schema and seeders for articles and authors
+[33m3004932[m Update admin layout and routes - improved navigation and routing structure
+[33mc22c549[m Add comprehensive OJS features: Admin dashboard, user management, journal management, article management, submission system, and database migrations

@@ -381,7 +381,7 @@
                             <div class="w-7 h-7 bg-pink-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-pink-200 transition-colors duration-300">
                                 <i data-lucide="bar-chart-3" class="w-4 h-4 text-pink-600"></i>
                             </div>
-                             <span class="font-medium text-sm">{{__('Reports')}}</span>
+                             <span class="font-medium text-sm">{{__('Reports')}}</span>1
                             <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-pink-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                         </a>
                         <a href="" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 hover:text-red-700 transition-all duration-300 group btn-modern border border-transparent hover:border-red-100 hover:shadow-md">

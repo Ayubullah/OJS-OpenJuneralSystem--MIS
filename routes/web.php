@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SubmissionController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Author\Author_ArticleSubmissionController;
 use App\Http\Controllers\Author\AuthorProfileController;
+use App\Http\Controllers\Author\NotificationController;
 use App\Http\Controllers\Editor\EditorController as EditorEditorController;
 use App\Http\Controllers\Editor\Editor_SubmissionController;
 use App\Http\Controllers\Editor\EditorProfileController;
@@ -168,6 +169,13 @@ Route::middleware('auth')->group(function () {
         // Resubmit routes (must be before resource routes)
         Route::get('/articles/{article}/resubmit', [Author_ArticleSubmissionController::class, 'resubmit'])->name('articles.resubmit');
         Route::post('/articles/{article}/resubmit', [Author_ArticleSubmissionController::class, 'storeResubmission'])->name('articles.storeResubmission');
+        Route::post('/reviews/{review}/reply', [Author_ArticleSubmissionController::class, 'replyToReview'])->name('reviews.reply');
+        
+        // Notifications
+        Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
         
         // Article Submissions - Full CRUD
         Route::resource('articles', Author_ArticleSubmissionController::class)->names('articles');

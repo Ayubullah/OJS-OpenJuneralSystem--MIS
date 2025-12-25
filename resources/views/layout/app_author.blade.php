@@ -228,10 +228,33 @@
                         </div>
 
                         <!-- Notifications -->
-                        <button class="relative p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 btn-modern group">
-                            <i data-lucide="bell" class="w-5 h-5 group-hover:scale-110 transition-transform duration-200"></i>
-                            <span class="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white animate-pulse-slow"></span>
-                        </button>
+                        <div class="relative z-[9999]">
+                            <button id="notificationBtn" class="relative p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 btn-modern group">
+                                <i data-lucide="bell" class="w-5 h-5 group-hover:scale-110 transition-transform duration-200"></i>
+                                <span id="notificationBadge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white hidden">
+                                    <span id="notificationCount">0</span>
+                                </span>
+                            </button>
+                            
+                            <!-- Notification Dropdown -->
+                            <div id="notificationDropdown" class="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 hidden z-[9999] backdrop-blur-sm">
+                                <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50 flex items-center justify-between">
+                                    <h3 class="text-sm font-bold text-gray-900">Notifications</h3>
+                                    <button id="markAllReadBtn" class="text-xs text-indigo-600 hover:text-indigo-700 font-medium">Mark all as read</button>
+                                </div>
+                                
+                                <div id="notificationList" class="max-h-96 overflow-y-auto custom-scrollbar">
+                                    <div class="p-4 text-center text-gray-500 text-sm">
+                                        <i data-lucide="loader-2" class="w-5 h-5 mx-auto mb-2 animate-spin"></i>
+                                        Loading notifications...
+                                    </div>
+                                </div>
+                                
+                                <div class="px-4 py-3 border-t border-gray-100 text-center">
+                                    <a href="#" class="text-xs text-indigo-600 hover:text-indigo-700 font-medium">View all notifications</a>
+                                </div>
+                            </div>
+                        </div>
                         
 
                         <!-- Quick Actions -->
@@ -464,15 +487,177 @@
         // Add smooth scroll behavior
         document.documentElement.style.scrollBehavior = 'smooth';
         
-        // Notification animation
-        const notificationBtn = document.querySelector('button[class*="animate-pulse-slow"]');
-        if (notificationBtn) {
-            notificationBtn.addEventListener('click', function() {
-                // Add click feedback
-                this.classList.add('scale-95');
-                setTimeout(() => this.classList.remove('scale-95'), 150);
+        // Notification functionality
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationList = document.getElementById('notificationList');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const markAllReadBtn = document.getElementById('markAllReadBtn');
+        
+        // Toggle notification dropdown
+        if (notificationBtn && notificationDropdown) {
+            notificationBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('hidden');
+                if (!notificationDropdown.classList.contains('hidden')) {
+                    loadNotifications();
+                }
             });
         }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (notificationDropdown && !notificationBtn?.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Load notifications
+        function loadNotifications() {
+            fetch('{{ route("author.notifications.recent") }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        notificationList.innerHTML = `
+                            <div class="p-8 text-center">
+                                <i data-lucide="bell-off" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                                <p class="text-sm text-gray-500">No notifications</p>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                    } else {
+                        let html = '';
+                        data.forEach(notification => {
+                            const isUnread = notification.status === 'unread';
+                            const bgClass = isUnread ? 'bg-indigo-50' : 'bg-white';
+                            const dotClass = isUnread ? 'block' : 'hidden';
+                            const timeAgo = getTimeAgo(notification.created_at);
+                            
+                            html += `
+                                <div class="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${bgClass} notification-item" data-id="${notification.id}">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                                <i data-lucide="message-square" class="w-4 h-4 text-indigo-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm text-gray-900 ${isUnread ? 'font-semibold' : 'font-normal'}">${notification.message}</p>
+                                            <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <span class="w-2 h-2 bg-indigo-500 rounded-full ${dotClass}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        notificationList.innerHTML = html;
+                        lucide.createIcons();
+                        
+                        // Add click handlers to mark as read
+                        document.querySelectorAll('.notification-item').forEach(item => {
+                            item.addEventListener('click', function() {
+                                const notificationId = this.dataset.id;
+                                markAsRead(notificationId);
+                            });
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    notificationList.innerHTML = `
+                        <div class="p-4 text-center text-red-500 text-sm">
+                            Error loading notifications
+                        </div>
+                    `;
+                });
+        }
+        
+        // Load unread count
+        function loadUnreadCount() {
+            fetch('{{ route("author.notifications.unread-count") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const count = data.count || 0;
+                    const countElement = document.getElementById('notificationCount');
+                    
+                    if (count > 0) {
+                        notificationBadge.classList.remove('hidden');
+                        if (countElement) {
+                            countElement.textContent = count > 99 ? '99+' : count;
+                        }
+                    } else {
+                        notificationBadge.classList.add('hidden');
+                        if (countElement) {
+                            countElement.textContent = '0';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error loading unread count:', error));
+        }
+        
+        // Mark notification as read
+        function markAsRead(notificationId) {
+            const baseUrl = '{{ url("/") }}';
+            const url = `${baseUrl}/author/notifications/${notificationId}/read`;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                    loadUnreadCount();
+                }
+            })
+            .catch(error => console.error('Error marking as read:', error));
+        }
+        
+        // Mark all as read
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                fetch('{{ route("author.notifications.mark-all-read") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadNotifications();
+                        loadUnreadCount();
+                    }
+                })
+                .catch(error => console.error('Error marking all as read:', error));
+            });
+        }
+        
+        // Helper function to get time ago
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+            if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+            return date.toLocaleDateString();
+        }
+        
+        // Load unread count on page load
+        loadUnreadCount();
+        
+        // Refresh unread count every 30 seconds
+        setInterval(loadUnreadCount, 30000);
         
         // Add loading states for forms
         const forms = document.querySelectorAll('form');

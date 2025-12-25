@@ -12,6 +12,7 @@ class Review extends Model
         'reviewer_id',
         'rating',
         'comments',
+        'author_reply',
         'review_date'
     ];
 

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Reviewer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -136,7 +138,25 @@ class Reviewer_ReviewController extends Controller
         ->where('reviewer_id', $reviewer->id)
         ->findOrFail($id);
 
-        return view('reviewer.reviews.show', compact('review'));
+        // Get previous reviews by the same reviewer for the same article (different submissions/versions)
+        $previousReviews = Review::with([
+                'submission' => function($query) {
+                    $query->select('id', 'article_id', 'version_number', 'submission_date', 'status');
+                }
+            ])
+            ->where('reviewer_id', $reviewer->id)
+            ->where('submission_id', '!=', $review->submission_id)
+            ->whereHas('submission', function($query) use ($review) {
+                $query->where('article_id', $review->submission->article_id);
+            })
+            ->whereNotNull('comments')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get current review's author reply if exists
+        $review->load('submission.article');
+
+        return view('reviewer.reviews.show', compact('review', 'previousReviews'));
     }
 
     /**
@@ -175,7 +195,8 @@ class Reviewer_ReviewController extends Controller
                 ->with('error', 'Reviewer profile not found.');
         }
 
-        $review = Review::where('reviewer_id', $reviewer->id)
+        $review = Review::with(['submission.author', 'submission.article', 'reviewer.user'])
+            ->where('reviewer_id', $reviewer->id)
             ->findOrFail($id);
 
         $request->validate([
@@ -225,6 +246,23 @@ class Reviewer_ReviewController extends Controller
                 } elseif ($article->status !== 'under_review' && $article->status !== 'accepted' && $article->status !== 'rejected' && $article->status !== 'published') {
                     // Normal case - set to under_review
                     $article->update(['status' => 'under_review']);
+                }
+            }
+
+            // Create notification for the author
+            $author = $submission->author;
+            if ($author) {
+                $authorUser = User::where('email', $author->email)->first();
+                if ($authorUser) {
+                    $articleTitle = $article ? $article->title : 'Your article';
+                    $reviewerName = Auth::user()->name ?? 'A reviewer';
+                    
+                    Notification::create([
+                        'user_id' => $authorUser->id,
+                        'type' => 'review',
+                        'message' => "{$reviewerName} has submitted a review comment for your article: \"{$articleTitle}\"",
+                        'status' => 'unread',
+                    ]);
                 }
             }
 

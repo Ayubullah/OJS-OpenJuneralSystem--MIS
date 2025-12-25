@@ -186,6 +186,82 @@
                 </div>
             </div>
 
+            <!-- Previous Review Comments -->
+            @if(isset($previousReviews) && $previousReviews->count() > 0)
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Previous Review Comments</h3>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        <i data-lucide="history" class="w-4 h-4 mr-1"></i>
+                        {{ $previousReviews->count() }} Previous Review(s)
+                    </span>
+                </div>
+                <div class="space-y-4">
+                    @foreach($previousReviews as $prevReview)
+                    <div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-r from-gray-50 to-blue-50">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="file-text" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">Version {{ $prevReview->submission->version_number ?? 'N/A' }}</p>
+                                    <p class="text-xs text-gray-500">{{ $prevReview->submission->submission_date?->format('M d, Y') ?? 'N/A' }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                @if($prevReview->rating)
+                                <span class="text-sm font-bold text-gray-900">{{ $prevReview->rating }}/10</span>
+                                <div class="flex space-x-1">
+                                    @for($i = 1; $i <= 5; $i++)
+                                    <i data-lucide="star" class="w-3 h-3 {{ $i <= ($prevReview->rating / 2) ? 'text-yellow-400 fill-current' : 'text-gray-300' }}"></i>
+                                    @endfor
+                                </div>
+                                @endif
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                    {{ $prevReview->submission->status === 'accepted' ? 'bg-green-100 text-green-800' : 
+                                       ($prevReview->submission->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800') }}">
+                                    {{ ucfirst(str_replace('_', ' ', $prevReview->submission->status ?? 'unknown')) }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-lg p-3">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i data-lucide="user" class="w-4 h-4 text-purple-600"></i>
+                                <p class="text-xs font-semibold text-gray-700">Your Review Comment</p>
+                            </div>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $prevReview->comments }}</p>
+                        </div>
+                        @php
+                            $authorReply = $prevReview->author_reply ?? null;
+                            $hasAuthorReply = $authorReply && trim($authorReply) !== '';
+                        @endphp
+                        @if($hasAuthorReply)
+                        <div class="mt-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i data-lucide="message-square" class="w-4 h-4 text-green-600"></i>
+                                <p class="text-xs font-semibold text-green-800">Author's Reply</p>
+                            </div>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ trim($authorReply) }}</p>
+                        </div>
+                        @else
+                        <div class="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <p class="text-xs text-gray-500 italic">
+                                <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
+                                No author reply yet for this review
+                            </p>
+                        </div>
+                        @endif
+                        <p class="text-xs text-gray-500 mt-2">
+                            <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>
+                            Reviewed on {{ $prevReview->updated_at?->format('M d, Y \a\t h:i A') ?? 'N/A' }}
+                        </p>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <!-- Review Form / Review Comments -->
             @if(!$review->rating)
             <!-- Review Form -->
@@ -287,9 +363,18 @@
                         Review Completed
                     </span>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
                     <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $review->comments }}</p>
                 </div>
+                @if($review->author_reply)
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i data-lucide="message-square" class="w-5 h-5 text-green-600"></i>
+                        <h4 class="text-sm font-semibold text-green-800">Author's Reply</h4>
+                    </div>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $review->author_reply }}</p>
+                </div>
+                @endif
             </div>
             @endif
         </div>

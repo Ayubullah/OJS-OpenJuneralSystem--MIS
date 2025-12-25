@@ -10,6 +10,7 @@ use App\Models\Reviewer;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Editor_SubmissionController extends Controller
 {
@@ -160,12 +161,33 @@ class Editor_SubmissionController extends Controller
             'article_id' => 'required|exists:articles,id',
             'author_id' => 'required|exists:authors,id',
             'status' => 'required|in:submitted,under_review,revision_required,accepted,published,rejected',
-            'version_number' => 'required|integer|min:1'
+            'version_number' => 'required|integer|min:1',
+            'file_path' => 'nullable|file|mimes:pdf,doc,docx|max:10240' // 10MB max
         ]);
 
-        $submission->update($request->all());
+        $updateData = [
+            'article_id' => $request->article_id,
+            'author_id' => $request->author_id,
+            'status' => $request->status,
+            'version_number' => $request->version_number
+        ];
 
-        return redirect()->route('editor.submissions.index')
+        // Handle file upload if new file provided
+        if ($request->hasFile('file_path')) {
+            // Delete old file if exists
+            if ($submission->file_path && Storage::disk('public')->exists($submission->file_path)) {
+                Storage::disk('public')->delete($submission->file_path);
+            }
+            
+            // Upload new file
+            $file = $request->file('file_path');
+            $fileName = time() . '_editor_' . $submission->author_id . '_' . $file->getClientOriginalName();
+            $updateData['file_path'] = $file->storeAs('submissions', $fileName, 'public');
+        }
+
+        $submission->update($updateData);
+
+        return redirect()->route('editor.submissions.show', $submission)
             ->with('success', 'Submission updated successfully.');
     }
 

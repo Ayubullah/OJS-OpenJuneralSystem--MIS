@@ -120,15 +120,44 @@
                     </div>
                 </div>
 
+                <!-- Message to Reviewers -->
+                <div>
+                    <label for="message_to_reviewers" class="block text-sm font-medium text-gray-700 mb-2">
+                        Message to Reviewers <span class="text-gray-500">(Optional but Recommended)</span>
+                    </label>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
+                        <p class="text-sm text-blue-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            <strong>This message will be sent to reviewers of Version {{ $currentVersion }}</strong> (the current version). Use this to explain the changes you made in Version {{ $nextVersion }}.
+                        </p>
+                    </div>
+                    <textarea name="message_to_reviewers" id="message_to_reviewers" rows="6" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                        placeholder="Dear Reviewers,
+
+I have revised the manuscript based on your valuable feedback. The main changes include:
+- [Describe changes]
+- [Explain improvements]
+- [Address specific reviewer concerns]
+
+Thank you for your time and consideration.
+
+Best regards">{{ old('message_to_reviewers') }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500">Your message will be visible to all reviewers who have reviewed your article</p>
+                    @error('message_to_reviewers')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Optional Notes -->
                 <div>
                     <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                        Revision Notes (Optional)
+                        Revision Notes (Optional - For Your Reference Only)
                     </label>
-                    <textarea name="notes" id="notes" rows="4" 
+                    <textarea name="notes" id="notes" rows="3" 
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="Describe the changes you made in this version...">{{ old('notes') }}</textarea>
-                    <p class="mt-1 text-sm text-gray-500">Brief description of revisions (for your reference)</p>
+                        placeholder="Private notes about this revision (not visible to reviewers)...">{{ old('notes') }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500">These notes are for your personal reference only and will not be shared with reviewers</p>
                 </div>
 
                 <!-- Information Box -->
@@ -172,6 +201,11 @@
 </div>
 
 <script>
+// Initialize Lucide icons
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+
 function updateFileName(input) {
     const fileName = input.files[0]?.name;
     const fileNameDisplay = document.getElementById('file-name');

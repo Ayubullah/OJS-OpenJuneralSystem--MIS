@@ -36,7 +36,7 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('editor.submissions.update', $submission) }}" method="POST" class="p-8 space-y-8">
+        <form action="{{ route('editor.submissions.update', $submission) }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
             @csrf
             @method('PUT')
 
@@ -87,6 +87,44 @@
                     <i data-lucide="user" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
                 </div>
                 @error('author_id')
+                <p class="text-sm text-red-600 flex items-center">
+                    <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                    {{ $message }}
+                </p>
+                @enderror
+            </div>
+
+            <!-- File Upload -->
+            <div class="space-y-2">
+                <label for="file_path" class="block text-sm font-semibold text-gray-700">
+                    Update Submitted File
+                </label>
+                @if($submission->file_path)
+                <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Current file:</p>
+                    <a href="{{ asset('storage/' . $submission->file_path) }}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                        <i data-lucide="file" class="w-4 h-4 mr-2"></i>
+                        {{ basename($submission->file_path) }}
+                    </a>
+                </div>
+                @endif
+                <div class="mt-1 flex items-center justify-center px-6 py-8 border-2 border-gray-300 border-dashed rounded-xl hover:border-orange-400 transition-colors duration-200 bg-gray-50">
+                    <div class="space-y-3 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <div class="flex flex-col items-center text-sm text-gray-600">
+                            <label for="file_path" class="relative cursor-pointer bg-white px-4 py-2 rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500 border border-orange-300">
+                                <span>Choose file to upload</span>
+                                <input id="file_path" name="file_path" type="file" class="sr-only" accept=".pdf,.doc,.docx" onchange="updateFileName(this)">
+                            </label>
+                            <p class="mt-2">or drag and drop here</p>
+                        </div>
+                        <p class="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+                        <p id="file-name" class="text-sm font-semibold text-orange-600 mt-2"></p>
+                    </div>
+                </div>
+                @error('file_path')
                 <p class="text-sm text-red-600 flex items-center">
                     <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
                     {{ $message }}
@@ -165,8 +203,20 @@
 <script>
     // Initialize Lucide icons
     lucide.createIcons();
+
+    // Update file name display
+    function updateFileName(input) {
+        const fileName = input.files[0]?.name || '';
+        const fileNameDisplay = document.getElementById('file-name');
+        if (fileName) {
+            fileNameDisplay.textContent = 'Selected: ' + fileName;
+        } else {
+            fileNameDisplay.textContent = '';
+        }
+    }
 </script>
 @endsection
+
 
 
 

@@ -8,6 +8,7 @@ use App\Models\Author;
 use App\Models\Category;
 use App\Models\Journal;
 use App\Models\Keyword;
+use App\Models\Review;
 use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -358,6 +359,7 @@ class Author_ArticleSubmissionController extends Controller
 
         $request->validate([
             'manuscript_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'message_to_reviewers' => 'nullable|string|max:5000',
             'notes' => 'nullable|string'
         ]);
 
@@ -378,6 +380,18 @@ class Author_ArticleSubmissionController extends Controller
             
             $newVersionNumber = $latestSubmission ? $latestSubmission->version_number + 1 : 1;
 
+            // If author provided a message to reviewers, update reviews for the CURRENT/LATEST version only
+            if ($request->filled('message_to_reviewers') && trim($request->message_to_reviewers) !== '') {
+                // Update author_reply for reviews of the latest submission (current version being resubmitted)
+                if ($latestSubmission) {
+                    Review::where('submission_id', $latestSubmission->id)
+                        ->whereNotNull('comments') // Only update reviews that have comments
+                        ->update([
+                            'author_reply' => trim($request->message_to_reviewers)
+                        ]);
+                }
+            }
+
             // Create new submission record
             $submission = Submission::create([
                 'article_id' => $article->id,
@@ -397,6 +411,43 @@ class Author_ArticleSubmissionController extends Controller
             DB::rollback();
             return redirect()->back()
                 ->with('error', 'Error resubmitting article: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Reply to a reviewer's comment
+     */
+    public function replyToReview(Request $request, Review $review)
+    {
+        $author = $this->getOrCreateAuthor();
+        
+        // Verify that this review belongs to an article submitted by this author
+        $submission = $review->submission;
+        if (!$submission || $submission->author_id !== $author->id) {
+            return redirect()->back()
+                ->with('error', 'You are not authorized to reply to this review.');
+        }
+
+        $request->validate([
+            'author_reply' => 'required|string|min:10|max:5000',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $review->update([
+                'author_reply' => $request->author_reply
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Your reply has been submitted successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error submitting reply: ' . $e->getMessage())
                 ->withInput();
         }
     }
