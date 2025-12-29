@@ -19,27 +19,83 @@
 <div class="bg-white rounded-lg shadow-sm">
     <!-- Header Section -->
     <div class="bg-gray-50 px-6 py-4 rounded-t-lg">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
                 <h1 class="text-2xl font-bold text-gray-800">{{ __('Active submissions (:count)', ['count' => $articles->count()]) }}</h1>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <a href="{{ route('admin.articles.create') }}" 
+                   class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105">
+                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                    {{ __('Add New Article') }}
+                </a>
+            </div>
         </div>
-        <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-                <!-- Filters Button -->
-                <button class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors duration-200">
-                    Filters
-                </button>
-                <!-- More Options -->
-                <button class="p-2 text-gray-400 hover:text-gray-600">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                    </svg>
-                </button>
-                <!-- Search Bar -->
-            <div class="relative">
-                    <input type="text" placeholder="{{ __('Search submissions, ID, authors, k...') }}" 
-                           class="w-80 pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- Search Input -->
+                <div class="md:col-span-2">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <div class="relative">
+                        <input type="text" 
+                               id="search" 
+                               placeholder="Search by title, author name, or ID..." 
+                               class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                    </div>
                 </div>
+
+                <!-- Journal Filter -->
+                <div>
+                    <label for="journal_id" class="block text-sm font-medium text-gray-700 mb-2">Journal</label>
+                    <select id="journal_id" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">All Journals</option>
+                        @foreach($journals as $journal)
+                        <option value="{{ $journal->id }}">{{ $journal->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select id="category_id" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">All Categories</option>
+                        @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="status" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">All Status</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="revision_required">Revision Required</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="published">Published</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-3">
+                <button type="button" onclick="clearFilters()" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
+                    Clear
+                </button>
             </div>
         </div>
     </div>
@@ -95,7 +151,15 @@
             <!-- Table Body -->
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($articles as $article)
-                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <tr class="article-row hover:bg-gray-50 transition-colors duration-150"
+                    data-id="{{ $article->id }}"
+                    data-title="{{ strtolower($article->title ?? '') }}"
+                    data-author-name="{{ strtolower($article->author->name ?? '') }}"
+                    data-journal-id="{{ $article->journal_id ?? '' }}"
+                    data-journal-name="{{ strtolower($article->journal->name ?? '') }}"
+                    data-category-id="{{ $article->category_id ?? '' }}"
+                    data-category-name="{{ strtolower($article->category->name ?? '') }}"
+                    data-status="{{ $article->status ?? '' }}">
                     <!-- ID Column -->
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
                         {{ $article->id }}
@@ -241,23 +305,40 @@
                     </td>
                 </tr>
         @empty
-                <tr>
+                <tr class="empty-state">
                     <td colspan="6" class="px-6 py-12 text-center">
                         <div class="flex flex-col items-center">
                             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                                 <i data-lucide="file-text" class="w-8 h-8 text-gray-400"></i>
-                </div>
+                            </div>
                             <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('No submissions found') }}</h3>
                             <p class="text-gray-500 mb-4">{{ __('Get started by creating your first article submission.') }}</p>
                             <a href="{{ route('admin.articles.create') }}" 
                                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                    {{ __('Add New Article') }}
-                </a>
-            </div>
+                                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                {{ __('Add New Article') }}
+                            </a>
+                        </div>
                     </td>
                 </tr>
         @endforelse
+        <!-- No Results Row (Hidden by default) -->
+        <tr id="noResults" style="display: none;">
+            <td colspan="6" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="search-x" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+                    <p class="text-gray-500 mb-4">Try adjusting your search or filter criteria.</p>
+                    <button onclick="clearFilters()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+                        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                        Clear Filters
+                    </button>
+                </div>
+            </td>
+        </tr>
             </tbody>
         </table>
     </div>
@@ -272,6 +353,103 @@
 
 <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Filter functionality
+    function filterArticles() {
+        const searchInput = document.getElementById('search');
+        const journalSelect = document.getElementById('journal_id');
+        const categorySelect = document.getElementById('category_id');
+        const statusSelect = document.getElementById('status');
+        
+        if (!searchInput || !journalSelect || !categorySelect || !statusSelect) {
+            console.error('Filter elements not found');
+            return;
+        }
+        
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const journalFilter = journalSelect.value;
+        const categoryFilter = categorySelect.value;
+        const statusFilter = statusSelect.value;
+        const articleRows = document.querySelectorAll('.article-row');
+        const noResults = document.getElementById('noResults');
+        const emptyState = document.querySelector('.empty-state');
+        let visibleCount = 0;
+
+        articleRows.forEach(row => {
+            const id = String(row.getAttribute('data-id') || '');
+            const title = (row.getAttribute('data-title') || '').toLowerCase();
+            const authorName = (row.getAttribute('data-author-name') || '').toLowerCase();
+            const journalId = String(row.getAttribute('data-journal-id') || '');
+            const categoryId = String(row.getAttribute('data-category-id') || '');
+            const status = (row.getAttribute('data-status') || '').toLowerCase();
+            
+            // Search matching
+            const matchesSearch = !searchTerm || 
+                id.includes(searchTerm) ||
+                title.includes(searchTerm) || 
+                authorName.includes(searchTerm);
+            
+            // Journal filter matching
+            const matchesJournal = journalFilter === 'all' || journalId === String(journalFilter);
+            
+            // Category filter matching
+            const matchesCategory = categoryFilter === 'all' || categoryId === String(categoryFilter);
+            
+            // Status filter matching
+            const matchesStatus = statusFilter === 'all' || status === statusFilter.toLowerCase();
+
+            if (matchesSearch && matchesJournal && matchesCategory && matchesStatus) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0 && articleRows.length > 0) {
+            if (noResults) noResults.style.display = '';
+            if (emptyState) emptyState.style.display = 'none';
+        } else {
+            if (noResults) noResults.style.display = 'none';
+            if (emptyState && articleRows.length === 0) emptyState.style.display = '';
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('journal_id').value = 'all';
+        document.getElementById('category_id').value = 'all';
+        document.getElementById('status').value = 'all';
+        filterArticles();
+    }
+
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search');
+        const journalSelect = document.getElementById('journal_id');
+        const categorySelect = document.getElementById('category_id');
+        const statusSelect = document.getElementById('status');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterArticles);
+            searchInput.addEventListener('keyup', filterArticles);
+        }
+        if (journalSelect) {
+            journalSelect.addEventListener('change', filterArticles);
+        }
+        if (categorySelect) {
+            categorySelect.addEventListener('change', filterArticles);
+        }
+        if (statusSelect) {
+            statusSelect.addEventListener('change', filterArticles);
+        }
+        
+        // Initial filter call to ensure everything is visible
+        filterArticles();
+    });
 </script>
 @endsection

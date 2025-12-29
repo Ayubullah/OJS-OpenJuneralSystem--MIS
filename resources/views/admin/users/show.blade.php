@@ -43,7 +43,7 @@
                             </span>
                         </div>
                         <p class="text-gray-600 mb-1">{{ $user->email }}</p>
-                        <p class="text-sm text-gray-500">@{{ $user->username }}</p>
+                        <p class="text-sm text-gray-500">{{ '@' . ($user->username ?? 'N/A') }}</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -71,7 +71,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Username') }}</label>
-                        <p class="text-sm font-semibold text-gray-900">@{{ $user->username }}</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ '@' . ($user->username ?? 'N/A') }}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Email Address') }}</label>

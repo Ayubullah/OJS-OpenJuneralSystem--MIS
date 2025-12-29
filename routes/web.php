@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SubmissionController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Author\Author_ArticleSubmissionController;
+use App\Http\Controllers\Author\AuthorController;
 use App\Http\Controllers\Author\AuthorProfileController;
 use App\Http\Controllers\Author\NotificationController;
 use App\Http\Controllers\Editor\EditorController as EditorEditorController;
@@ -127,6 +128,11 @@ Route::middleware('auth')->group(function () {
          // Assign reviewer routes (must be before resource routes)
          Route::get('submissions/{submission}/assign-reviewer', [Editor_SubmissionController::class, 'assignReviewer'])->name('submissions.assign-reviewer');
          Route::post('submissions/{submission}/assign-reviewer', [Editor_SubmissionController::class, 'storeReviewerAssignment'])->name('submissions.assign-reviewer.store');
+         // Review management routes
+         Route::get('reviews/pending-approvals', [Editor_SubmissionController::class, 'pendingApprovals'])->name('reviews.pending-approvals');
+         Route::get('reviews/{review}/edit', [Editor_SubmissionController::class, 'editReview'])->name('reviews.edit');
+         Route::put('reviews/{review}', [Editor_SubmissionController::class, 'updateReview'])->name('reviews.update');
+         Route::post('reviews/{review}/approve', [Editor_SubmissionController::class, 'approveReview'])->name('reviews.approve');
         Route::resource('submissions', Editor_SubmissionController::class);
     });
 // End Editor Role
@@ -153,11 +159,8 @@ Route::middleware('auth')->group(function () {
 
 // Start Author Role
     Route::middleware(['auth', 'role:author'])->prefix('author')->name('author.')->group(function () {
-       
-        // Redirect dashboard to articles index
-        Route::get('/', function () {
-            return redirect()->route('author.articles.index');
-        })->name('dashboard');
+        // Dashboard
+        Route::get('/', [AuthorController::class, 'index'])->name('dashboard');
         
         // Profile Settings
         Route::get('profile', [AuthorProfileController::class, 'edit'])->name('profile.edit');

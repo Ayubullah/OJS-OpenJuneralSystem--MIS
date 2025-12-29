@@ -24,21 +24,62 @@
             <p class="mt-1 text-sm text-gray-600">{{ __('Manage all users and their roles') }}</p>
         </div>
         <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-            <!-- Filter Dropdown -->
-            <div class="relative">
-                <select class="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option>{{ __('All Roles') }}</option>
-                    <option>{{ __('Admin') }}</option>
-                    <option>{{ __('Editor') }}</option>
-                    <option>{{ __('Reviewer') }}</option>
-                    <option>{{ __('Author') }}</option>
-                </select>
-                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
-            </div>
             <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
                 <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
                 {{ __('Add New User') }}
             </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search Input -->
+                <div class="md:col-span-2">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <div class="relative">
+                        <input type="text" 
+                               id="search" 
+                               placeholder="Search by name, email, or username..." 
+                               class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                    </div>
+                </div>
+
+                <!-- Role Filter -->
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select id="role" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="all">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="editor">Editor</option>
+                        <option value="reviewer">Reviewer</option>
+                        <option value="author">Author</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="status" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-3">
+                <button type="button" onclick="clearFilters()" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
+                    Clear
+                </button>
+            </div>
         </div>
     </div>
 
@@ -55,9 +96,14 @@
     @endif
 
     <!-- Users Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="usersGrid">
         @forelse($users as $user)
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <div class="user-card bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group"
+             data-name="{{ strtolower($user->name) }}"
+             data-email="{{ strtolower($user->email) }}"
+             data-username="{{ strtolower($user->username ?? '') }}"
+             data-role="{{ $user->role }}"
+             data-status="{{ $user->status }}">
             <!-- User Header -->
             <div class="p-6 pb-4">
                 <div class="flex items-start justify-between mb-4">
@@ -70,7 +116,7 @@
                                 {{ $user->name }}
                             </h3>
                             <p class="text-sm text-gray-500 truncate">{{ $user->email }}</p>
-                            <p class="text-xs text-gray-400">@{{ $user->username }}</p>
+                            <p class="text-xs text-gray-400">{{ '@' . ($user->username ?? 'N/A') }}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
@@ -157,6 +203,21 @@
         @endforelse
     </div>
 
+    <!-- No Results Message (Hidden by default) -->
+    <div id="noResults" class="hidden">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="search-x" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No results found</h3>
+            <p class="text-gray-500 mb-6">Try adjusting your search or filter criteria.</p>
+            <button onclick="clearFilters()" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                Clear Filters
+            </button>
+        </div>
+    </div>
+
     <!-- Pagination -->
     @if($users->hasPages())
     <div class="flex items-center justify-center">
@@ -167,6 +228,72 @@
 
 <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Filter functionality
+    function filterUsers() {
+        const searchTerm = document.getElementById('search').value.toLowerCase().trim();
+        const roleFilter = document.getElementById('role').value;
+        const statusFilter = document.getElementById('status').value;
+        const userCards = document.querySelectorAll('.user-card');
+        const noResults = document.getElementById('noResults');
+        let visibleCount = 0;
+
+        userCards.forEach(card => {
+            const name = card.getAttribute('data-name') || '';
+            const email = card.getAttribute('data-email') || '';
+            const username = card.getAttribute('data-username') || '';
+            const role = card.getAttribute('data-role') || '';
+            const status = card.getAttribute('data-status') || '';
+            
+            const matchesSearch = !searchTerm || 
+                name.includes(searchTerm) || 
+                email.includes(searchTerm) || 
+                username.includes(searchTerm);
+            
+            const matchesRole = roleFilter === 'all' || role === roleFilter;
+            const matchesStatus = statusFilter === 'all' || status === statusFilter;
+
+            if (matchesSearch && matchesRole && matchesStatus) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0) {
+            noResults.classList.remove('hidden');
+        } else {
+            noResults.classList.add('hidden');
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('role').value = 'all';
+        document.getElementById('status').value = 'all';
+        filterUsers();
+    }
+
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search');
+        const roleSelect = document.getElementById('role');
+        const statusSelect = document.getElementById('status');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterUsers);
+        }
+        if (roleSelect) {
+            roleSelect.addEventListener('change', filterUsers);
+        }
+        if (statusSelect) {
+            statusSelect.addEventListener('change', filterUsers);
+        }
+    });
 </script>
 @endsection

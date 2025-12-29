@@ -6,14 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Reviewer extends Model
+class Editor extends Model
 {
     protected $fillable = [
         'user_id',
         'journal_id',
-        'email',
-        'expertise',
-        'specialization',
         'status'
     ];
 
@@ -26,9 +23,5 @@ class Reviewer extends Model
     {
         return $this->belongsTo(Journal::class);
     }
-
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class);
-    }
 }
+

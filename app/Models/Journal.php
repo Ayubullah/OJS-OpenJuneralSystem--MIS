@@ -23,4 +23,14 @@ class Journal extends Model
     {
         return $this->hasMany(Issue::class);
     }
+
+    public function editors(): HasMany
+    {
+        return $this->hasMany(Editor::class);
+    }
+
+    public function reviewers(): HasMany
+    {
+        return $this->hasMany(Reviewer::class);
+    }
 }

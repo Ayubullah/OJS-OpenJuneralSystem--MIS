@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Editor;
+use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class EditorController extends Controller
 {
@@ -14,8 +17,9 @@ class EditorController extends Controller
      */
     public function index()
     {
-        $editors = User::where('role', 'editor')->latest()->paginate(10);
-        return view('admin.editors.index', compact('editors'));
+        $editors = Editor::with(['user', 'journal'])->latest()->paginate(10);
+        $journals = Journal::where('status', 'active')->get();
+        return view('admin.editors.index', compact('editors', 'journals'));
     }
 
     /**
@@ -23,7 +27,8 @@ class EditorController extends Controller
      */
     public function create()
     {
-        return view('admin.editors.create');
+        $journals = Journal::where('status', 'active')->get();
+        return view('admin.editors.create', compact('journals'));
     }
 
     /**
@@ -36,71 +41,126 @@ class EditorController extends Controller
             'email' => 'required|email|unique:users,email',
             'username' => 'required|string|max:255|unique:users,username',
             'password' => 'required|string|min:8|confirmed',
+            'journal_id' => 'required|exists:journals,id',
             'status' => 'required|in:active,inactive'
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'role' => 'editor',
-            'status' => $request->status
-        ]);
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'role' => 'editor',
+                'status' => $request->status
+            ]);
 
-        return redirect()->route('admin.editors.index')
-            ->with('success', 'Editor created successfully.');
+            Editor::create([
+                'user_id' => $user->id,
+                'journal_id' => $request->journal_id,
+                'status' => $request->status
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.editors.index')
+                ->with('success', 'Editor created successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error creating editor: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(User $editor)
+    public function show(Editor $editor)
     {
+        $editor->load(['user', 'journal']);
         return view('admin.editors.show', compact('editor'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $editor)
+    public function edit(Editor $editor)
     {
-        return view('admin.editors.edit', compact('editor'));
+        $editor->load(['user', 'journal']);
+        $journals = Journal::where('status', 'active')->get();
+        return view('admin.editors.edit', compact('editor', 'journals'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $editor)
+    public function update(Request $request, Editor $editor)
     {
+        $editor->load('user');
+        $user = $editor->user;
+        
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $editor->id,
-            'username' => 'required|string|max:255|unique:users,username,' . $editor->id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'journal_id' => 'required|exists:journals,id',
             'status' => 'required|in:active,inactive'
         ]);
 
-        $editor->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'status' => $request->status,
-            'password' => $request->password ? Hash::make($request->password) : $editor->password
-        ]);
+        DB::beginTransaction();
+        try {
+            $userData = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+                'status' => $request->status,
+            ];
 
-        return redirect()->route('admin.editors.index')
-            ->with('success', 'Editor updated successfully.');
+            if ($request->password) {
+                $userData['password'] = Hash::make($request->password);
+            }
+
+            $user->update($userData);
+
+            $editor->update([
+                'journal_id' => $request->journal_id,
+                'status' => $request->status
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.editors.index')
+                ->with('success', 'Editor updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error updating editor: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $editor)
+    public function destroy(Editor $editor)
     {
-        $editor->delete();
+        DB::beginTransaction();
+        try {
+            $user = $editor->user;
+            $editor->delete();
+            $user->delete();
 
-        return redirect()->route('admin.editors.index')
-            ->with('success', 'Editor deleted successfully.');
+            DB::commit();
+
+            return redirect()->route('admin.editors.index')
+                ->with('success', 'Editor deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error deleting editor: ' . $e->getMessage());
+        }
     }
 }

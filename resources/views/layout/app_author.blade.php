@@ -112,8 +112,17 @@
                 
                 <!-- Navigation -->
                 <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+                    <!-- Dashboard -->
+                    <a href="{{ route('author.dashboard') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700 transition-all duration-300 group btn-modern border border-transparent hover:border-indigo-100 hover:shadow-md {{ request()->routeIs('author.dashboard') ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-indigo-100' : '' }}">
+                        <div class="w-7 h-7 bg-indigo-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-indigo-200 transition-colors duration-300 {{ request()->routeIs('author.dashboard') ? 'bg-indigo-200' : '' }}">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-600"></i>
+                        </div>
+                        <span class="font-medium text-sm">Dashboard</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                    </a>
+
                     <!-- My Publications -->
-                    <div class="space-y-1">
+                    <div class="space-y-1 mt-6">
                         <div class="px-3 py-2 flex items-center">
                             <div class="w-5 h-5 bg-gradient-to-br from-purple-100 to-blue-100 rounded flex items-center justify-center mr-2">
                                 <i data-lucide="file-text" class="w-3 h-3 text-purple-600"></i>

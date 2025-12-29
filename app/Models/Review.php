@@ -13,11 +13,14 @@ class Review extends Model
         'rating',
         'comments',
         'author_reply',
-        'review_date'
+        'review_date',
+        'editor_approved',
+        'editor_edited_comments'
     ];
 
     protected $casts = [
         'review_date' => 'datetime',
+        'editor_approved' => 'boolean',
     ];
 
     public function submission(): BelongsTo

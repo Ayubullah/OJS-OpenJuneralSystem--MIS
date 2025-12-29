@@ -145,41 +145,148 @@
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Reviews ({{ $submission->reviews->count() }})</h3>
                 <div class="space-y-4">
-                    @foreach($submission->reviews as $review)
-                    <div class="border border-gray-200 rounded-xl p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                                    <span class="text-xs font-bold text-white">{{ substr($review->reviewer->user->name ?? 'R', 0, 1) }}</span>
+                    @php
+                        $pendingReviews = $submission->reviews->whereNotNull('comments')->where('editor_approved', false);
+                        $approvedReviews = $submission->reviews->whereNotNull('comments')->where('editor_approved', true);
+                    @endphp
+                    
+                    @if($pendingReviews->count() > 0)
+                    <div class="mb-6">
+                        <h4 class="text-md font-semibold text-orange-700 mb-3 flex items-center">
+                            <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                            Pending Approval ({{ $pendingReviews->count() }})
+                        </h4>
+                        <div class="space-y-4">
+                            @foreach($pendingReviews as $review)
+                            <div class="border-2 border-orange-200 rounded-xl p-4 bg-orange-50">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                            <span class="text-xs font-bold text-white">{{ substr($review->reviewer->user->name ?? 'R', 0, 1) }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">{{ $review->reviewer->user->name ?? 'Unknown Reviewer' }}</p>
+                                            <p class="text-xs text-gray-500">{{ $review->review_date?->format('M d, Y') ?? 'N/A' }}</p>
+                                        </div>
+                                    </div>
+                                    @if($review->rating)
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm font-bold text-gray-900">{{ $review->rating }}/10</span>
+                                        <div class="flex space-x-1">
+                                            @for($i = 1; $i <= 5; $i++)
+                                            <i data-lucide="star" class="w-4 h-4 {{ $i <= ($review->rating / 2) ? 'text-yellow-400 fill-current' : 'text-gray-300' }}"></i>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $review->reviewer->user->name ?? 'Unknown Reviewer' }}</p>
-                                    <p class="text-xs text-gray-500">{{ $review->review_date?->format('M d, Y') ?? 'N/A' }}</p>
+                                @if($review->comments)
+                                <div class="mb-4">
+                                    <label class="block text-xs font-semibold text-gray-700 mb-2">Reviewer's Original Comment:</label>
+                                    <div class="text-sm text-gray-700 bg-white border border-gray-200 p-3 rounded-lg ql-editor" style="padding: 12px;">
+                                        {!! $review->comments !!}
+                                    </div>
+                                </div>
+                                @endif
+                                <div class="flex items-center space-x-3">
+                                    <a href="{{ route('editor.reviews.edit', $review) }}" 
+                                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                        <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+                                        Edit & Approve
+                                    </a>
+                                    <form action="{{ route('editor.reviews.approve', $review) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200">
+                                            <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
+                                            Approve Without Editing
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
-                            @if($review->rating)
-                            <div class="flex items-center space-x-2">
-                                @if((float)$review->rating == 10.0)
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                                    <i data-lucide="award" class="w-4 h-4 mr-1"></i>
-                                    Review Complete
-                                </span>
-                                @else
-                                <span class="text-sm font-bold text-gray-900">{{ $review->rating }}/10</span>
-                                <div class="flex space-x-1">
-                                    @for($i = 1; $i <= 5; $i++)
-                                    <i data-lucide="star" class="w-4 h-4 {{ $i <= ($review->rating / 2) ? 'text-yellow-400 fill-current' : 'text-gray-300' }}"></i>
-                                    @endfor
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($approvedReviews->count() > 0)
+                    <div>
+                        <h4 class="text-md font-semibold text-green-700 mb-3 flex items-center">
+                            <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
+                            Approved Reviews ({{ $approvedReviews->count() }})
+                        </h4>
+                        <div class="space-y-4">
+                            @foreach($approvedReviews as $review)
+                            <div class="border border-gray-200 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                            <span class="text-xs font-bold text-white">{{ substr($review->reviewer->user->name ?? 'R', 0, 1) }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">{{ $review->reviewer->user->name ?? 'Unknown Reviewer' }}</p>
+                                            <p class="text-xs text-gray-500">{{ $review->review_date?->format('M d, Y') ?? 'N/A' }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                        <i data-lucide="check" class="w-3 h-3 mr-1"></i>
+                                        Approved
+                                    </span>
+                                </div>
+                                @if($review->editor_edited_comments || $review->comments)
+                                <div class="mb-2">
+                                    <label class="block text-xs font-semibold text-gray-700 mb-2">Comment ({{ $review->editor_edited_comments ? 'Edited by Editor' : 'Original' }}):</label>
+                                    <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg ql-editor" style="padding: 12px;">
+                                        {!! $review->editor_edited_comments ?? $review->comments !!}
+                                    </div>
+                                </div>
+                                @if($review->editor_edited_comments && $review->comments !== $review->editor_edited_comments)
+                                <details class="mt-2">
+                                    <summary class="text-xs text-gray-500 cursor-pointer hover:text-gray-700">Show Original Comment</summary>
+                                    <div class="text-xs text-gray-600 bg-gray-100 p-2 rounded mt-1 ql-editor" style="padding: 8px;">
+                                        {!! $review->comments !!}
+                                    </div>
+                                </details>
+                                @endif
+                                @endif
+                                @if($review->rating)
+                                <div class="flex items-center space-x-2 mt-3">
+                                    <span class="text-sm font-bold text-gray-900">Rating: {{ $review->rating }}/10</span>
+                                    <div class="flex space-x-1">
+                                        @for($i = 1; $i <= 5; $i++)
+                                        <i data-lucide="star" class="w-4 h-4 {{ $i <= ($review->rating / 2) ? 'text-yellow-400 fill-current' : 'text-gray-300' }}"></i>
+                                        @endfor
+                                    </div>
                                 </div>
                                 @endif
                             </div>
-                            @endif
+                            @endforeach
                         </div>
-                        @if($review->comments)
-                        <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{{ $review->comments }}</p>
-                        @endif
                     </div>
-                    @endforeach
+                    @endif
+
+                    @if($submission->reviews->whereNull('comments')->count() > 0)
+                    <div>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3">Reviews Without Comments ({{ $submission->reviews->whereNull('comments')->count() }})</h4>
+                        <div class="space-y-2">
+                            @foreach($submission->reviews->whereNull('comments') as $review)
+                            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-500 rounded-lg flex items-center justify-center">
+                                            <span class="text-xs font-bold text-white">{{ substr($review->reviewer->user->name ?? 'R', 0, 1) }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">{{ $review->reviewer->user->name ?? 'Unknown Reviewer' }}</p>
+                                            <p class="text-xs text-gray-500">No comment submitted yet</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -274,8 +381,83 @@
     </div>
 </div>
 
+<!-- Quill.js CSS for rendering formatted content -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<style>
+    /* Quill editor content styling */
+    .ql-editor {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .ql-editor ol, .ql-editor ul {
+        padding-left: 1.5em;
+        margin: 0.5em 0;
+    }
+    .ql-editor ol li, .ql-editor ul li {
+        padding-left: 0.5em;
+    }
+    .ql-editor li.ql-indent-1 {
+        padding-left: 3em;
+    }
+    .ql-editor li.ql-indent-2 {
+        padding-left: 4.5em;
+    }
+    .ql-editor li.ql-indent-3 {
+        padding-left: 6em;
+    }
+    .ql-editor li.ql-indent-4 {
+        padding-left: 7.5em;
+    }
+    .ql-editor li.ql-indent-5 {
+        padding-left: 9em;
+    }
+    .ql-editor li.ql-indent-6 {
+        padding-left: 10.5em;
+    }
+    .ql-editor li.ql-indent-7 {
+        padding-left: 12em;
+    }
+    .ql-editor li.ql-indent-8 {
+        padding-left: 13.5em;
+    }
+    .ql-editor p {
+        margin: 0.5em 0;
+    }
+    .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+        margin: 0.5em 0;
+        font-weight: 600;
+    }
+    .ql-editor blockquote {
+        border-left: 4px solid #e5e7eb;
+        padding-left: 1em;
+        margin: 1em 0;
+        color: #6b7280;
+    }
+    .ql-editor code, .ql-editor pre {
+        background-color: #f3f4f6;
+        border-radius: 4px;
+        padding: 2px 4px;
+    }
+    .ql-editor pre {
+        padding: 8px;
+        margin: 0.5em 0;
+    }
+    .ql-editor a {
+        color: #6366f1;
+        text-decoration: underline;
+    }
+    .ql-editor strong {
+        font-weight: 600;
+    }
+    .ql-editor em {
+        font-style: italic;
+    }
+</style>
+
 <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 </script>
 @endsection

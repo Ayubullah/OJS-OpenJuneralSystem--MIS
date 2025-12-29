@@ -41,19 +41,50 @@
     </div>
     @endif
 
-    <!-- Authors Table -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">All Authors</h3>
-                <div class="flex items-center space-x-2">
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Search Input -->
+                <div class="md:col-span-2">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                     <div class="relative">
-                        <input type="text" placeholder="Search authors..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="text" 
+                               id="search" 
+                               placeholder="Search by name, email, affiliation, specialization, or ORCID..." 
+                               class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                     </div>
                 </div>
+
+                <!-- Sort by Articles Count -->
+                <div>
+                    <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                    <select id="sort" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="name">Name (A-Z)</option>
+                        <option value="name_desc">Name (Z-A)</option>
+                        <option value="articles_desc">Most Articles</option>
+                        <option value="articles_asc">Least Articles</option>
+                        <option value="latest">Latest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-3">
+                <button type="button" onclick="clearFilters()" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
+                    Clear
+                </button>
             </div>
         </div>
+    </div>
+
+    <!-- Authors Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -69,7 +100,14 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($authors as $author)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                    <tr class="author-row hover:bg-gray-50 transition-colors duration-200"
+                        data-name="{{ strtolower($author->name ?? '') }}"
+                        data-email="{{ strtolower($author->email ?? '') }}"
+                        data-affiliation="{{ strtolower($author->affiliation ?? '') }}"
+                        data-specialization="{{ strtolower($author->specialization ?? '') }}"
+                        data-orcid="{{ strtolower($author->orcid_id ?? '') }}"
+                        data-articles-count="{{ $author->articles_count ?? 0 }}"
+                        data-created="{{ $author->created_at->timestamp ?? 0 }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mr-4">
@@ -114,7 +152,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
+                    <tr class="empty-state">
                         <td colspan="6" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <i data-lucide="users" class="w-12 h-12 text-gray-400 mb-4"></i>
@@ -128,6 +166,20 @@
                         </td>
                     </tr>
                     @endforelse
+                    <!-- No Results Row (Hidden by default) -->
+                    <tr id="noResults" style="display: none;">
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <i data-lucide="search-x" class="w-12 h-12 text-gray-400 mb-4"></i>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+                                <p class="text-gray-500 mb-4">Try adjusting your search criteria.</p>
+                                <button onclick="clearFilters()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    Clear Filters
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -143,7 +195,98 @@
 
 <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Filter and sort functionality
+    function filterAuthors() {
+        const searchTerm = document.getElementById('search').value.toLowerCase().trim();
+        const sortBy = document.getElementById('sort').value;
+        const authorRows = Array.from(document.querySelectorAll('.author-row'));
+        const noResults = document.getElementById('noResults');
+        const emptyState = document.querySelector('.empty-state');
+        let visibleRows = [];
+
+        // Filter rows
+        authorRows.forEach(row => {
+            const name = row.getAttribute('data-name') || '';
+            const email = row.getAttribute('data-email') || '';
+            const affiliation = row.getAttribute('data-affiliation') || '';
+            const specialization = row.getAttribute('data-specialization') || '';
+            const orcid = row.getAttribute('data-orcid') || '';
+            
+            const matchesSearch = !searchTerm || 
+                name.includes(searchTerm) || 
+                email.includes(searchTerm) || 
+                affiliation.includes(searchTerm) || 
+                specialization.includes(searchTerm) || 
+                orcid.includes(searchTerm);
+
+            if (matchesSearch) {
+                row.style.display = '';
+                visibleRows.push(row);
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Sort visible rows
+        if (visibleRows.length > 0) {
+            visibleRows.sort((a, b) => {
+                switch(sortBy) {
+                    case 'name':
+                        return (a.getAttribute('data-name') || '').localeCompare(b.getAttribute('data-name') || '');
+                    case 'name_desc':
+                        return (b.getAttribute('data-name') || '').localeCompare(a.getAttribute('data-name') || '');
+                    case 'articles_desc':
+                        return parseInt(b.getAttribute('data-articles-count') || 0) - parseInt(a.getAttribute('data-articles-count') || 0);
+                    case 'articles_asc':
+                        return parseInt(a.getAttribute('data-articles-count') || 0) - parseInt(b.getAttribute('data-articles-count') || 0);
+                    case 'latest':
+                        return parseInt(b.getAttribute('data-created') || 0) - parseInt(a.getAttribute('data-created') || 0);
+                    case 'oldest':
+                        return parseInt(a.getAttribute('data-created') || 0) - parseInt(b.getAttribute('data-created') || 0);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Reorder rows in DOM
+            const tbody = document.querySelector('tbody');
+            visibleRows.forEach(row => {
+                tbody.appendChild(row);
+            });
+        }
+
+        // Show/hide no results message
+        if (visibleRows.length === 0 && authorRows.length > 0) {
+            if (noResults) noResults.style.display = '';
+            if (emptyState) emptyState.style.display = 'none';
+        } else {
+            if (noResults) noResults.style.display = 'none';
+            if (emptyState && authorRows.length === 0) emptyState.style.display = '';
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('sort').value = 'name';
+        filterAuthors();
+    }
+
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search');
+        const sortSelect = document.getElementById('sort');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterAuthors);
+        }
+        if (sortSelect) {
+            sortSelect.addEventListener('change', filterAuthors);
+        }
+    });
 </script>
 @endsection
 

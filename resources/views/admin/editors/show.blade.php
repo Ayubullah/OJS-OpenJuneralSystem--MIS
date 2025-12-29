@@ -27,11 +27,11 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-                        <span class="text-2xl font-bold text-white">{{ substr($editor->name, 0, 1) }}</span>
+                        <span class="text-2xl font-bold text-white">{{ substr($editor->user->name ?? 'E', 0, 1) }}</span>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">{{ $editor->name }}</h1>
-                        <p class="text-sm text-gray-600">@{{ $editor->username }}</p>
+                        <h1 class="text-2xl font-bold text-gray-900">{{ $editor->user->name ?? 'Unknown' }}</h1>
+                        <p class="text-sm text-gray-600">{{ '@' . ($editor->user->username ?? 'N/A') }}</p>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mt-2
                             {{ $editor->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ ucfirst($editor->status) }}
@@ -63,22 +63,22 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
-                            <p class="text-sm font-semibold text-gray-900">{{ $editor->name }}</p>
+                            <p class="text-sm font-semibold text-gray-900">{{ $editor->user->name ?? 'Unknown' }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Username</label>
-                            <p class="text-sm font-semibold text-gray-900">@{{ $editor->username }}</p>
+                            <p class="text-sm font-semibold text-gray-900">{{ '@' . ($editor->user->username ?? 'N/A') }}</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
-                            <p class="text-sm font-semibold text-gray-900">{{ $editor->email }}</p>
+                            <p class="text-sm font-semibold text-gray-900">{{ $editor->user->email ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Role</label>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                {{ ucfirst($editor->role) }}
+                                Editor
                             </span>
                         </div>
                     </div>
@@ -132,7 +132,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-500">Email</p>
-                            <p class="text-sm font-bold text-gray-900">{{ $editor->email }}</p>
+                            <p class="text-sm font-bold text-gray-900">{{ $editor->user->email ?? 'N/A' }}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">

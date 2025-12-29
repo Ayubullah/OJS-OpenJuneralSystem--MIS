@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->text('author_reply')->nullable()->after('comments');
+            $table->boolean('editor_approved')->default(false)->after('comments');
+            $table->text('editor_edited_comments')->nullable()->after('editor_approved');
         });
     }
 
@@ -22,12 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->dropColumn('author_reply');
+            $table->dropColumn(['editor_approved', 'editor_edited_comments']);
         });
     }
 };
-
-
-
-
-

@@ -302,7 +302,7 @@
                         <p class="mt-8 text-center text-sm text-gray-600">
                             Don't have an account? 
                             <a href="{{ route('register') }}" class="font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-                                Create one
+                                Register as Author
                             </a>
                         </p>
                     @endif

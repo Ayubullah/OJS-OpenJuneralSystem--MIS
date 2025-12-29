@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->text('author_reply')->nullable()->after('comments');
+        Schema::table('reviewers', function (Blueprint $table) {
+            $table->foreignId('journal_id')->nullable()->after('user_id')->constrained()->onDelete('cascade');
         });
     }
 
@@ -21,13 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->dropColumn('author_reply');
+        Schema::table('reviewers', function (Blueprint $table) {
+            $table->dropForeign(['journal_id']);
+            $table->dropColumn('journal_id');
         });
     }
 };
-
-
-
-
-

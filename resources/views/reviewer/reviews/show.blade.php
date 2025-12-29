@@ -230,7 +230,9 @@
                                 <i data-lucide="user" class="w-4 h-4 text-purple-600"></i>
                                 <p class="text-xs font-semibold text-gray-700">Your Review Comment</p>
                             </div>
-                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $prevReview->comments }}</p>
+                            <div class="text-sm text-gray-700 ql-editor" style="padding: 0;">
+                                {!! $prevReview->comments !!}
+                            </div>
                         </div>
                         @php
                             $authorReply = $prevReview->author_reply ?? null;
@@ -328,14 +330,15 @@
                             <label for="comments" class="block text-sm font-medium text-gray-700 mb-2">
                                 Review Comments <span class="text-red-500">*</span>
                             </label>
+                            <!-- Rich Text Editor Container -->
+                            <div id="editor-container" class="bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-purple-500" style="min-height: 400px;"></div>
+                            <!-- Hidden textarea to store HTML content -->
                             <textarea name="comments" 
                                       id="comments" 
-                                      rows="12" 
                                       required
                                       minlength="10"
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
-                                      placeholder="Write your detailed review comments here. Please provide constructive feedback on the article's strengths, weaknesses, methodology, writing quality, and suggestions for improvement. (Minimum 10 characters)">{{ old('comments', $review->comments) }}</textarea>
-                            <p class="mt-1 text-xs text-gray-500">Your review comments will be visible to the author and editor.</p>
+                                      style="display: none;">{{ old('comments', $review->comments) }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500">Your review comments will be visible to the author and editor. Use the formatting toolbar to style your text.</p>
                         </div>
 
                         <!-- Submit Button -->
@@ -364,7 +367,9 @@
                     </span>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg mb-4">
-                    <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $review->comments }}</p>
+                    <div class="text-sm text-gray-700 ql-editor" style="padding: 0;">
+                        {!! $review->comments !!}
+                    </div>
                 </div>
                 @if($review->author_reply)
                 <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
@@ -485,9 +490,217 @@
     </div>
 </div>
 
+<!-- Quill.js Rich Text Editor -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<style>
+    /* Quill editor content styling for display */
+    .ql-editor {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .ql-editor ol, .ql-editor ul {
+        padding-left: 1.5em;
+        margin: 0.5em 0;
+    }
+    .ql-editor ol li, .ql-editor ul li {
+        padding-left: 0.5em;
+    }
+    .ql-editor li.ql-indent-1 {
+        padding-left: 3em;
+    }
+    .ql-editor li.ql-indent-2 {
+        padding-left: 4.5em;
+    }
+    .ql-editor li.ql-indent-3 {
+        padding-left: 6em;
+    }
+    .ql-editor li.ql-indent-4 {
+        padding-left: 7.5em;
+    }
+    .ql-editor li.ql-indent-5 {
+        padding-left: 9em;
+    }
+    .ql-editor li.ql-indent-6 {
+        padding-left: 10.5em;
+    }
+    .ql-editor li.ql-indent-7 {
+        padding-left: 12em;
+    }
+    .ql-editor li.ql-indent-8 {
+        padding-left: 13.5em;
+    }
+    .ql-editor p {
+        margin: 0.5em 0;
+    }
+    .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+        margin: 0.5em 0;
+        font-weight: 600;
+    }
+    .ql-editor blockquote {
+        border-left: 4px solid #e5e7eb;
+        padding-left: 1em;
+        margin: 1em 0;
+        color: #6b7280;
+    }
+    .ql-editor code, .ql-editor pre {
+        background-color: #f3f4f6;
+        border-radius: 4px;
+        padding: 2px 4px;
+    }
+    .ql-editor pre {
+        padding: 8px;
+        margin: 0.5em 0;
+    }
+    .ql-editor a {
+        color: #6366f1;
+        text-decoration: underline;
+    }
+    .ql-editor strong {
+        font-weight: 600;
+    }
+    .ql-editor em {
+        font-style: italic;
+    }
+</style>
+
 <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Initialize Quill Rich Text Editor
+    document.addEventListener('DOMContentLoaded', function() {
+        const editorContainer = document.getElementById('editor-container');
+        const hiddenTextarea = document.getElementById('comments');
+        
+        if (editorContainer && hiddenTextarea) {
+            // Initialize Quill editor
+            const quill = new Quill('#editor-container', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'font': [] }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'align': [] }],
+                        ['blockquote', 'code-block'],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                },
+                placeholder: 'Write your detailed review comments here. Please provide constructive feedback on the article\'s strengths, weaknesses, methodology, writing quality, and suggestions for improvement. (Minimum 10 characters)'
+            });
+
+            // Set initial content if there's old input or existing review
+            const initialContent = hiddenTextarea.value;
+            if (initialContent) {
+                // Check if it's HTML or plain text
+                if (initialContent.trim().startsWith('<')) {
+                    quill.root.innerHTML = initialContent;
+                } else {
+                    quill.setText(initialContent);
+                }
+            }
+
+            // Update hidden textarea when content changes
+            quill.on('text-change', function() {
+                const html = quill.root.innerHTML;
+                const text = quill.getText().trim();
+                
+                // Update hidden textarea with HTML
+                hiddenTextarea.value = html;
+                
+                // Validate minimum length
+                if (text.length < 10) {
+                    hiddenTextarea.setCustomValidity('Review comments must be at least 10 characters long.');
+                } else {
+                    hiddenTextarea.setCustomValidity('');
+                }
+            });
+
+            // Before form submission, ensure content is synced
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const html = quill.root.innerHTML;
+                    const text = quill.getText().trim();
+                    
+                    // Update hidden textarea
+                    hiddenTextarea.value = html;
+                    
+                    // Validate minimum length
+                    if (text.length < 10) {
+                        e.preventDefault();
+                        alert('Review comments must be at least 10 characters long.');
+                        return false;
+                    }
+                });
+            }
+
+            // Custom styles for Quill editor
+            const style = document.createElement('style');
+            style.textContent = `
+                .ql-container {
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 14px;
+                    min-height: 350px;
+                }
+                .ql-editor {
+                    min-height: 350px;
+                    padding: 16px;
+                }
+                .ql-editor.ql-blank::before {
+                    font-style: normal;
+                    color: #9ca3af;
+                }
+                .ql-toolbar {
+                    border-top: 1px solid #e5e7eb;
+                    border-left: 1px solid #e5e7eb;
+                    border-right: 1px solid #e5e7eb;
+                    border-bottom: none;
+                    background: #f9fafb;
+                    padding: 12px;
+                    border-radius: 8px 8px 0 0;
+                }
+                .ql-container {
+                    border-bottom: 1px solid #e5e7eb;
+                    border-left: 1px solid #e5e7eb;
+                    border-right: 1px solid #e5e7eb;
+                    border-top: none;
+                    border-radius: 0 0 8px 8px;
+                }
+                .ql-snow .ql-stroke {
+                    stroke: #6b7280;
+                }
+                .ql-snow .ql-fill {
+                    fill: #6b7280;
+                }
+                .ql-snow .ql-picker-label {
+                    color: #6b7280;
+                }
+                .ql-snow .ql-picker-options {
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+                .ql-snow .ql-tooltip {
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    });
 </script>
 @endsection
 

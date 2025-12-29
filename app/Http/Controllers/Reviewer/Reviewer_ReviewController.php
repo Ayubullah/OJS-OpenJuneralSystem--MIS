@@ -24,6 +24,7 @@ class Reviewer_ReviewController extends Controller
                 ->with('error', 'Reviewer profile not found.');
         }
 
+        // Filter reviews by reviewer's journal
         $reviews = Review::with([
             'submission.article.journal',
             'submission.article.author',
@@ -31,6 +32,11 @@ class Reviewer_ReviewController extends Controller
             'submission.author'
         ])
         ->where('reviewer_id', $reviewer->id)
+        ->whereHas('submission.article', function($q) use ($reviewer) {
+            if ($reviewer->journal_id) {
+                $q->where('journal_id', $reviewer->journal_id);
+            }
+        })
         ->latest()
         ->paginate(15);
 
@@ -58,6 +64,11 @@ class Reviewer_ReviewController extends Controller
         ->where('reviewer_id', $reviewer->id)
         ->whereNull('rating')
         ->whereNull('comments')
+        ->whereHas('submission.article', function($q) use ($reviewer) {
+            if ($reviewer->journal_id) {
+                $q->where('journal_id', $reviewer->journal_id);
+            }
+        })
         ->latest()
         ->paginate(15);
 
@@ -85,6 +96,11 @@ class Reviewer_ReviewController extends Controller
         ->where('reviewer_id', $reviewer->id)
         ->whereNotNull('comments')
         ->whereNull('rating')
+        ->whereHas('submission.article', function($q) use ($reviewer) {
+            if ($reviewer->journal_id) {
+                $q->where('journal_id', $reviewer->journal_id);
+            }
+        })
         ->latest()
         ->paginate(15);
 
@@ -249,18 +265,17 @@ class Reviewer_ReviewController extends Controller
                 }
             }
 
-            // Create notification for the author
-            $author = $submission->author;
-            if ($author) {
-                $authorUser = User::where('email', $author->email)->first();
-                if ($authorUser) {
-                    $articleTitle = $article ? $article->title : 'Your article';
-                    $reviewerName = Auth::user()->name ?? 'A reviewer';
-                    
+            // Create notification for editors (not authors) - review needs editor approval
+            $editors = User::where('role', 'editor')->get();
+            if ($editors->count() > 0) {
+                $articleTitle = $article ? $article->title : 'An article';
+                $reviewerName = Auth::user()->name ?? 'A reviewer';
+                
+                foreach ($editors as $editor) {
                     Notification::create([
-                        'user_id' => $authorUser->id,
+                        'user_id' => $editor->id,
                         'type' => 'review',
-                        'message' => "{$reviewerName} has submitted a review comment for your article: \"{$articleTitle}\"",
+                        'message' => "{$reviewerName} has submitted a review comment for \"{$articleTitle}\". Please review and approve.",
                         'status' => 'unread',
                     ]);
                 }

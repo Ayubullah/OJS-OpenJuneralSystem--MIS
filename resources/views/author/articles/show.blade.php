@@ -353,17 +353,20 @@
                                 </div>
                             </div>
 
-                            <!-- Reviews for this version -->
-                            @if($submission->reviews->whereNotNull('comments')->count() > 0)
+                            <!-- Reviews for this version (only editor-approved reviews) -->
+                            @php
+                                $approvedReviews = $submission->reviews->whereNotNull('comments')->where('editor_approved', true);
+                            @endphp
+                            @if($approvedReviews->count() > 0)
                             <div class="border-t border-gray-200 bg-gray-50 px-4 py-4">
                                 <h5 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
-                                    Reviewer Comments ({{ $submission->reviews->whereNotNull('comments')->count() }})
+                                    Reviewer Comments ({{ $approvedReviews->count() }})
                                 </h5>
                                 <div class="space-y-3">
-                                    @foreach($submission->reviews->whereNotNull('comments') as $review)
+                                    @foreach($approvedReviews as $review)
                                     <div class="bg-white border border-gray-200 rounded-lg p-4">
                                         <div class="flex items-start justify-between mb-3">
                                             <div class="flex items-center space-x-3">
@@ -389,7 +392,9 @@
                                             @endif
                                         </div>
                                         <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-3">
-                                            <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $review->comments }}</p>
+                                            <div class="text-sm text-gray-700 leading-relaxed ql-editor" style="padding: 0;">
+                                                {!! $review->editor_edited_comments ?? $review->comments !!}
+                                            </div>
                                         </div>
                                         
                                         <!-- Author Reply Section -->

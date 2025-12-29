@@ -22,7 +22,9 @@ class ArticleController extends Controller
             'category', 
             'submissions.reviews.reviewer'
         ])->latest()->paginate(10);
-        return view('admin.articles.index', compact('articles'));
+        $journals = Journal::where('status', 'active')->get();
+        $categories = Category::all();
+        return view('admin.articles.index', compact('articles', 'journals', 'categories'));
     }
 
     /**

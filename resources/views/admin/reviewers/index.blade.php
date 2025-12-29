@@ -45,19 +45,59 @@
     </div>
     @endif
 
-    <!-- Reviewers Table -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">All Reviewers</h3>
-                <div class="flex items-center space-x-2">
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search Input -->
+                <div class="md:col-span-2">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                     <div class="relative">
-                        <input type="text" placeholder="Search reviewers..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <input type="text" 
+                               id="search" 
+                               placeholder="Search by name, email, expertise, or specialization..." 
+                               class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                         <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                     </div>
                 </div>
+
+                <!-- Journal Filter -->
+                <div>
+                    <label for="journal_id" class="block text-sm font-medium text-gray-700 mb-2">Journal</label>
+                    <select id="journal_id" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="all">All Journals</option>
+                        @foreach($journals as $journal)
+                        <option value="{{ $journal->id }}">{{ $journal->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="status" 
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-3">
+                <button type="button" onclick="clearFilters()" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
+                    Clear
+                </button>
             </div>
         </div>
+    </div>
+
+    <!-- Reviewers Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -65,6 +105,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reviewer</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Journal</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expertise</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reviews</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -73,7 +114,14 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($reviewers as $reviewer)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                    <tr class="reviewer-row hover:bg-gray-50 transition-colors duration-200"
+                        data-name="{{ strtolower($reviewer->user->name ?? '') }}"
+                        data-email="{{ strtolower($reviewer->email ?? '') }}"
+                        data-expertise="{{ strtolower($reviewer->expertise ?? '') }}"
+                        data-specialization="{{ strtolower($reviewer->specialization ?? '') }}"
+                        data-journal-id="{{ $reviewer->journal_id ?? '' }}"
+                        data-journal-name="{{ strtolower($reviewer->journal->name ?? '') }}"
+                        data-status="{{ $reviewer->status ?? '' }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mr-4">
@@ -87,6 +135,12 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ $reviewer->email }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="book" class="w-4 h-4 text-gray-400"></i>
+                                <span class="text-sm text-gray-900">{{ $reviewer->journal->name ?? 'N/A' }}</span>
+                            </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-gray-900">{{ $reviewer->expertise ?? 'Not specified' }}</div>
@@ -123,8 +177,8 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                    <tr class="empty-state">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <i data-lucide="user-check" class="w-12 h-12 text-gray-400 mb-4"></i>
                                 <h3 class="text-lg font-medium text-gray-900 mb-2">No reviewers found</h3>
@@ -137,6 +191,20 @@
                         </td>
                     </tr>
                     @endforelse
+                    <!-- No Results Row (Hidden by default) -->
+                    <tr id="noResults" style="display: none;">
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <i data-lucide="search-x" class="w-12 h-12 text-gray-400 mb-4"></i>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+                                <p class="text-gray-500 mb-4">Try adjusting your search or filter criteria.</p>
+                                <button onclick="clearFilters()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    Clear Filters
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -152,7 +220,95 @@
 
 <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Filter functionality
+    function filterReviewers() {
+        const searchInput = document.getElementById('search');
+        const journalSelect = document.getElementById('journal_id');
+        const statusSelect = document.getElementById('status');
+        
+        if (!searchInput || !journalSelect || !statusSelect) {
+            console.error('Filter elements not found');
+            return;
+        }
+        
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const journalFilter = journalSelect.value;
+        const statusFilter = statusSelect.value;
+        const reviewerRows = document.querySelectorAll('.reviewer-row');
+        const noResults = document.getElementById('noResults');
+        const emptyState = document.querySelector('.empty-state');
+        let visibleCount = 0;
+
+        reviewerRows.forEach(row => {
+            const name = (row.getAttribute('data-name') || '').toLowerCase();
+            const email = (row.getAttribute('data-email') || '').toLowerCase();
+            const expertise = (row.getAttribute('data-expertise') || '').toLowerCase();
+            const specialization = (row.getAttribute('data-specialization') || '').toLowerCase();
+            const journalId = String(row.getAttribute('data-journal-id') || '');
+            const status = (row.getAttribute('data-status') || '').toLowerCase();
+            
+            // Search matching
+            const matchesSearch = !searchTerm || 
+                name.includes(searchTerm) || 
+                email.includes(searchTerm) || 
+                expertise.includes(searchTerm) || 
+                specialization.includes(searchTerm);
+            
+            // Journal filter matching
+            const matchesJournal = journalFilter === 'all' || journalId === String(journalFilter);
+            
+            // Status filter matching
+            const matchesStatus = statusFilter === 'all' || status === statusFilter.toLowerCase();
+
+            if (matchesSearch && matchesJournal && matchesStatus) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0 && reviewerRows.length > 0) {
+            if (noResults) noResults.style.display = '';
+            if (emptyState) emptyState.style.display = 'none';
+        } else {
+            if (noResults) noResults.style.display = 'none';
+            if (emptyState && reviewerRows.length === 0) emptyState.style.display = '';
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('journal_id').value = 'all';
+        document.getElementById('status').value = 'all';
+        filterReviewers();
+    }
+
+    // Add event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search');
+        const journalSelect = document.getElementById('journal_id');
+        const statusSelect = document.getElementById('status');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', filterReviewers);
+            searchInput.addEventListener('keyup', filterReviewers);
+        }
+        if (journalSelect) {
+            journalSelect.addEventListener('change', filterReviewers);
+        }
+        if (statusSelect) {
+            statusSelect.addEventListener('change', filterReviewers);
+        }
+        
+        // Initial filter call to ensure everything is visible
+        filterReviewers();
+    });
 </script>
 @endsection
 

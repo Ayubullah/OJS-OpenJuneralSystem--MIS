@@ -280,123 +280,149 @@
 </div>
 
 <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
-
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    const searchField = document.getElementById('searchField');
-    const clearSearchBtn = document.getElementById('clearSearch');
-    const submissionRows = document.querySelectorAll('.submission-row');
-    const noResultsRow = document.getElementById('noResults');
-    const emptyState = document.querySelector('.empty-state');
-
-    // Update placeholder based on selected field
-    function updatePlaceholder() {
-        const fieldValue = searchField.value;
-        const placeholders = {
-            'all': 'Search all fields...',
-            'id': 'Search by Article ID...',
-            'title': 'Search by Article Title...',
-            'journal': 'Search by Journal...',
-            'author': 'Search by Author...',
-            'status': 'Search by Status...'
-        };
-        searchInput.placeholder = placeholders[fieldValue] || 'Search...';
-    }
-
-    // Search function
-    function performSearch() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        const selectedField = searchField.value;
-        let visibleCount = 0;
-
-        // Show/hide clear button
-        if (searchTerm) {
-            clearSearchBtn.classList.remove('hidden');
-        } else {
-            clearSearchBtn.classList.add('hidden');
+    // Use DOMContentLoaded to ensure DOM is ready and avoid conflicts with layout scripts
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
         }
 
-        // Hide empty state when searching
-        if (emptyState) {
-            emptyState.classList.add('hidden');
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchField = document.getElementById('searchField');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const submissionRows = document.querySelectorAll('.submission-row');
+        const noResultsRow = document.getElementById('noResults');
+        const emptyState = document.querySelector('.empty-state');
+
+        // Return early if elements don't exist
+        if (!searchInput || !searchField || !clearSearchBtn) {
+            return;
         }
 
-        // Filter rows
-        submissionRows.forEach(row => {
-            let searchContent = '';
-            
-            // Get search content based on selected field
-            if (selectedField === 'all') {
-                // Search all fields
-                searchContent = 
-                    row.getAttribute('data-article-id') + ' ' +
-                    row.getAttribute('data-article-title') + ' ' +
-                    row.getAttribute('data-journal') + ' ' +
-                    row.getAttribute('data-author') + ' ' +
-                    row.getAttribute('data-status');
-            } else if (selectedField === 'id') {
-                searchContent = row.getAttribute('data-article-id');
-            } else if (selectedField === 'title') {
-                searchContent = row.getAttribute('data-article-title');
-            } else if (selectedField === 'journal') {
-                searchContent = row.getAttribute('data-journal');
-            } else if (selectedField === 'author') {
-                searchContent = row.getAttribute('data-author');
-            } else if (selectedField === 'status') {
-                searchContent = row.getAttribute('data-status');
-            }
-            
-            searchContent = searchContent.toLowerCase();
-            
-            if (searchContent.includes(searchTerm)) {
-                row.classList.remove('hidden');
-                visibleCount++;
+        // Update placeholder based on selected field
+        function updatePlaceholder() {
+            const fieldValue = searchField.value;
+            const placeholders = {
+                'all': 'Search all fields...',
+                'id': 'Search by Article ID...',
+                'title': 'Search by Article Title...',
+                'journal': 'Search by Journal...',
+                'author': 'Search by Author...',
+                'status': 'Search by Status...'
+            };
+            searchInput.placeholder = placeholders[fieldValue] || 'Search...';
+        }
+
+        // Search function
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedField = searchField.value;
+            let visibleCount = 0;
+
+            // Show/hide clear button
+            if (searchTerm) {
+                clearSearchBtn.classList.remove('hidden');
             } else {
-                row.classList.add('hidden');
+                clearSearchBtn.classList.add('hidden');
             }
-        });
 
-        // Show/hide no results message
-        if (searchTerm && visibleCount === 0) {
-            noResultsRow.classList.remove('hidden');
-        } else {
-            noResultsRow.classList.add('hidden');
+            // Hide empty state when searching
+            if (emptyState) {
+                emptyState.classList.add('hidden');
+            }
+
+            // Filter rows
+            submissionRows.forEach(row => {
+                let searchContent = '';
+                
+                // Get search content based on selected field
+                if (selectedField === 'all') {
+                    // Search all fields
+                    searchContent = 
+                        row.getAttribute('data-article-id') + ' ' +
+                        row.getAttribute('data-article-title') + ' ' +
+                        row.getAttribute('data-journal') + ' ' +
+                        row.getAttribute('data-author') + ' ' +
+                        row.getAttribute('data-status');
+                } else if (selectedField === 'id') {
+                    searchContent = row.getAttribute('data-article-id');
+                } else if (selectedField === 'title') {
+                    searchContent = row.getAttribute('data-article-title');
+                } else if (selectedField === 'journal') {
+                    searchContent = row.getAttribute('data-journal');
+                } else if (selectedField === 'author') {
+                    searchContent = row.getAttribute('data-author');
+                } else if (selectedField === 'status') {
+                    searchContent = row.getAttribute('data-status');
+                }
+                
+                searchContent = searchContent.toLowerCase();
+                
+                if (searchContent.includes(searchTerm)) {
+                    row.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            // Show/hide no results message
+            if (searchTerm && visibleCount === 0) {
+                if (noResultsRow) {
+                    noResultsRow.classList.remove('hidden');
+                }
+            } else {
+                if (noResultsRow) {
+                    noResultsRow.classList.add('hidden');
+                }
+            }
+
+            // Reinitialize icons for newly visible elements
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
-        // Reinitialize icons for newly visible elements
-        lucide.createIcons();
-    }
-
-    // Clear search function
-    function clearSearch() {
-        searchInput.value = '';
-        clearSearchBtn.classList.add('hidden');
-        submissionRows.forEach(row => {
-            row.classList.remove('hidden');
-        });
-        noResultsRow.classList.add('hidden');
-        if (emptyState && submissionRows.length === 0) {
-            emptyState.classList.remove('hidden');
+        // Clear search function
+        function clearSearch(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+            submissionRows.forEach(row => {
+                row.classList.remove('hidden');
+            });
+            if (noResultsRow) {
+                noResultsRow.classList.add('hidden');
+            }
+            if (emptyState && submissionRows.length === 0) {
+                emptyState.classList.remove('hidden');
+            }
+            searchInput.focus();
         }
-        searchInput.focus();
-    }
 
-    // Event listeners
-    searchInput.addEventListener('input', performSearch);
-    searchInput.addEventListener('keyup', function(e) {
-        if (e.key === 'Escape') {
-            clearSearch();
-        }
-    });
-    searchField.addEventListener('change', function() {
+        // Event listeners - use capture phase to avoid conflicts
+        searchInput.addEventListener('input', performSearch, false);
+        searchInput.addEventListener('keyup', function(e) {
+            // Don't prevent default on Escape if dropdown is open - let layout handle it
+            const headerUserDropdown = document.getElementById('headerUserDropdown');
+            if (e.key === 'Escape' && (!headerUserDropdown || headerUserDropdown.classList.contains('hidden'))) {
+                clearSearch(e);
+            }
+        }, false);
+        searchField.addEventListener('change', function() {
+            updatePlaceholder();
+            performSearch(); // Re-run search with new field
+        }, false);
+        clearSearchBtn.addEventListener('click', function(e) {
+            clearSearch(e);
+        }, false);
+        
+        // Initialize placeholder
         updatePlaceholder();
-        performSearch(); // Re-run search with new field
     });
-    clearSearchBtn.addEventListener('click', clearSearch);
-    
-    // Initialize placeholder
-    updatePlaceholder();
 </script>
 @endsection

@@ -7,6 +7,7 @@ use App\Models\Reviewer;
 use App\Models\User;
 use App\Models\Review;
 use App\Models\Submission;
+use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +19,9 @@ class ReviewerController extends Controller
      */
     public function index()
     {
-        $reviewers = Reviewer::with('user')->withCount('reviews')->latest()->paginate(10);
-        return view('admin.reviewers.index', compact('reviewers'));
+        $reviewers = Reviewer::with(['user', 'journal'])->withCount('reviews')->latest()->paginate(10);
+        $journals = Journal::where('status', 'active')->get();
+        return view('admin.reviewers.index', compact('reviewers', 'journals'));
     }
 
     /**
@@ -28,7 +30,8 @@ class ReviewerController extends Controller
     public function create()
     {
         $users = User::where('role', 'reviewer')->get();
-        return view('admin.reviewers.create', compact('users'));
+        $journals = Journal::where('status', 'active')->get();
+        return view('admin.reviewers.create', compact('users', 'journals'));
     }
 
     /**
@@ -38,6 +41,7 @@ class ReviewerController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id|unique:reviewers,user_id',
+            'journal_id' => 'required|exists:journals,id',
             'email' => 'required|email|max:100',
             'expertise' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:100',
@@ -64,9 +68,10 @@ class ReviewerController extends Controller
      */
     public function edit(Reviewer $reviewer)
     {
-        $reviewer->load('user');
+        $reviewer->load('user', 'journal');
         $users = User::where('role', 'reviewer')->get();
-        return view('admin.reviewers.edit', compact('reviewer', 'users'));
+        $journals = Journal::where('status', 'active')->get();
+        return view('admin.reviewers.edit', compact('reviewer', 'users', 'journals'));
     }
 
     /**
@@ -76,6 +81,7 @@ class ReviewerController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id|unique:reviewers,user_id,' . $reviewer->id,
+            'journal_id' => 'required|exists:journals,id',
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $reviewer->user_id,
             'email' => 'required|email|max:255|unique:users,email,' . $reviewer->user_id,
@@ -139,6 +145,7 @@ class ReviewerController extends Controller
             // Update reviewer information
             $reviewer->update([
                 'user_id' => $request->user_id,
+                'journal_id' => $request->journal_id,
                 'email' => $request->reviewer_email,
                 'expertise' => $request->expertise,
                 'specialization' => $request->specialization,

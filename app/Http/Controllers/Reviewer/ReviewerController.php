@@ -26,21 +26,51 @@ class ReviewerController extends Controller
             ]);
         }
 
+        // Filter by reviewer's journal
+        $journalFilter = function($query) use ($reviewer) {
+            if ($reviewer->journal_id) {
+                $query->whereHas('submission.article', function($q) use ($reviewer) {
+                    $q->where('journal_id', $reviewer->journal_id);
+                });
+            }
+        };
+
         $pendingCount = Review::where('reviewer_id', $reviewer->id)
             ->whereNull('rating')
             ->whereNull('comments')
+            ->whereHas('submission.article', function($q) use ($reviewer) {
+                if ($reviewer->journal_id) {
+                    $q->where('journal_id', $reviewer->journal_id);
+                }
+            })
             ->count();
 
         $inProgressCount = Review::where('reviewer_id', $reviewer->id)
             ->whereNotNull('comments')
             ->whereNull('rating')
+            ->whereHas('submission.article', function($q) use ($reviewer) {
+                if ($reviewer->journal_id) {
+                    $q->where('journal_id', $reviewer->journal_id);
+                }
+            })
             ->count();
 
         $completedCount = Review::where('reviewer_id', $reviewer->id)
             ->whereNotNull('rating')
+            ->whereHas('submission.article', function($q) use ($reviewer) {
+                if ($reviewer->journal_id) {
+                    $q->where('journal_id', $reviewer->journal_id);
+                }
+            })
             ->count();
 
-        $totalCount = Review::where('reviewer_id', $reviewer->id)->count();
+        $totalCount = Review::where('reviewer_id', $reviewer->id)
+            ->whereHas('submission.article', function($q) use ($reviewer) {
+                if ($reviewer->journal_id) {
+                    $q->where('journal_id', $reviewer->journal_id);
+                }
+            })
+            ->count();
 
         $recentReviews = Review::with([
             'submission.article.journal',
@@ -48,6 +78,11 @@ class ReviewerController extends Controller
             'submission.article.category'
         ])
         ->where('reviewer_id', $reviewer->id)
+        ->whereHas('submission.article', function($q) use ($reviewer) {
+            if ($reviewer->journal_id) {
+                $q->where('journal_id', $reviewer->journal_id);
+            }
+        })
         ->latest()
         ->limit(5)
         ->get();

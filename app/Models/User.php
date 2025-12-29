@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->hasOne(Reviewer::class);
     }
 
+    public function editors(): HasMany
+    {
+        return $this->hasMany(Editor::class);
+    }
+
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);

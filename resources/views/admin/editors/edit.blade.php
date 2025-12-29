@@ -31,7 +31,7 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
-                        <span class="text-lg font-bold text-white">{{ substr($editor->name ?? 'E', 0, 1) }}</span>
+                        <span class="text-lg font-bold text-white">{{ substr($editor->user->name ?? 'E', 0, 1) }}</span>
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                     <i data-lucide="user" class="w-4 h-4 inline mr-1"></i>
                     Full Name <span class="text-red-500">*</span>
                 </label>
-                <input type="text" name="name" id="name" value="{{ old('name', $editor->name) }}" required
+                <input type="text" name="name" id="name" value="{{ old('name', $editor->user->name) }}" required
                        placeholder="Enter full name"
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 @error('name') border-red-500 @enderror">
                 @error('name')
@@ -61,7 +61,7 @@
                     <i data-lucide="at-sign" class="w-4 h-4 inline mr-1"></i>
                     Username <span class="text-red-500">*</span>
                 </label>
-                <input type="text" name="username" id="username" value="{{ old('username', $editor->username) }}" required
+                <input type="text" name="username" id="username" value="{{ old('username', $editor->user->username) }}" required
                        placeholder="Enter username"
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 @error('username') border-red-500 @enderror">
                 @error('username')
@@ -75,7 +75,7 @@
                     <i data-lucide="mail" class="w-4 h-4 inline mr-1"></i>
                     Email Address <span class="text-red-500">*</span>
                 </label>
-                <input type="email" name="email" id="email" value="{{ old('email', $editor->email) }}" required
+                <input type="email" name="email" id="email" value="{{ old('email', $editor->user->email) }}" required
                        placeholder="editor@example.com"
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 @error('email') border-red-500 @enderror">
                 @error('email')
@@ -108,6 +108,26 @@
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
             </div>
 
+            <!-- Journal -->
+            <div>
+                <label for="journal_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i data-lucide="book" class="w-4 h-4 inline mr-1"></i>
+                    Journal <span class="text-red-500">*</span>
+                </label>
+                <select name="journal_id" id="journal_id" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 @error('journal_id') border-red-500 @enderror">
+                    <option value="">Select a journal</option>
+                    @foreach($journals as $journal)
+                        <option value="{{ $journal->id }}" {{ old('journal_id', $editor->journal_id) == $journal->id ? 'selected' : '' }}>
+                            {{ $journal->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('journal_id')
+                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Status -->
             <div>
                 <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
@@ -116,8 +136,8 @@
                 </label>
                 <select name="status" id="status" required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 @error('status') border-red-500 @enderror">
-                    <option value="active" {{ old('status', $editor->status) == 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ old('status', $editor->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="active" {{ old('status', $editor->status ?? $editor->user->status) == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ old('status', $editor->status ?? $editor->user->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
                 @error('status')
                     <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
