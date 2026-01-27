@@ -451,5 +451,46 @@ class Author_ArticleSubmissionController extends Controller
                 ->withInput();
         }
     }
+
+    /**
+     * Reject the article (author withdraws/rejects their own article)
+     */
+    public function reject(Article $article)
+    {
+        $author = $this->getOrCreateAuthor();
+        
+        // Check if article belongs to this author
+        if ($article->author_id !== $author->id) {
+            return redirect()->route('author.articles.index')
+                ->with('error', 'Unauthorized access.');
+        }
+
+        // Only allow rejection if article is submitted or under_review
+        if (!in_array($article->status, ['submitted', 'under_review'])) {
+            return redirect()->route('author.articles.show', $article)
+                ->with('error', 'Cannot reject article in current status. Only submitted or under review articles can be rejected.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Update article status to rejected
+            $article->update(['status' => 'rejected']);
+
+            // Update all submissions for this article to rejected
+            Submission::where('article_id', $article->id)
+                ->whereIn('status', ['submitted', 'under_review'])
+                ->update(['status' => 'rejected']);
+
+            DB::commit();
+
+            return redirect()->route('author.articles.show', $article)
+                ->with('success', 'Article has been rejected successfully. No further reviewers will be assigned.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error rejecting article: ' . $e->getMessage());
+        }
+    }
 }
 

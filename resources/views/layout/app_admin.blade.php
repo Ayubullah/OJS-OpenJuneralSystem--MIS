@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'OJS Admin Dashboard')</title>
     
-    <!-- Tailwind CSS -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -278,7 +282,16 @@
                             </li>
                         </ul>
                     </div>
-                    
+
+                    <!-- Previous Articles -->
+                    <a href="{{ route('admin.previous-articles.index') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 hover:text-purple-700 transition-all duration-300 group btn-modern border border-transparent hover:border-purple-100 hover:shadow-md">
+                        <div class="w-7 h-7 bg-purple-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-colors duration-300">
+                            <i data-lucide="archive" class="w-4 h-4 text-purple-600"></i>
+                        </div>
+                        <span class="font-medium text-sm">{{ __('Previous Articles') }}</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                    </a>
+
                     <!-- User Management -->
                     <div class="space-y-1 mt-4">
                         <button id="usersMenuToggle" class="w-full px-3 py-2 flex items-center justify-between text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-300 group btn-modern border border-transparent hover:border-blue-100 hover:shadow-md">
@@ -366,31 +379,10 @@
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
-                            <li class="submenu-item">
-                                <a href="" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:text-gray-700 transition-all duration-300 group relative">
-                                    <div class="submenu-icon w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-gray-200 transition-all duration-300 shadow-sm">
-                                        <i data-lucide="sliders" class="w-4 h-4 text-gray-600"></i>
-                                    </div>
-                                    <span class="font-medium text-sm">{{__('General')}}</span>
-                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                                </a>
-                            </li>
+                            
                         </ul>
                         
-                        <a href="" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-pink-50 hover:to-rose-50 hover:text-pink-700 transition-all duration-300 group btn-modern border border-transparent hover:border-pink-100 hover:shadow-md">
-                            <div class="w-7 h-7 bg-pink-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-pink-200 transition-colors duration-300">
-                                <i data-lucide="bar-chart-3" class="w-4 h-4 text-pink-600"></i>
-                            </div>
-                             <span class="font-medium text-sm">{{__('Reports')}}</span>1
-                            <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-pink-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                        </a>
-                        <a href="" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 hover:text-red-700 transition-all duration-300 group btn-modern border border-transparent hover:border-red-100 hover:shadow-md">
-                            <div class="w-7 h-7 bg-red-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors duration-300">
-                                <i data-lucide="activity" class="w-4 h-4 text-red-600"></i>
-                            </div>
-                             <span class="font-medium text-sm">{{__('Logs')}}</span>
-                            <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                        </a>
+                        
                     </div>
                 </nav>
                 

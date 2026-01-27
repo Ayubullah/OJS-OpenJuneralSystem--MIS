@@ -36,7 +36,7 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('admin.reviewers.store') }}" method="POST" class="p-6 space-y-6">
+        <form action="{{ route('admin.reviewers.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
             @csrf
 
             <!-- User Selection -->
@@ -113,6 +113,39 @@
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('specialization') border-red-500 @enderror"
                     placeholder="e.g., Machine Learning, Organic Chemistry">
                 @error('specialization')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Website -->
+            <div>
+                <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+                    Website
+                </label>
+                <div class="relative">
+                    <input type="url" name="website" id="website" value="{{ old('website') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('website') border-red-500 @enderror"
+                        placeholder="https://reviewer-website.com">
+                    <i data-lucide="globe" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                </div>
+                @error('website')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Review Format File -->
+            <div>
+                <label for="review_format_file" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>
+                    Review Format Document <span class="text-gray-500">(Optional)</span>
+                </label>
+                <div class="mt-1 flex items-center">
+                    <input type="file" name="review_format_file" id="review_format_file" 
+                        accept=".doc,.docx,.pdf"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('review_format_file') border-red-500 @enderror">
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Upload the review format document (DOC, DOCX, or PDF). Max size: 10MB</p>
+                @error('review_format_file')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

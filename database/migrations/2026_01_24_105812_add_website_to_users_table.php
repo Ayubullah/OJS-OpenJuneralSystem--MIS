@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->text('author_reply')->nullable()->after('comments');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('website')->nullable()->after('country');
         });
     }
 
@@ -21,14 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->dropColumn('author_reply');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('website');
         });
     }
 };
-
-
-
-
-
-

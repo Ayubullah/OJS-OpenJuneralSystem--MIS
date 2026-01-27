@@ -63,7 +63,22 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        $article->load(['journal', 'author', 'category', 'submissions', 'keywords']);
+        $article->load([
+            'journal', 
+            'author', 
+            'category', 
+            'keywords',
+            'submissions' => function($query) {
+                $query->with([
+                    'reviews' => function($reviewQuery) {
+                        $reviewQuery->with([
+                            'reviewer.user',
+                            'reviewer.journal'
+                        ])->orderBy('created_at', 'desc');
+                    }
+                ])->orderBy('version_number', 'desc');
+            }
+        ]);
         return view('admin.articles.show', compact('article'));
     }
 

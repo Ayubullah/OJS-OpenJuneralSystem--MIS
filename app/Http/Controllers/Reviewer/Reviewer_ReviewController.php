@@ -149,7 +149,8 @@ class Reviewer_ReviewController extends Controller
             'submission.article.journal',
             'submission.article.author',
             'submission.article.category',
-            'submission.author'
+            'submission.author',
+            'reviewer'
         ])
         ->where('reviewer_id', $reviewer->id)
         ->findOrFail($id);
@@ -217,15 +218,78 @@ class Reviewer_ReviewController extends Controller
 
         $request->validate([
             'rating' => 'nullable|numeric|min:0|max:10',
-            'comments' => 'required|string|min:10',
+            'plagiarism_percentage' => 'nullable|numeric|min:0|max:100',
+            'comments' => 'nullable|string|min:10',
+            // General Comments - 6 Questions
+            'originality_comment' => 'nullable|string',
+            'relationship_to_literature_comment' => 'nullable|string',
+            'methodology_comment' => 'nullable|string',
+            'results_comment' => 'nullable|string',
+            'implications_comment' => 'nullable|string',
+            'quality_of_communication_comment' => 'nullable|string',
+            // Strengths and Weaknesses
+            'strengths' => 'nullable|string',
+            'weaknesses' => 'nullable|string',
+            // Suggestions for Improvement
+            'suggestions_for_improvement' => 'nullable|string',
+            // Paper Score
+            'relevance_score' => 'nullable|numeric|min:0|max:5',
+            'originality_score' => 'nullable|numeric|min:0|max:10',
+            'significance_score' => 'nullable|numeric|min:0|max:15',
+            'technical_soundness_score' => 'nullable|numeric|min:0|max:15',
+            'clarity_score' => 'nullable|numeric|min:0|max:10',
+            'documentation_score' => 'nullable|numeric|min:0|max:5',
+            'total_score' => 'nullable|numeric|min:0|max:60',
+            // Final Evaluation
+            'final_evaluation' => 'nullable|in:excellent,very_good,fair,poor',
+            // Recommendation
+            'recommendation' => 'nullable|in:acceptance,minor_revision,major_revision,rejection',
         ]);
 
         DB::beginTransaction();
         try {
+            // Calculate total score if individual scores are provided
+            $totalScore = null;
+            if ($request->filled('relevance_score') || $request->filled('originality_score') || 
+                $request->filled('significance_score') || $request->filled('technical_soundness_score') ||
+                $request->filled('clarity_score') || $request->filled('documentation_score')) {
+                $totalScore = ($request->relevance_score ?? 0) + 
+                             ($request->originality_score ?? 0) + 
+                             ($request->significance_score ?? 0) + 
+                             ($request->technical_soundness_score ?? 0) + 
+                             ($request->clarity_score ?? 0) + 
+                             ($request->documentation_score ?? 0);
+            }
+
             // Update review
             $review->update([
                 'rating' => $request->rating,
+                'plagiarism_percentage' => $request->plagiarism_percentage,
                 'comments' => $request->comments,
+                // General Comments - 6 Questions
+                'originality_comment' => $request->originality_comment,
+                'relationship_to_literature_comment' => $request->relationship_to_literature_comment,
+                'methodology_comment' => $request->methodology_comment,
+                'results_comment' => $request->results_comment,
+                'implications_comment' => $request->implications_comment,
+                'quality_of_communication_comment' => $request->quality_of_communication_comment,
+                // Strengths and Weaknesses
+                'strengths' => $request->strengths,
+                'weaknesses' => $request->weaknesses,
+                // Suggestions for Improvement
+                'suggestions_for_improvement' => $request->suggestions_for_improvement,
+                // Paper Score
+                'relevance_score' => $request->relevance_score,
+                'originality_score' => $request->originality_score,
+                'significance_score' => $request->significance_score,
+                'technical_soundness_score' => $request->technical_soundness_score,
+                'clarity_score' => $request->clarity_score,
+                'documentation_score' => $request->documentation_score,
+                'total_score' => $request->total_score ?? $totalScore,
+                // Final Evaluation
+                'final_evaluation' => $request->final_evaluation,
+                // Recommendation
+                'recommendation' => $request->recommendation,
             ]);
 
             // Get submission and reload to get fresh reviews data

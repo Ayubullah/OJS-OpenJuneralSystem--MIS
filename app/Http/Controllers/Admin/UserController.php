@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Journal;
+use App\Models\Editor;
+use App\Models\Reviewer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -23,7 +27,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        $journals = Journal::where('status', 'active')->get();
+        return view('admin.users.create', compact('journals'));
     }
 
     /**
@@ -31,26 +36,80 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:50|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,editor,reviewer,author',
             'status' => 'required|in:active,inactive'
-        ]);
+        ];
 
-        User::create([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'status' => $request->status,
-        ]);
+        // Add website validation only for admin role
+        if ($request->role === 'admin') {
+            $rules['website'] = 'nullable|url|max:255';
+        }
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
+        // Add conditional validation for editor/reviewer roles
+        if ($request->role === 'editor') {
+            $rules['journal_id'] = 'required|exists:journals,id';
+        } elseif ($request->role === 'reviewer') {
+            $rules['journal_id'] = 'required|exists:journals,id';
+            $rules['reviewer_email'] = 'required|email|max:100|unique:reviewers,email';
+            $rules['expertise'] = 'nullable|string|max:100';
+            $rules['specialization'] = 'nullable|string|max:100';
+        }
+
+        $request->validate($rules);
+
+        DB::beginTransaction();
+        try {
+            $userData = [
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+                'status' => $request->status,
+            ];
+
+            // Add website only for admin role
+            if ($request->role === 'admin') {
+                $userData['website'] = $request->website;
+            }
+
+            $user = User::create($userData);
+
+            // Create editor record if role is editor
+            if ($request->role === 'editor') {
+                Editor::create([
+                    'user_id' => $user->id,
+                    'journal_id' => $request->journal_id,
+                    'status' => $request->status
+                ]);
+            }
+            // Create reviewer record if role is reviewer
+            elseif ($request->role === 'reviewer') {
+                Reviewer::create([
+                    'user_id' => $user->id,
+                    'journal_id' => $request->journal_id,
+                    'email' => $request->reviewer_email,
+                    'expertise' => $request->expertise,
+                    'specialization' => $request->specialization,
+                    'status' => $request->status
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User created successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error creating user: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**

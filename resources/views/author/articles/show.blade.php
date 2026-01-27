@@ -33,6 +33,19 @@
                         {{ __('Edit Article') }}
                     </a>
                     @endif
+                    @if(in_array($article->status, ['submitted', 'under_review']))
+                    <form action="{{ route('author.articles.reject', $article) }}" method="POST" onsubmit="return confirm('{{ __('Are you sure you want to reject this article? This action cannot be undone and no further reviewers will be assigned.') }}')" class="inline">
+                        @csrf
+                        @method('POST')
+                        <button type="submit" 
+                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-lg hover:from-red-700 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            {{ __('Reject Article') }}
+                        </button>
+                    </form>
+                    @endif
                     <a href="{{ route('author.articles.index') }}" 
                         class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -390,7 +403,30 @@
                                                 </div>
                                             </div>
                                             @endif
+                                            @if($review->plagiarism_percentage !== null)
+                                            <div class="flex items-center space-x-2 mt-2">
+                                                <i data-lucide="file-search" class="w-4 h-4 text-orange-500"></i>
+                                                <span class="text-sm text-gray-600">Plagiarism:</span>
+                                                <span class="text-sm font-bold {{ $review->plagiarism_percentage > 20 ? 'text-red-600' : ($review->plagiarism_percentage > 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                                    {{ number_format($review->plagiarism_percentage, 2) }}%
+                                                </span>
+                                            </div>
+                                            @endif
                                         </div>
+                                        @if($review->plagiarism_percentage !== null)
+                                        <div class="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3 mb-3">
+                                            <div class="flex items-center space-x-2 mb-2">
+                                                <i data-lucide="file-search" class="w-4 h-4 text-orange-600"></i>
+                                                <p class="text-xs font-semibold text-orange-800">Plagiarism Percentage</p>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-xl font-bold {{ $review->plagiarism_percentage > 20 ? 'text-red-600' : ($review->plagiarism_percentage > 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                                    {{ number_format($review->plagiarism_percentage, 2) }}%
+                                                </span>
+                                                <span class="text-sm text-gray-600">detected by reviewer</span>
+                                            </div>
+                                        </div>
+                                        @endif
                                         <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-3">
                                             <div class="text-sm text-gray-700 leading-relaxed ql-editor" style="padding: 0;">
                                                 {!! $review->editor_edited_comments ?? $review->comments !!}

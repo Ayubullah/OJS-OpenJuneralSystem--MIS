@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->text('author_reply')->nullable()->after('comments');
+            $table->decimal('plagiarism_percentage', 5, 2)->nullable()->after('rating')->comment('Plagiarism percentage (0-100)');
         });
     }
 
@@ -22,13 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->dropColumn('author_reply');
+            $table->dropColumn('plagiarism_percentage');
         });
     }
 };
-
-
-
-
-
-

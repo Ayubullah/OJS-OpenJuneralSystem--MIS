@@ -72,7 +72,20 @@
         </div>
         @endif
 
-        <form action="{{ route('editor.submissions.assign-reviewer.store', $submission) }}" method="POST" class="p-8 space-y-8">
+        <!-- Rejected Article Warning -->
+        @if($submission->article->status === 'rejected' || $submission->status === 'rejected')
+        <div class="mx-8 mt-6 bg-red-50 border-2 border-red-300 rounded-lg p-4">
+            <div class="flex items-start">
+                <i data-lucide="x-circle" class="w-6 h-6 text-red-600 mr-3 mt-0.5"></i>
+                <div>
+                    <p class="text-sm font-bold text-red-800 mb-1">Article Rejected by Author</p>
+                    <p class="text-sm text-red-700">This article has been rejected by the author. Reviewers cannot be assigned to rejected articles.</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <form action="{{ route('editor.submissions.assign-reviewer.store', $submission) }}" method="POST" class="p-8 space-y-8" @if($submission->article->status === 'rejected' || $submission->status === 'rejected') onsubmit="event.preventDefault(); alert('Cannot assign reviewers to a rejected article.'); return false;" @endif>
             @csrf
 
             <!-- Previous Reviewers by Version - Horizontal Layout -->

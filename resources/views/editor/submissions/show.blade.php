@@ -259,6 +259,15 @@
                                     </div>
                                 </div>
                                 @endif
+                                @if($review->plagiarism_percentage !== null)
+                                <div class="flex items-center space-x-2 mt-3 p-2 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg">
+                                    <i data-lucide="file-search" class="w-4 h-4 text-orange-600"></i>
+                                    <span class="text-sm text-gray-700">Plagiarism Percentage:</span>
+                                    <span class="text-sm font-bold {{ $review->plagiarism_percentage > 20 ? 'text-red-600' : ($review->plagiarism_percentage > 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                        {{ number_format($review->plagiarism_percentage, 2) }}%
+                                    </span>
+                                </div>
+                                @endif
                             </div>
                             @endforeach
                         </div>

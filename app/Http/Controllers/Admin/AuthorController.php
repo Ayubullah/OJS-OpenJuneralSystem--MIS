@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Author;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AuthorController extends Controller
 {
@@ -32,17 +35,47 @@ class AuthorController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:150',
-            'email' => 'required|email|max:100|unique:authors,email',
+            'email' => 'required|email|max:100|unique:users,email',
             'affiliation' => 'nullable|string|max:200',
             'specialization' => 'nullable|string|max:100',
             'orcid_id' => 'nullable|string|max:50',
-            'author_contributions' => 'nullable|string'
+            'author_contributions' => 'nullable|string',
+            'website' => 'nullable|url|max:255'
         ]);
 
-        Author::create($request->all());
+        DB::beginTransaction();
+        try {
+            // Create user account for the author
+            $user = User::create([
+                'name' => $request->name,
+                'username' => $this->generateUsername($request->name),
+                'email' => $request->email,
+                'password' => Hash::make('password123'), // Default password
+                'role' => 'author',
+                'status' => 'active',
+                'website' => $request->website,
+            ]);
 
-        return redirect()->route('admin.authors.index')
-            ->with('success', 'Author created successfully.');
+            // Create author record
+            Author::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'affiliation' => $request->affiliation,
+                'specialization' => $request->specialization,
+                'orcid_id' => $request->orcid_id,
+                'author_contributions' => $request->author_contributions,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.authors.index')
+                ->with('success', 'Author created successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error creating author: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -73,13 +106,38 @@ class AuthorController extends Controller
             'affiliation' => 'nullable|string|max:200',
             'specialization' => 'nullable|string|max:100',
             'orcid_id' => 'nullable|string|max:50',
-            'author_contributions' => 'nullable|string'
+            'author_contributions' => 'nullable|string',
+            'website' => 'nullable|url|max:255'
         ]);
 
-        $author->update($request->all());
+        DB::beginTransaction();
+        try {
+            // Update author record
+            $author->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'affiliation' => $request->affiliation,
+                'specialization' => $request->specialization,
+                'orcid_id' => $request->orcid_id,
+                'author_contributions' => $request->author_contributions,
+            ]);
 
-        return redirect()->route('admin.authors.index')
-            ->with('success', 'Author updated successfully.');
+            // Find and update associated user record if it exists
+            $user = User::where('email', $author->email)->first();
+            if ($user && $request->filled('website')) {
+                $user->update(['website' => $request->website]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.authors.index')
+                ->with('success', 'Author updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error updating author: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -91,6 +149,23 @@ class AuthorController extends Controller
 
         return redirect()->route('admin.authors.index')
             ->with('success', 'Author deleted successfully.');
+    }
+
+    /**
+     * Generate a unique username from the author's name.
+     */
+    private function generateUsername($name)
+    {
+        $baseUsername = strtolower(str_replace(' ', '', $name));
+        $username = $baseUsername;
+        $counter = 1;
+
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+
+        return $username;
     }
 }
 

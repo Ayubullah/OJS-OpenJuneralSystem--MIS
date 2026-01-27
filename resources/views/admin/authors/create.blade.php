@@ -93,7 +93,7 @@
                 </div>
 
                 <!-- ORCID ID -->
-                <div class="md:col-span-2">
+                <div>
                     <label for="orcid_id" class="block text-sm font-medium text-gray-700 mb-2">
                         ORCID ID
                     </label>
@@ -102,7 +102,7 @@
                             <i data-lucide="link" class="w-4 h-4 mr-1"></i>
                             https://orcid.org/
                         </span>
-                        <input type="text" name="orcid_id" id="orcid_id" value="{{ old('orcid_id') }}" 
+                        <input type="text" name="orcid_id" id="orcid_id" value="{{ old('orcid_id') }}"
                             class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('orcid_id') border-red-500 @enderror"
                             placeholder="0000-0000-0000-0000">
                     </div>
@@ -110,6 +110,22 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     <p class="mt-1 text-sm text-gray-500">Author's unique ORCID identifier</p>
+                </div>
+
+                <!-- Website -->
+                <div>
+                    <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+                        Website
+                    </label>
+                    <div class="relative">
+                        <input type="url" name="website" id="website" value="{{ old('website') }}"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('website') border-red-500 @enderror"
+                            placeholder="https://author-website.com">
+                        <i data-lucide="globe" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                    </div>
+                    @error('website')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Author Contributions -->

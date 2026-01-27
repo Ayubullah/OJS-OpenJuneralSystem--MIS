@@ -11,6 +11,7 @@ use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ReviewerController extends Controller
 {
@@ -45,13 +46,49 @@ class ReviewerController extends Controller
             'email' => 'required|email|max:100',
             'expertise' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:100',
-            'status' => 'required|in:active,inactive'
+            'website' => 'nullable|url|max:255',
+            'status' => 'required|in:active,inactive',
+            'review_format_file' => 'nullable|file|mimes:doc,docx,pdf|max:10240'
         ]);
 
-        Reviewer::create($request->all());
+        DB::beginTransaction();
+        try {
+            // Update user with website if provided
+            if ($request->filled('website')) {
+                $user = User::findOrFail($request->user_id);
+                $user->update(['website' => $request->website]);
+            }
 
-        return redirect()->route('admin.reviewers.index')
-            ->with('success', 'Reviewer created successfully.');
+            // Handle review format file upload
+            $reviewFormatFile = null;
+            if ($request->hasFile('review_format_file')) {
+                $file = $request->file('review_format_file');
+                $fileName = 'review_format_' . time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('review_formats', $fileName, 'public');
+                $reviewFormatFile = $filePath;
+            }
+
+            // Create reviewer record
+            Reviewer::create([
+                'user_id' => $request->user_id,
+                'journal_id' => $request->journal_id,
+                'email' => $request->email,
+                'expertise' => $request->expertise,
+                'specialization' => $request->specialization,
+                'status' => $request->status,
+                'review_format_file' => $reviewFormatFile
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.reviewers.index')
+                ->with('success', 'Reviewer created successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error creating reviewer: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -91,6 +128,7 @@ class ReviewerController extends Controller
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
+            'website' => 'nullable|url|max:255',
             'reviewer_email' => 'required|email|max:100',
             'expertise' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:100',
@@ -134,6 +172,11 @@ class ReviewerController extends Controller
             } else {
                 $userData['country'] = null;
             }
+            if ($request->filled('website')) {
+                $userData['website'] = $request->website;
+            } else {
+                $userData['website'] = null;
+            }
 
             // Update password if provided
             if ($request->filled('password')) {
@@ -141,6 +184,21 @@ class ReviewerController extends Controller
             }
 
             $user->update($userData);
+
+            // Handle review format file upload
+            $reviewFormatFile = $reviewer->review_format_file; // Keep existing file by default
+            if ($request->hasFile('review_format_file')) {
+                // Delete old file if exists
+                if ($reviewer->review_format_file && Storage::disk('public')->exists($reviewer->review_format_file)) {
+                    Storage::disk('public')->delete($reviewer->review_format_file);
+                }
+                
+                // Upload new file
+                $file = $request->file('review_format_file');
+                $fileName = 'review_format_' . time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('review_formats', $fileName, 'public');
+                $reviewFormatFile = $filePath;
+            }
 
             // Update reviewer information
             $reviewer->update([
@@ -150,6 +208,7 @@ class ReviewerController extends Controller
                 'expertise' => $request->expertise,
                 'specialization' => $request->specialization,
                 'status' => $request->status,
+                'review_format_file' => $reviewFormatFile
             ]);
 
             DB::commit();

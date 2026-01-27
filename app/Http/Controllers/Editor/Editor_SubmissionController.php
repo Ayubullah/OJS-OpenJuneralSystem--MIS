@@ -279,6 +279,13 @@ class Editor_SubmissionController extends Controller
         if (!empty($journalIds) && !in_array($submission->article->journal_id, $journalIds)) {
             abort(403, 'You do not have access to this submission.');
         }
+
+        // Check if article or submission is rejected
+        $submission->load('article');
+        if ($submission->article->status === 'rejected' || $submission->status === 'rejected') {
+            return redirect()->route('editor.submissions.show', $submission)
+                ->with('error', 'Cannot assign reviewers to a rejected article. The author has rejected this article.');
+        }
         
         $submission->load(['article.journal', 'author', 'reviews.reviewer.user']);
         // Only show reviewers from the same journal
@@ -301,6 +308,12 @@ class Editor_SubmissionController extends Controller
      */
     public function storeReviewerAssignment(Request $request, Submission $submission)
     {
+        // Check if article or submission is rejected
+        if ($submission->article->status === 'rejected' || $submission->status === 'rejected') {
+            return redirect()->back()
+                ->with('error', 'Cannot assign reviewers to a rejected article. The author has rejected this article.');
+        }
+
         $request->validate([
             'reviewer_ids' => 'required|array|min:1',
             'reviewer_ids.*' => 'exists:reviewers,id',

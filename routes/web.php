@@ -23,6 +23,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return view('welcome');
@@ -103,6 +104,12 @@ Route::middleware('auth')->group(function () {
         Route::get('submissions/{submission}/assign-reviewer', [SubmissionController::class, 'assignReviewer'])->name('submissions.assign-reviewer');
         Route::post('submissions/{submission}/assign-reviewer', [SubmissionController::class, 'storeReviewerAssignment'])->name('submissions.assign-reviewer.store');
         Route::resource('submissions', SubmissionController::class);
+
+        // Previous Articles Management
+        Route::get('previous-articles', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'index'])->name('previous-articles.index');
+        Route::post('previous-articles', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'store'])->name('previous-articles.store');
+        Route::get('previous-articles/editors/{editor}/reviewers', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'getReviewersByEditor'])->name('previous-articles.editors.reviewers');
+        Route::get('previous-articles/editors/{editor}', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'getEditorDetails'])->name('previous-articles.editors.details');
     });
 // End Admin Role
 
@@ -172,6 +179,7 @@ Route::middleware('auth')->group(function () {
         // Resubmit routes (must be before resource routes)
         Route::get('/articles/{article}/resubmit', [Author_ArticleSubmissionController::class, 'resubmit'])->name('articles.resubmit');
         Route::post('/articles/{article}/resubmit', [Author_ArticleSubmissionController::class, 'storeResubmission'])->name('articles.storeResubmission');
+        Route::post('/articles/{article}/reject', [Author_ArticleSubmissionController::class, 'reject'])->name('articles.reject');
         Route::post('/reviews/{review}/reply', [Author_ArticleSubmissionController::class, 'replyToReview'])->name('reviews.reply');
         
         // Notifications
@@ -184,5 +192,18 @@ Route::middleware('auth')->group(function () {
         Route::resource('articles', Author_ArticleSubmissionController::class)->names('articles');
     });
 // End Author Role
+
+// Download route for review format files
+Route::get('/download/review-format/{file}', function ($file) {
+    // Decode URL-encoded filename
+    $file = urldecode($file);
+    $filePath = 'review_formats/' . $file;
+    
+    if (Storage::disk('public')->exists($filePath)) {
+        return Storage::disk('public')->download($filePath);
+    }
+    
+    abort(404, 'File not found');
+})->name('review.format.download')->middleware('auth');
 
 require __DIR__.'/auth.php';

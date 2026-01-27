@@ -221,9 +221,14 @@
                                 <p class="text-xs text-gray-700 line-clamp-2 mb-2">
                                     {{ Str::limit(strip_tags($review->editor_edited_comments ?? $review->comments ?? ''), 80) }}
                                 </p>
-                                <div class="flex items-center space-x-2">
+                                <div class="flex items-center space-x-2 flex-wrap">
                                     @if($review->rating)
                                     <span class="text-xs font-bold text-gray-900">{{ $review->rating }}/10</span>
+                                    @endif
+                                    @if($review->plagiarism_percentage !== null)
+                                    <span class="text-xs font-bold {{ $review->plagiarism_percentage > 20 ? 'text-red-600' : ($review->plagiarism_percentage > 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                        Plagiarism: {{ number_format($review->plagiarism_percentage, 1) }}%
+                                    </span>
                                     @endif
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         Approved
@@ -304,4 +309,5 @@
     }
 </script>
 @endsection
+
 

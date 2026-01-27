@@ -7,8 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'OJS Editor Dashboard')</title>
 
-    <!-- Tailwind CSS -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,6 +96,70 @@
         .animate-pulse-slow {
             animation: pulse 2s infinite;
         }
+        
+        /* Rotate transition for chevron */
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        
+        /* Modern submenu active indicator */
+        .submenu-item {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .submenu-item.active {
+            background: rgba(99, 102, 241, 0.08);
+            border-left: 3px solid #6366f1;
+        }
+        
+        .submenu-item.active::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #6366f1;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+            animation: pulse-dot 1.8s infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% {
+                opacity: 1;
+                transform: translateY(-50%) scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: translateY(-50%) scale(1.2);
+            }
+        }
+        
+        .submenu-item.active .submenu-icon {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .submenu-item.active .submenu-icon i {
+            color: white;
+        }
+        
+        .submenu-item.active span {
+            color: #111827;
+            font-weight: 600;
+        }
+        
+        .submenu-item.active a {
+            color: #111827;
+        }
+        
+        /* Simple submenu show/hide */
+        .submenu-container.hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -129,112 +196,160 @@
                         <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                     </a>
 
+                    <!-- Articles Management -->
+                    <div class="space-y-1 mt-4">
+                        <button id="articlesMenuToggle" class="w-full px-3 py-2 flex items-center justify-between text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 hover:text-teal-700 transition-all duration-300 group btn-modern border border-transparent hover:border-teal-100 hover:shadow-md">
+                            <div class="flex items-center">
+                                <div class="w-5 h-5 bg-gradient-to-br from-teal-100 to-cyan-100 rounded flex items-center justify-center mr-2">
+                                    <i data-lucide="file-text" class="w-3 h-3 text-teal-600"></i>
+                                </div>
+                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-teal-700">{{ __('Articles') }}</h3>
+                            </div>
+                            <i data-lucide="chevron-down" id="articlesMenuIcon" class="w-4 h-4 text-gray-400 group-hover:text-teal-600 transition-transform duration-300"></i>
+                        </button>
+                        
+                        <!-- Articles Submenu -->
+                        <ul id="articlesSubmenu" class="submenu-container space-y-1 ml-2 pl-3 border-l-2 border-gray-100 hidden">
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.index') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-emerald-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="inbox" class="w-4 h-4 text-emerald-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('All Submissions') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.published') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Published') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.accepted') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 hover:text-teal-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-teal-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-teal-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="check" class="w-4 h-4 text-teal-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Accepted') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-teal-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.submitted') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-yellow-50 hover:to-amber-50 hover:text-yellow-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-yellow-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="send" class="w-4 h-4 text-yellow-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Submitted') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-yellow-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.under-review') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="eye" class="w-4 h-4 text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Under Review') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.revision-required') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-orange-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="edit" class="w-4 h-4 text-orange-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Revision Required') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-orange-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.rejected') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 hover:text-red-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-red-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Rejected') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
                     <!-- Account -->
                     <div class="space-y-1 mt-6">
-                        <!-- Articles Management -->
-                        <div class="space-y-1 mt-4">
-                            <div class="px-3 py-1 flex items-center">
-                                <div class="w-5 h-5 bg-gradient-to-br from-teal-100 to-cyan-100 rounded flex items-center justify-center mr-2">
-                                    <i data-lucide="users" class="w-3 h-3 text-teal-600"></i>
-                                </div>
-                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Articles</h3>
-                            </div>
-                            <a href="{{ route('editor.submissions.index') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 hover:text-emerald-700 transition-all duration-300 group btn-modern border border-transparent hover:border-emerald-100 hover:shadow-md">
-                                <div class="w-7 h-7 bg-emerald-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors duration-300">
-                                    <i data-lucide="file-text" class="w-4 h-4 text-emerald-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">All Submissions</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                            </a>
-                            <a href="{{ route('editor.submissions.published') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700 transition-all duration-300 group btn-modern border border-transparent hover:border-green-100 hover:shadow-md">
-                                <div class="w-7 h-7 bg-green-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors duration-300">
-                                    <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">Published</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                            </a>
-                            <a href="{{ route('editor.submissions.accepted') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 hover:text-teal-700 transition-all duration-300 group btn-modern border border-transparent hover:border-teal-100 hover:shadow-md">
-                                <div class="w-7 h-7 bg-teal-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-teal-200 transition-colors duration-300">
-                                    <i data-lucide="check" class="w-4 h-4 text-teal-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">Accepted</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-teal-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                            </a>
-                            <a href="{{ route('editor.submissions.submitted') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-yellow-50 hover:to-amber-50 hover:text-yellow-700 transition-all duration-300 group btn-modern border border-transparent hover:border-yellow-100 hover:shadow-md">
-                                <div class="w-7 h-7 bg-yellow-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-yellow-200 transition-colors duration-300">
-                                    <i data-lucide="send" class="w-4 h-4 text-yellow-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">Submitted</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-yellow-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                            </a>
-                            <a href="{{ route('editor.submissions.under-review') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-300 group btn-modern border border-transparent hover:border-blue-100 hover:shadow-md">
-                                <div class="w-7 h-7 bg-blue-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors duration-300">
-                                    <i data-lucide="eye" class="w-4 h-4 text-blue-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">Under Review</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                            </a>
-                            <a href="{{ route('editor.submissions.revision-required') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-700 transition-all duration-300 group btn-modern border border-transparent hover:border-orange-100 hover:shadow-md">
-                                <div class="w-7 h-7 bg-orange-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-orange-200 transition-colors duration-300">
-                                    <i data-lucide="edit" class="w-4 h-4 text-orange-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">Revision Required</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-orange-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                            </a>
-                            <a href="{{ route('editor.submissions.rejected') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 hover:text-red-700 transition-all duration-300 group btn-modern border border-transparent hover:border-red-100 hover:shadow-md">
-                                <div class="w-7 h-7 bg-red-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors duration-300">
-                                    <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">Rejected</span>
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                            </a>
-                        </div>
-
                         <!-- Review Approvals -->
-                        <div class="space-y-1 mt-6">
-                            <div class="px-3 py-1 flex items-center">
-                                <div class="w-5 h-5 bg-gradient-to-br from-orange-100 to-amber-100 rounded flex items-center justify-center mr-2">
-                                    <i data-lucide="check-circle" class="w-3 h-3 text-orange-600"></i>
+                        <div class="space-y-1 mt-4">
+                            <button id="approvalsMenuToggle" class="w-full px-3 py-2 flex items-center justify-between text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-700 transition-all duration-300 group btn-modern border border-transparent hover:border-orange-100 hover:shadow-md">
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 bg-gradient-to-br from-orange-100 to-amber-100 rounded flex items-center justify-center mr-2">
+                                        <i data-lucide="check-circle" class="w-3 h-3 text-orange-600"></i>
+                                    </div>
+                                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-orange-700">{{ __('Approvals') }}</h3>
                                 </div>
-                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">Approvals</h3>
-                            </div>
-                            @php
-                                $editorJournalIds = \App\Models\Editor::where('user_id', auth()->id())
-                                    ->where('status', 'active')
-                                    ->pluck('journal_id')
-                                    ->toArray();
-                                $pendingCount = \App\Models\Review::whereNotNull('comments')
-                                    ->where('editor_approved', false)
-                                    ->whereHas('submission.article', function($q) use ($editorJournalIds) {
-                                        if (!empty($editorJournalIds)) {
-                                            $q->whereIn('journal_id', $editorJournalIds);
-                                        } else {
-                                            $q->whereRaw('1 = 0');
-                                        }
-                                    })
-                                    ->count();
-                            @endphp
-                            <a href="{{ route('editor.reviews.pending-approvals') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-700 transition-all duration-300 group btn-modern border border-transparent hover:border-orange-100 hover:shadow-md relative">
-                                <div class="w-7 h-7 bg-orange-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-orange-200 transition-colors duration-300">
-                                    <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
-                                </div>
-                                <span class="font-medium text-sm">Pending Approvals</span>
-                                @if($pendingCount > 0)
-                                <span class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-full animate-pulse">
-                                    {{ $pendingCount }}
-                                </span>
-                                @endif
-                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-orange-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 {{ $pendingCount > 0 ? 'ml-2' : 'ml-auto' }}"></i>
-                            </a>
+                                <i data-lucide="chevron-down" id="approvalsMenuIcon" class="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-transform duration-300"></i>
+                            </button>
+                            
+                            <!-- Approvals Submenu -->
+                            <ul id="approvalsSubmenu" class="submenu-container space-y-1 ml-2 pl-3 border-l-2 border-gray-100 hidden">
+                                <li class="submenu-item">
+                                    @php
+                                        $editorJournalIds = \App\Models\Editor::where('user_id', auth()->id())
+                                            ->where('status', 'active')
+                                            ->pluck('journal_id')
+                                            ->toArray();
+                                        $pendingCount = \App\Models\Review::whereNotNull('comments')
+                                            ->where('editor_approved', false)
+                                            ->whereHas('submission.article', function($q) use ($editorJournalIds) {
+                                                if (!empty($editorJournalIds)) {
+                                                    $q->whereIn('journal_id', $editorJournalIds);
+                                                } else {
+                                                    $q->whereRaw('1 = 0');
+                                                }
+                                            })
+                                            ->count();
+                                    @endphp
+                                    <a href="{{ route('editor.reviews.pending-approvals') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-700 transition-all duration-300 group relative">
+                                        <div class="submenu-icon w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-orange-200 transition-all duration-300 shadow-sm">
+                                            <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
+                                        </div>
+                                        <span class="font-medium text-sm">{{ __('Pending Approvals') }}</span>
+                                        @if($pendingCount > 0)
+                                        <span class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-full animate-pulse">
+                                            {{ $pendingCount }}
+                                        </span>
+                                        @endif
+                                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-orange-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 {{ $pendingCount > 0 ? 'ml-2' : 'ml-auto' }}"></i>
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
 
-                        <a href="{{ route('editor.profile.edit') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:text-blue-700 transition-all duration-300 group btn-modern border border-transparent hover:border-blue-100 hover:shadow-md">
-                            <div class="w-7 h-7 bg-blue-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors duration-300">
-                                <i data-lucide="user-circle" class="w-4 h-4 text-blue-600"></i>
-                            </div>
-                            <span class="font-medium text-sm">Profile Settings</span>
-                            <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
-                        </a>
+                        <!-- Profile Settings -->
+                        <div class="space-y-1 mt-4">
+                            <button id="profileMenuToggle" class="w-full px-3 py-2 flex items-center justify-between text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:text-blue-700 transition-all duration-300 group btn-modern border border-transparent hover:border-blue-100 hover:shadow-md">
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 bg-gradient-to-br from-blue-100 to-cyan-100 rounded flex items-center justify-center mr-2">
+                                        <i data-lucide="user-circle" class="w-3 h-3 text-blue-600"></i>
+                                    </div>
+                                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-blue-700">{{ __('Profile') }}</h3>
+                                </div>
+                                <i data-lucide="chevron-down" id="profileMenuIcon" class="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-transform duration-300"></i>
+                            </button>
+                            
+                            <!-- Profile Submenu -->
+                            <ul id="profileSubmenu" class="submenu-container space-y-1 ml-2 pl-3 border-l-2 border-gray-100 hidden">
+                                <li class="submenu-item">
+                                    <a href="{{ route('editor.profile.edit') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:text-blue-700 transition-all duration-300 group relative">
+                                        <div class="submenu-icon w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-all duration-300 shadow-sm">
+                                            <i data-lucide="user" class="w-4 h-4 text-blue-600"></i>
+                                        </div>
+                                        <span class="font-medium text-sm">{{ __('Profile Settings') }}</span>
+                                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </nav>
                 
@@ -559,6 +674,100 @@
                 }
             });
         });
+        
+        // Function to toggle submenu (simple show/hide)
+        function toggleSubmenu(submenu, icon) {
+            const isHidden = submenu.classList.contains('hidden');
+            
+            if (isHidden) {
+                submenu.classList.remove('hidden');
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                submenu.classList.add('hidden');
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
+        
+        // Function to detect and highlight active submenu items
+        function highlightActiveSubmenuItems() {
+            const currentPath = window.location.pathname;
+            const submenuItems = document.querySelectorAll('.submenu-item a');
+            
+            submenuItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href) {
+                    // Normalize to pathname
+                    let itemPath = href;
+                    try { itemPath = new URL(href, window.location.origin).pathname; } catch (e) {}
+                    if (!itemPath.startsWith('/')) itemPath = '/' + itemPath.replace(/^\/+/, '');
+                    
+                    // Check if current path matches or starts with item path
+                    if (currentPath === itemPath || (itemPath !== '/' && currentPath.startsWith(itemPath))) {
+                        const parentLi = item.closest('.submenu-item');
+                        if (parentLi) {
+                            parentLi.classList.add('active');
+                            // Auto-expand parent submenu
+                            const submenu = parentLi.closest('ul');
+                            if (submenu && submenu.classList.contains('submenu-container')) {
+                                submenu.classList.remove('hidden');
+                                
+                                // Update chevron icon
+                                const menuId = submenu.id;
+                                if (menuId === 'articlesSubmenu') {
+                                    const icon = document.getElementById('articlesMenuIcon');
+                                    if (icon) icon.classList.add('rotate-180');
+                                } else if (menuId === 'approvalsSubmenu') {
+                                    const icon = document.getElementById('approvalsMenuIcon');
+                                    if (icon) icon.classList.add('rotate-180');
+                                } else if (menuId === 'profileSubmenu') {
+                                    const icon = document.getElementById('profileMenuIcon');
+                                    if (icon) icon.classList.add('rotate-180');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Articles submenu toggle functionality
+        const articlesMenuToggle = document.getElementById('articlesMenuToggle');
+        const articlesSubmenu = document.getElementById('articlesSubmenu');
+        const articlesMenuIcon = document.getElementById('articlesMenuIcon');
+        
+        if (articlesMenuToggle && articlesSubmenu) {
+            articlesMenuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleSubmenu(articlesSubmenu, articlesMenuIcon);
+            });
+        }
+        
+        // Approvals submenu toggle functionality
+        const approvalsMenuToggle = document.getElementById('approvalsMenuToggle');
+        const approvalsSubmenu = document.getElementById('approvalsSubmenu');
+        const approvalsMenuIcon = document.getElementById('approvalsMenuIcon');
+        
+        if (approvalsMenuToggle && approvalsSubmenu) {
+            approvalsMenuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleSubmenu(approvalsSubmenu, approvalsMenuIcon);
+            });
+        }
+        
+        // Profile submenu toggle functionality
+        const profileMenuToggle = document.getElementById('profileMenuToggle');
+        const profileSubmenu = document.getElementById('profileSubmenu');
+        const profileMenuIcon = document.getElementById('profileMenuIcon');
+        
+        if (profileMenuToggle && profileSubmenu) {
+            profileMenuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleSubmenu(profileSubmenu, profileMenuIcon);
+            });
+        }
+        
+        // Initialize active submenu items on page load
+        highlightActiveSubmenuItems();
     </script>
 </body>
 

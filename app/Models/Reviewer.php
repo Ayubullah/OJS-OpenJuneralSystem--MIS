@@ -14,7 +14,8 @@ class Reviewer extends Model
         'email',
         'expertise',
         'specialization',
-        'status'
+        'status',
+        'review_format_file'
     ];
 
     public function user(): BelongsTo

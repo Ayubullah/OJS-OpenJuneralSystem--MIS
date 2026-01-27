@@ -36,7 +36,7 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('admin.reviewers.update', $reviewer) }}" method="POST" class="p-6 space-y-6">
+        <form action="{{ route('admin.reviewers.update', $reviewer) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
             @csrf
             @method('PUT')
 
@@ -187,6 +187,19 @@
                     </div>
                 </div>
 
+                <!-- Website -->
+                <div class="mb-4">
+                    <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+                        Website
+                    </label>
+                    <input type="url" name="website" id="website" value="{{ old('website', $reviewer->user->website ?? '') }}"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('website') border-red-500 @enderror"
+                        placeholder="https://example.com">
+                    @error('website')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Password -->
                 <div class="mb-4">
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
@@ -250,6 +263,36 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('specialization') border-red-500 @enderror"
                         placeholder="e.g., Machine Learning, Organic Chemistry">
                     @error('specialization')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Review Format File -->
+                <div class="mb-4">
+                    <label for="review_format_file" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>
+                        Review Format Document <span class="text-gray-500">(Optional)</span>
+                    </label>
+                    @if($reviewer->review_format_file)
+                        <div class="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i data-lucide="file" class="w-5 h-5 text-blue-600 mr-2"></i>
+                                    <span class="text-sm text-gray-700">Current file: {{ basename($reviewer->review_format_file) }}</span>
+                                </div>
+                                <a href="{{ route('review.format.download', ['file' => basename($reviewer->review_format_file)]) }}" target="_blank" 
+                                   class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                    <i data-lucide="download" class="w-4 h-4 mr-1"></i>
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                    <input type="file" name="review_format_file" id="review_format_file" 
+                        accept=".doc,.docx,.pdf"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('review_format_file') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">Upload a new file to replace the current one. Max size: 10MB</p>
+                    @error('review_format_file')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
