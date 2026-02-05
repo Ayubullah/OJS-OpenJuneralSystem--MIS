@@ -110,6 +110,8 @@ Route::middleware('auth')->group(function () {
         Route::post('previous-articles', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'store'])->name('previous-articles.store');
         Route::get('previous-articles/editors/{editor}/reviewers', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'getReviewersByEditor'])->name('previous-articles.editors.reviewers');
         Route::get('previous-articles/editors/{editor}', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'getEditorDetails'])->name('previous-articles.editors.details');
+        Route::get('previous-articles/journals/{journal}/editors', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'getEditorsByJournal'])->name('previous-articles.journals.editors');
+        Route::get('previous-articles/journals/{journal}/reviewers', [\App\Http\Controllers\Admin\PreviousArticlesController::class, 'getReviewersByJournal'])->name('previous-articles.journals.reviewers');
     });
 // End Admin Role
 

@@ -34,8 +34,9 @@ class PreviousArticlesController extends Controller
         $reviewers = Reviewer::with(['user', 'journal'])->get();
         $categories = Category::all();
         $keywords = Keyword::all();
+        $authors = Author::orderBy('name')->get();
 
-        return view('admin.previous-articles.index', compact('editors', 'journals', 'reviewers', 'categories', 'keywords'));
+        return view('admin.previous-articles.index', compact('editors', 'journals', 'reviewers', 'categories', 'keywords', 'authors'));
     }
 
     /**
@@ -73,12 +74,57 @@ class PreviousArticlesController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        // Check if using existing author
+        $useExistingAuthor = $request->has('use_existing_author') && $request->use_existing_author == '1';
+        $existingAuthorId = $request->existing_author_id;
+
+        $rules = [
             // Personal Information
             'author_name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username',
-            'author_email' => 'required|email|unique:users,email|unique:authors,email',
-            'password' => 'required|string|min:8|confirmed',
+            'author_email' => 'required|email',
+            'existing_author_id' => 'nullable|exists:authors,id',
+            'use_existing_author' => 'nullable|boolean',
+        ];
+
+        if (!$useExistingAuthor || !$existingAuthorId) {
+            // Require username and password only for new authors
+            $rules['username'] = 'required|string|max:255|unique:users,username';
+            $rules['author_email'] = 'required|email|unique:users,email|unique:authors,email';
+            $rules['password'] = 'required|string|min:8|confirmed';
+        } else {
+            // Username and password are optional for existing authors
+            $rules['username'] = 'nullable|string|max:255';
+            // Password is only validated if provided and not empty
+            $passwordValue = $request->input('password');
+            if (!empty($passwordValue) && trim($passwordValue) !== '') {
+                $rules['password'] = 'required|string|min:8|confirmed';
+                $rules['password_confirmation'] = 'required|string';
+            } else {
+                $rules['password'] = 'nullable';
+                $rules['password_confirmation'] = 'nullable';
+            }
+            
+            // Get the existing author to check their current email and associated user
+            $existingAuthor = Author::find($existingAuthorId);
+            if ($existingAuthor) {
+                $existingUser = User::where('email', $existingAuthor->email)->first();
+                
+                // Allow the existing author's email (exclude current author and associated user from unique check)
+                $authorEmailRule = 'required|email|unique:authors,email,' . $existingAuthorId;
+                if ($existingUser) {
+                    // Exclude both the current author and the associated user
+                    $rules['author_email'] = $authorEmailRule . '|unique:users,email,' . $existingUser->id;
+                } else {
+                    // Only exclude the current author, but check users table for uniqueness
+                    $rules['author_email'] = $authorEmailRule . '|unique:users,email';
+                }
+            } else {
+                // Fallback: if author not found, use standard validation
+                $rules['author_email'] = 'required|email|unique:users,email|unique:authors,email';
+            }
+        }
+
+        $rules = array_merge($rules, [
             'affiliation' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
             'orcid_id' => 'nullable|string|max:255',
@@ -115,8 +161,10 @@ class PreviousArticlesController extends Controller
             'reviewers' => 'nullable|array',
             'reviewers.*.id' => 'nullable|exists:reviewers,id',
             'reviewers.*.comments' => 'nullable|string',
-            'reviewers.*.rating' => 'nullable|integer|min:1|max:5',
+            'reviewers.*.rating' => 'nullable|integer|min:1|max:10',
         ]);
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -128,25 +176,62 @@ class PreviousArticlesController extends Controller
         try {
             DB::beginTransaction();
 
-            // 1. Create User Account
-            $user = User::create([
-                'name' => $request->author_name,
-                'username' => $request->username,
-                'email' => $request->author_email,
-                'password' => Hash::make($request->password),
-                'role' => 'author',
-                'status' => 'active'
-            ]);
+            // Check if using existing author
+            $useExistingAuthor = $request->has('use_existing_author') && $request->use_existing_author == '1';
+            $existingAuthorId = $request->existing_author_id;
 
-            // 2. Create Author
-            $author = Author::create([
-                'name' => $request->author_name,
-                'email' => $request->author_email,
-                'affiliation' => $request->affiliation,
-                'specialization' => $request->specialization,
-                'orcid_id' => $request->orcid_id,
-                'author_contributions' => $request->author_contributions,
-            ]);
+            if ($useExistingAuthor && $existingAuthorId) {
+                // Use existing author - do not create new user
+                $author = Author::findOrFail($existingAuthorId);
+                
+                // Update author information if provided
+                $author->update([
+                    'name' => $request->author_name ?? $author->name,
+                    'email' => $request->author_email ?? $author->email,
+                    'affiliation' => $request->affiliation ?? $author->affiliation,
+                    'specialization' => $request->specialization ?? $author->specialization,
+                    'orcid_id' => $request->orcid_id ?? $author->orcid_id,
+                    'author_contributions' => $request->author_contributions ?? $author->author_contributions,
+                ]);
+                
+                // Only find existing user account - do NOT create new user
+                $user = User::where('email', $author->email)->first();
+                if ($user) {
+                    // Update existing user if password is provided
+                    if ($request->filled('password') && !empty(trim($request->password))) {
+                        $user->update([
+                            'password' => Hash::make($request->password)
+                        ]);
+                    }
+                    // Update username if provided
+                    if ($request->filled('username') && !empty(trim($request->username))) {
+                        $user->update([
+                            'username' => $request->username
+                        ]);
+                    }
+                }
+                // If no user exists, that's fine - we'll use null for $user
+            } else {
+                // Create new user account
+                $user = User::create([
+                    'name' => $request->author_name,
+                    'username' => $request->username,
+                    'email' => $request->author_email,
+                    'password' => Hash::make($request->password),
+                    'role' => 'author',
+                    'status' => 'active'
+                ]);
+
+                // Create new author
+                $author = Author::create([
+                    'name' => $request->author_name,
+                    'email' => $request->author_email,
+                    'affiliation' => $request->affiliation,
+                    'specialization' => $request->specialization,
+                    'orcid_id' => $request->orcid_id,
+                    'author_contributions' => $request->author_contributions,
+                ]);
+            }
 
             // 3. Handle File Upload
             $manuscriptPath = null;
@@ -157,6 +242,15 @@ class PreviousArticlesController extends Controller
             }
 
             // 4. Create Article
+            // Convert form values to 'Yes'/'No' strings for ENUM columns
+            // Radio buttons send "1" for Yes, "0" for No
+            $previouslySubmitted = ($request->previously_submitted == '1' || $request->previously_submitted === 1) ? 'Yes' : 'No';
+            $fundedByOutsideSource = ($request->funded_by_outside_source == '1' || $request->funded_by_outside_source === 1) ? 'Yes' : 'No';
+            
+            // Checkboxes send "1" when checked, null/empty when unchecked
+            $confirmNotPublished = ($request->has('confirm_not_published_elsewhere') && ($request->confirm_not_published_elsewhere == '1' || $request->confirm_not_published_elsewhere === 1)) ? 'Yes' : 'No';
+            $confirmGuidelines = ($request->has('confirm_prepared_as_per_guidelines') && ($request->confirm_prepared_as_per_guidelines == '1' || $request->confirm_prepared_as_per_guidelines === 1)) ? 'Yes' : 'No';
+            
             $article = Article::create([
                 'title' => $request->title,
                 'journal_id' => $request->journal_id,
@@ -167,11 +261,11 @@ class PreviousArticlesController extends Controller
                 'word_count' => $request->word_count,
                 'number_of_tables' => $request->number_of_tables ?? 0,
                 'number_of_figures' => $request->number_of_figures ?? 0,
-                'previously_submitted' => $request->boolean('previously_submitted'),
-                'funded_by_outside_source' => $request->boolean('funded_by_outside_source'),
-                'confirm_not_published_elsewhere' => true,
-                'confirm_prepared_as_per_guidelines' => true,
-                'status' => 'submitted',
+                'previously_submitted' => $previouslySubmitted,
+                'funded_by_outside_source' => $fundedByOutsideSource,
+                'confirm_not_published_elsewhere' => $confirmNotPublished,
+                'confirm_prepared_as_per_guidelines' => $confirmGuidelines,
+                'status' => 'accepted',
                 'manuscript_file' => $manuscriptPath,
             ]);
 
@@ -182,14 +276,16 @@ class PreviousArticlesController extends Controller
             $submission = Submission::create([
                 'article_id' => $article->id,
                 'author_id' => $author->id,
-                'status' => 'submitted',
+                'status' => 'accepted',
                 'version_number' => 1,
                 'file_path' => $manuscriptPath,
             ]);
 
             // 7. Handle Editor Assignment and Reviews (if provided)
+            // Note: Status remains 'accepted' even when reviewers are assigned
             if ($request->filled('editor_id') && $request->has('reviewers') && !empty($request->reviewers)) {
-                $submission->update(['status' => 'under_review']);
+                // Keep status as 'accepted' - do not change to 'under_review'
+                // $submission->update(['status' => 'accepted']); // Already set to accepted above
 
                 // Create reviews for selected reviewers
                 foreach ($request->reviewers as $reviewerData) {
@@ -208,11 +304,18 @@ class PreviousArticlesController extends Controller
 
             DB::commit();
 
+            // Determine success message based on whether using existing author
+            $message = ($useExistingAuthor && $existingAuthorId) 
+                ? 'Article submitted successfully using existing author!'
+                : 'Author account created and article submitted successfully!';
+
+            // Return JSON response with redirect URL for AJAX handling
             return response()->json([
                 'success' => true,
-                'message' => 'Author account created and article submitted successfully!',
+                'message' => $message,
+                'redirect' => route('admin.previous-articles.index'),
                 'data' => [
-                    'user' => $user,
+                    'user' => $user, // May be null if using existing author without user account
                     'author' => $author,
                     'article' => $article,
                     'submission' => $submission,
@@ -290,5 +393,79 @@ class PreviousArticlesController extends Controller
                 'status' => $editor->status
             ]
         ]);
+    }
+
+    /**
+     * Get editors for a specific journal via AJAX
+     * Matches SQL: SELECT j.id, j.name, eu.username FROM journals j 
+     * INNER JOIN editors ed ON ed.journal_id = j.id
+     * INNER JOIN users eu ON ed.user_id = eu.id
+     */
+    public function getEditorsByJournal(Journal $journal): JsonResponse
+    {
+        try {
+            $editors = Editor::with(['user', 'journal'])
+                ->where('journal_id', $journal->id)
+                ->where('status', 'active')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'editors' => $editors->map(function ($editor) {
+                    return [
+                        'id' => $editor->id,
+                        'name' => $editor->user ? ($editor->user->name ?? $editor->user->username ?? 'N/A') : 'N/A',
+                        'username' => $editor->user ? ($editor->user->username ?? '') : '',
+                        'email' => $editor->user ? ($editor->user->email ?? '') : '',
+                        'journal_id' => $editor->journal_id,
+                        'journal_name' => $editor->journal ? ($editor->journal->name ?? 'No Journal') : 'No Journal',
+                        'status' => $editor->status
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'editors' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * Get reviewers for a specific journal via AJAX
+     * Matches SQL: SELECT j.id, j.name, ru.username FROM journals j 
+     * INNER JOIN reviewers re ON re.journal_id = j.id
+     * INNER JOIN users ru ON re.user_id = ru.id
+     */
+    public function getReviewersByJournal(Journal $journal): JsonResponse
+    {
+        try {
+            $reviewers = Reviewer::with(['user', 'journal'])
+                ->where('journal_id', $journal->id)
+                ->where('status', 'active')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'reviewers' => $reviewers->map(function ($reviewer) {
+                    return [
+                        'id' => $reviewer->id,
+                        'name' => $reviewer->user ? ($reviewer->user->name ?? $reviewer->user->username ?? 'N/A') : 'N/A',
+                        'username' => $reviewer->user ? ($reviewer->user->username ?? '') : '',
+                        'email' => $reviewer->email ?? ($reviewer->user ? $reviewer->user->email : '') ?? '',
+                        'expertise' => $reviewer->expertise,
+                        'specialization' => $reviewer->specialization,
+                        'status' => $reviewer->status
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'reviewers' => []
+            ], 500);
+        }
     }
 }
