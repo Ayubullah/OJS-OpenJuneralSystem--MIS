@@ -83,9 +83,18 @@ Route::middleware('auth')->group(function () {
         Route::resource('reviewers', \App\Http\Controllers\Admin\ReviewerController::class);
         Route::get('reviewers/articles', [\App\Http\Controllers\Admin\ReviewerController::class, 'articles'])->name('reviewers.articles');
         Route::get('reviewers/{reviewer}/articles', [\App\Http\Controllers\Admin\ReviewerController::class, 'reviewerArticles'])->name('reviewers.articles.show');
+        Route::post('reviews/{review}/remind-reviewer', [\App\Http\Controllers\Admin\ReviewerController::class, 'sendReminderToReviewer'])->name('admin.reviews.remind-reviewer');
+        Route::post('submissions/{submission}/remind-author', [\App\Http\Controllers\Admin\ReviewerController::class, 'sendReminderToAuthor'])->name('admin.submissions.remind-author');
+        
+        // Admin Reminders Management
+        Route::get('reminders', [\App\Http\Controllers\Admin\AdminRemindersController::class, 'index'])->name('reminders.index');
+        Route::post('reminders/send-message', [\App\Http\Controllers\Admin\AdminRemindersController::class, 'sendMessage'])->name('reminders.send-message');
+        Route::put('reminders/messages/{message}/update', [\App\Http\Controllers\Admin\AdminRemindersController::class, 'updateMessage'])->name('reminders.messages.update');
+        Route::delete('reminders/messages/{message}/delete', [\App\Http\Controllers\Admin\AdminRemindersController::class, 'deleteMessage'])->name('reminders.messages.delete');
         
         // Articles Management
         Route::resource('articles', ArticleController::class);
+        Route::post('articles/{article}/send-reminder', [ArticleController::class, 'sendReminder'])->name('articles.send-reminder');
         
         // Users Management
         Route::resource('users', UserController::class);
@@ -133,6 +142,8 @@ Route::middleware('auth')->group(function () {
          Route::get('submissions/status/submitted', [Editor_SubmissionController::class, 'submitted'])->name('submissions.submitted');
          Route::get('submissions/status/under-review', [Editor_SubmissionController::class, 'underReview'])->name('submissions.under-review');
          Route::get('submissions/status/revision-required', [Editor_SubmissionController::class, 'revisionRequired'])->name('submissions.revision-required');
+         Route::get('submissions/status/pending-verify', [Editor_SubmissionController::class, 'pendingVerify'])->name('submissions.pending-verify');
+         Route::get('submissions/status/verified', [Editor_SubmissionController::class, 'verified'])->name('submissions.verified');
          Route::get('submissions/status/rejected', [Editor_SubmissionController::class, 'rejected'])->name('submissions.rejected');
          // Assign reviewer routes (must be before resource routes)
          Route::get('submissions/{submission}/assign-reviewer', [Editor_SubmissionController::class, 'assignReviewer'])->name('submissions.assign-reviewer');
@@ -142,6 +153,16 @@ Route::middleware('auth')->group(function () {
          Route::get('reviews/{review}/edit', [Editor_SubmissionController::class, 'editReview'])->name('reviews.edit');
          Route::put('reviews/{review}', [Editor_SubmissionController::class, 'updateReview'])->name('reviews.update');
          Route::post('reviews/{review}/approve', [Editor_SubmissionController::class, 'approveReview'])->name('reviews.approve');
+         // Message/Reminder routes
+         Route::get('reminders', [Editor_SubmissionController::class, 'remindersIndex'])->name('reminders.index');
+         Route::post('submissions/{submission}/send-message', [Editor_SubmissionController::class, 'sendMessage'])->name('submissions.send-message');
+         Route::put('messages/{message}/update', [Editor_SubmissionController::class, 'updateMessage'])->name('messages.update');
+         Route::delete('messages/{message}/delete', [Editor_SubmissionController::class, 'deleteMessage'])->name('messages.delete');
+         Route::post('submissions/{submission}/remind-author', [Editor_SubmissionController::class, 'sendReminderToAuthor'])->name('submissions.remind-author');
+         Route::post('reviews/{review}/remind-reviewer', [Editor_SubmissionController::class, 'sendReminderToReviewer'])->name('reviews.remind-reviewer');
+         // Approval workflow routes
+         Route::post('submissions/{submission}/approve-article', [Editor_SubmissionController::class, 'approveArticle'])->name('submissions.approve-article');
+         Route::post('submissions/{submission}/reject-approval', [Editor_SubmissionController::class, 'rejectApproval'])->name('submissions.reject-approval');
         Route::resource('submissions', Editor_SubmissionController::class);
     });
 // End Editor Role
@@ -183,6 +204,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/articles/{article}/resubmit', [Author_ArticleSubmissionController::class, 'storeResubmission'])->name('articles.storeResubmission');
         Route::post('/articles/{article}/reject', [Author_ArticleSubmissionController::class, 'reject'])->name('articles.reject');
         Route::post('/reviews/{review}/reply', [Author_ArticleSubmissionController::class, 'replyToReview'])->name('reviews.reply');
+        // Approval workflow routes
+        Route::post('/articles/{article}/upload-approval-file', [Author_ArticleSubmissionController::class, 'uploadApprovalFile'])->name('articles.upload-approval-file');
         
         // Notifications
         Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');

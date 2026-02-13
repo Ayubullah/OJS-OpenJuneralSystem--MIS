@@ -292,6 +292,15 @@
                         <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                     </a>
 
+                    <!-- Reminders -->
+                    <a href="{{ route('admin.reminders.index') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-700 transition-all duration-300 group btn-modern border border-transparent hover:border-orange-100 hover:shadow-md">
+                        <div class="w-7 h-7 bg-orange-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-orange-200 transition-colors duration-300">
+                            <i data-lucide="bell" class="w-4 h-4 text-orange-600"></i>
+                        </div>
+                        <span class="font-medium text-sm">{{ __('Reminder') }}</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-orange-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                    </a>
+
                     <!-- User Management -->
                     <div class="space-y-1 mt-4">
                         <button id="usersMenuToggle" class="w-full px-3 py-2 flex items-center justify-between text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-300 group btn-modern border border-transparent hover:border-blue-100 hover:shadow-md">

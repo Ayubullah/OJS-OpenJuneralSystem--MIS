@@ -265,6 +265,24 @@
                                 </a>
                             </li>
                             <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.pending-verify') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 transition-all duration-300 group relative {{ request()->routeIs('editor.submissions.pending-verify') ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700' : '' }}">
+                                    <div class="submenu-icon w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="clock" class="w-4 h-4 text-purple-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Pending Verify') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.verified') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700 transition-all duration-300 group relative {{ request()->routeIs('editor.submissions.verified') ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700' : '' }}">
+                                    <div class="submenu-icon w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="check-circle-2" class="w-4 h-4 text-green-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Verified') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
                                 <a href="{{ route('editor.submissions.rejected') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 hover:text-red-700 transition-all duration-300 group relative">
                                     <div class="submenu-icon w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-red-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i>
@@ -275,6 +293,15 @@
                             </li>
                         </ul>
                     </div>
+
+                    <!-- Reminder -->
+                    <a href="{{ route('editor.reminders.index') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 transition-all duration-300 group btn-modern border border-transparent hover:border-purple-100 hover:shadow-md mt-4 {{ request()->routeIs('editor.reminders.*') ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 border-purple-100' : '' }}">
+                        <div class="w-7 h-7 bg-purple-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-colors duration-300 {{ request()->routeIs('editor.reminders.*') ? 'bg-purple-200' : '' }}">
+                            <i data-lucide="bell" class="w-4 h-4 text-purple-600"></i>
+                        </div>
+                        <span class="font-medium text-sm">Reminders</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                    </a>
 
                     <!-- Account -->
                     <div class="space-y-1 mt-6">

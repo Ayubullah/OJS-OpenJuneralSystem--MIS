@@ -8,6 +8,7 @@ use App\Models\Author;
 use App\Models\Submission;
 use App\Models\Review;
 use App\Models\Notification;
+use App\Models\EditorMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +96,26 @@ class AuthorController extends Controller
             ->groupBy('status')
             ->get();
 
+        // Get all messages for this author
+        $allMessages = EditorMessage::where(function($query) use ($author) {
+                $query->where(function($q) use ($author) {
+                    $q->where('author_id', $author->id)
+                      ->where(function($q2) {
+                          $q2->where('recipient_type', 'author')
+                            ->orWhere('recipient_type', 'both');
+                      });
+                })
+                ->orWhere(function($q) use ($author) {
+                    // Admin messages sent to this specific author
+                    $q->where('sender_type', 'admin')
+                      ->where('recipient_type', 'author')
+                      ->where('author_id', $author->id);
+                });
+            })
+            ->with(['editor', 'editorRecipient', 'article'])
+            ->latest()
+            ->get();
+
         return view('author.dashboard', compact(
             'stats',
             'recent_articles',
@@ -102,7 +123,8 @@ class AuthorController extends Controller
             'recent_reviews',
             'articles_by_status',
             'unread_notifications_count',
-            'author'
+            'author',
+            'allMessages'
         ));
     }
 }

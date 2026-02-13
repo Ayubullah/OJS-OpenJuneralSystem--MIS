@@ -14,7 +14,9 @@ class Submission extends Model
         'submission_date',
         'status',
         'version_number',
-        'file_path'
+        'file_path',
+        'approval_pending_file',
+        'approval_status'
     ];
 
     /**

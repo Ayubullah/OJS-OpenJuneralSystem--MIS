@@ -157,10 +157,15 @@
                             <i data-lucide="eye" class="w-4 h-4"></i>
                         </a>
                         @if(!$review->rating)
-                            <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200" 
-                                    title="Send Reminder">
-                                <i data-lucide="mail" class="w-4 h-4"></i>
-                            </button>
+                            <form action="{{ route('admin.reviews.remind-reviewer', $review) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" 
+                                        class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200" 
+                                        title="Send Reminder"
+                                        onclick="return confirm('Send reminder email to this reviewer?')">
+                                    <i data-lucide="mail" class="w-4 h-4"></i>
+                                </button>
+                            </form>
                         @endif
                         <button class="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200" 
                                 title="View Review Details">

@@ -1540,5 +1540,44 @@
         }
     });
 </script>
+
+<!-- Editor Messages Section -->
+@if(isset($editorMessages) && $editorMessages->count() > 0)
+<div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+        <h3 class="text-lg font-bold text-gray-900 flex items-center">
+            <i data-lucide="message-square" class="w-5 h-5 mr-2 text-green-600"></i>
+            Messages from Editor
+        </h3>
+    </div>
+    <div class="p-6">
+        <div class="space-y-4">
+            @foreach($editorMessages as $message)
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 {{ $message->sender_type === 'admin' ? 'bg-indigo-600' : 'bg-green-600' }} rounded-full flex items-center justify-center">
+                            <span class="text-xs font-bold text-white">{{ substr($message->sender_type === 'admin' ? ($message->editor->name ?? 'A') : ($message->editor->name ?? 'E'), 0, 1) }}</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">
+                                {{ $message->sender_type === 'admin' ? ($message->editor->name ?? 'Admin') : ($message->editor->name ?? 'Editor') }}
+                                @if($message->sender_type === 'admin')
+                                    <span class="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded-full">Admin</span>
+                                @endif
+                            </p>
+                            <p class="text-xs text-gray-500">{{ $message->created_at->format('M d, Y h:i A') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $message->message }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 

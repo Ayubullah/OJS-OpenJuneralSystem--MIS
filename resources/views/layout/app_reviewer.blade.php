@@ -165,6 +165,24 @@
                             </a>
                         </div>
 
+                        <!-- Messages -->
+                        <div class="space-y-1 mt-4">
+                            <div class="px-3 py-1 flex items-center">
+                                <div class="w-5 h-5 bg-gradient-to-br from-green-100 to-emerald-100 rounded flex items-center justify-center mr-2">
+                                    <i data-lucide="message-square" class="w-3 h-3 text-green-600"></i>
+                                </div>
+                                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider">{{ __('Messages') }}</h3>
+                            </div>
+                            
+                            <a href="{{ route('reviewer.dashboard') }}#messages-section" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700 transition-all duration-300 group btn-modern border border-transparent hover:border-green-100 hover:shadow-md {{ request()->routeIs('reviewer.dashboard') && request()->get('hash') === 'messages-section' ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-100' : '' }}">
+                                <div class="w-7 h-7 bg-green-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors duration-300 {{ request()->routeIs('reviewer.dashboard') && request()->has('messages') ? 'bg-green-200' : '' }}">
+                                    <i data-lucide="mail" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <span class="font-medium text-sm">{{ __('Messages from Editor') }}</span>
+                                <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                            </a>
+                        </div>
+
                         <a href="{{ route('reviewer.profile.edit') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:text-blue-700 transition-all duration-300 group btn-modern border border-transparent hover:border-blue-100 hover:shadow-md">
                             <div class="w-7 h-7 bg-blue-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors duration-300">
                                 <i data-lucide="user-circle" class="w-4 h-4 text-blue-600"></i>
@@ -478,6 +496,30 @@
 
         // Add smooth scroll behavior
         document.documentElement.style.scrollBehavior = 'smooth';
+        
+        // Scroll to messages section on page load or hash change
+        function scrollToMessagesSection() {
+            if (window.location.hash === '#messages-section') {
+                setTimeout(() => {
+                    const messagesSection = document.getElementById('messages-section');
+                    if (messagesSection) {
+                        messagesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Highlight the section briefly
+                        messagesSection.style.transition = 'box-shadow 0.3s';
+                        messagesSection.style.boxShadow = '0 0 0 4px rgba(34, 197, 94, 0.5)';
+                        setTimeout(() => {
+                            messagesSection.style.boxShadow = '';
+                        }, 2000);
+                    }
+                }, 300);
+            }
+        }
+        
+        // Scroll on page load
+        window.addEventListener('load', scrollToMessagesSection);
+        
+        // Scroll on hash change (for same-page navigation)
+        window.addEventListener('hashchange', scrollToMessagesSection);
 
         // Language switcher - auto submit on change
         const localeSwitcher = document.getElementById('localeSwitcher');

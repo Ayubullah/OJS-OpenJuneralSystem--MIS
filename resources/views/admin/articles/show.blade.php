@@ -26,6 +26,25 @@
         $totalReviews += $submission->reviews->count();
     }
 @endphp
+
+@if(session('success'))
+<div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+    <div class="flex items-center">
+        <i data-lucide="check-circle" class="w-5 h-5 text-green-600 mr-3"></i>
+        <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="flex items-center">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 mr-3"></i>
+        <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+    </div>
+</div>
+@endif
+
 <div class="space-y-6">
     <!-- Article Header -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
@@ -367,6 +386,62 @@
                     <p class="text-sm text-gray-600">{{ Str::limit($article->journal->description, 100) }}</p>
                     @endif
                 </div>
+            </div>
+
+            <!-- Send Reminder -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i data-lucide="send" class="w-5 h-5 mr-2 text-purple-600"></i>
+                    {{ __('Send Reminder') }}
+                </h3>
+                <form action="{{ route('admin.articles.send-reminder', $article) }}" method="POST" id="reminderForm">
+                    @csrf
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Recipient') }}</label>
+                            <select name="recipient_type" id="recipient_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
+                                <option value="">{{ __('Select recipient...') }}</option>
+                                <option value="author">{{ __('Author') }} ({{ $article->author->name ?? 'Unknown' }})</option>
+                                @if($article->submissions->count() > 0)
+                                    @php
+                                        $allReviewers = collect();
+                                        foreach($article->submissions as $submission) {
+                                            foreach($submission->reviews as $review) {
+                                                if($review->reviewer && !$allReviewers->contains('id', $review->reviewer->id)) {
+                                                    $allReviewers->push($review->reviewer);
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    @if($allReviewers->count() > 0)
+                                        <optgroup label="{{ __('Reviewers') }}">
+                                            @foreach($allReviewers as $reviewer)
+                                            <option value="reviewer_{{ $reviewer->id }}">{{ __('Reviewer') }}: {{ $reviewer->user->name ?? 'Unknown' }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                @endif
+                                @if(isset($editors) && $editors->count() > 0)
+                                    <optgroup label="{{ __('Editors') }}">
+                                        @foreach($editors as $editor)
+                                        <option value="editor_{{ $editor->user_id }}">{{ __('Editor') }}: {{ $editor->user->name ?? 'Unknown' }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Message') }}</label>
+                            <textarea name="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="{{ __('Enter your reminder message...') }}" required minlength="10" maxlength="2000"></textarea>
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Minimum 10 characters, maximum 2000 characters') }}</p>
+                        </div>
+                        <input type="hidden" name="submission_id" value="{{ $article->submissions->first()->id ?? '' }}">
+                        <button type="submit" class="w-full flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                            <i data-lucide="send" class="w-4 h-4 mr-2"></i>
+                            {{ __('Send Reminder') }}
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <!-- Actions -->

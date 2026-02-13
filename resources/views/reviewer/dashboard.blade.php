@@ -107,6 +107,99 @@
             </div>
         </div>
 
+        <!-- Messages from Editor -->
+        <div id="messages-section" class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px overflow-x-auto">
+                    <button onclick="showReviewerTab('editorMessages')" id="reviewerEditorMessagesTab" class="tab-button active px-6 py-4 text-sm font-medium text-green-600 border-b-2 border-green-600 whitespace-nowrap">
+                        <i data-lucide="user-cog" class="w-4 h-4 inline mr-2"></i>
+                        {{ __('Editor Messages') }}
+                        @if(isset($editorMessages) && $editorMessages->count() > 0)
+                        <span class="ml-2 px-2 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full">{{ $editorMessages->count() }}</span>
+                        @endif
+                    </button>
+                    <button onclick="showReviewerTab('adminMessages')" id="reviewerAdminMessagesTab" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                        <i data-lucide="shield" class="w-4 h-4 inline mr-2"></i>
+                        {{ __('Admin Messages') }}
+                        @if(isset($adminMessages) && $adminMessages->count() > 0)
+                        <span class="ml-2 px-2 py-0.5 bg-indigo-500 text-white text-xs font-bold rounded-full">{{ $adminMessages->count() }}</span>
+                        @endif
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Editor Messages Tab -->
+            <div id="reviewerEditorMessagesTabContent" class="tab-content p-4">
+                @if(isset($editorMessages) && $editorMessages->count() > 0)
+                <div class="space-y-2">
+                    @foreach($editorMessages as $message)
+                    <div class="bg-white rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-xs font-bold text-white">{{ substr($message->editor->name ?? 'E', 0, 1) }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? 'Editor' }}</span>
+                                        @if($message->article_id)
+                                        <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
+                                        <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
+                                        @endif
+                                    </div>
+                                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ $message->created_at->format('M d, h:i A') }}</span>
+                                </div>
+                                <p class="text-sm text-gray-700 line-clamp-2">{{ Str::limit($message->message, 150) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div class="text-center py-8">
+                    <i data-lucide="user-cog" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
+                    <p class="text-sm text-gray-500">{{ __('No editor messages yet') }}</p>
+                </div>
+                @endif
+            </div>
+
+            <!-- Admin Messages Tab -->
+            <div id="reviewerAdminMessagesTabContent" class="tab-content p-4 hidden">
+                @if(isset($adminMessages) && $adminMessages->count() > 0)
+                <div class="space-y-2">
+                    @foreach($adminMessages as $message)
+                    <div class="bg-white rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-xs font-bold text-white">{{ substr($message->editor->name ?? 'A', 0, 1) }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? 'Admin' }}</span>
+                                        <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">Admin</span>
+                                        @if($message->article_id)
+                                        <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
+                                        <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
+                                        @endif
+                                    </div>
+                                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ $message->created_at->format('M d, h:i A') }}</span>
+                                </div>
+                                <p class="text-sm text-gray-700 line-clamp-2">{{ Str::limit($message->message, 150) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
+                <div class="text-center py-8">
+                    <i data-lucide="shield" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
+                    <p class="text-sm text-gray-500">{{ __('No admin messages yet') }}</p>
+                </div>
+                @endif
+            </div>
+        </div>
+
         <!-- Recent Reviews -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100">
@@ -170,6 +263,33 @@
 
 <script>
     lucide.createIcons();
+
+    function showReviewerTab(tabName) {
+        // Hide all tab contents
+        document.getElementById('reviewerEditorMessagesTabContent').classList.add('hidden');
+        document.getElementById('reviewerAdminMessagesTabContent').classList.add('hidden');
+        
+        // Remove active class from all tabs
+        const tabs = ['reviewerEditorMessagesTab', 'reviewerAdminMessagesTab'];
+        tabs.forEach(tabId => {
+            const tab = document.getElementById(tabId);
+            if (tab) {
+                tab.classList.remove('active', 'text-green-600', 'border-green-600');
+                tab.classList.add('text-gray-500', 'border-transparent');
+            }
+        });
+        
+        // Show selected tab content and activate tab
+        if (tabName === 'editorMessages') {
+            document.getElementById('reviewerEditorMessagesTabContent').classList.remove('hidden');
+            document.getElementById('reviewerEditorMessagesTab').classList.add('active', 'text-green-600', 'border-green-600');
+            document.getElementById('reviewerEditorMessagesTab').classList.remove('text-gray-500', 'border-transparent');
+        } else if (tabName === 'adminMessages') {
+            document.getElementById('reviewerAdminMessagesTabContent').classList.remove('hidden');
+            document.getElementById('reviewerAdminMessagesTab').classList.add('active', 'text-green-600', 'border-green-600');
+            document.getElementById('reviewerAdminMessagesTab').classList.remove('text-gray-500', 'border-transparent');
+        }
+    }
 </script>
 @endsection
 

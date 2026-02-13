@@ -175,13 +175,36 @@ class Author_ArticleSubmissionController extends Controller
                 ->with('error', 'Unauthorized access.');
         }
 
+        $author = $this->getOrCreateAuthor();
+        
         $article->load([
             'journal', 
             'category', 
             'keywords',
             'submissions.reviews.reviewer.user'
         ]);
-        return view('author.articles.show', compact('article', 'author'));
+        
+        // Load editor and admin messages for this article (for author)
+        $editorMessages = \App\Models\EditorMessage::where('article_id', $article->id)
+            ->where(function($query) use ($author) {
+                $query->where(function($q) use ($author) {
+                    $q->where('author_id', $author->id)
+                      ->where(function($q2) {
+                          $q2->where('recipient_type', 'author')
+                            ->orWhere('recipient_type', 'both');
+                      });
+                })
+                ->orWhere(function($q) {
+                    // Admin messages sent to authors
+                    $q->where('sender_type', 'admin')
+                      ->where('recipient_type', 'author');
+                });
+            })
+            ->with(['editor', 'editorRecipient'])
+            ->latest()
+            ->get();
+        
+        return view('author.articles.show', compact('article', 'author', 'editorMessages'));
     }
 
     /**
@@ -490,6 +513,96 @@ class Author_ArticleSubmissionController extends Controller
             DB::rollback();
             return redirect()->back()
                 ->with('error', 'Error rejecting article: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Upload file for approval
+     */
+    public function uploadApprovalFile(Request $request, Article $article)
+    {
+        $author = $this->getOrCreateAuthor();
+        
+        // Check if article belongs to this author
+        if ($article->author_id !== $author->id) {
+            return redirect()->route('author.articles.index')
+                ->with('error', 'Unauthorized access.');
+        }
+
+        // Check if article is in pending_verify status
+        if ($article->status !== 'pending_verify') {
+            return redirect()->route('author.articles.show', $article)
+                ->with('error', 'This article is not pending verification.');
+        }
+
+        // Get the latest submission
+        $submission = Submission::where('article_id', $article->id)
+            ->orderBy('version_number', 'desc')
+            ->first();
+
+        if (!$submission) {
+            return redirect()->route('author.articles.show', $article)
+                ->with('error', 'Submission not found.');
+        }
+
+        // Check if approval is already verified
+        if ($submission->approval_status === 'verified') {
+            return redirect()->route('author.articles.show', $article)
+                ->with('error', 'This article has already been verified.');
+        }
+
+        // Check if there's already a pending file
+        if ($submission->approval_status === 'pending' && $submission->approval_pending_file) {
+            return redirect()->route('author.articles.show', $article)
+                ->with('error', 'You have already uploaded a file for approval. Please wait for the editor to review it before uploading again.');
+        }
+
+        $request->validate([
+            'approval_file' => 'required|file|mimes:pdf,doc,docx|max:10240', // 10MB max
+            'approval_message' => 'nullable|string|max:2000'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Handle file upload
+            $file = $request->file('approval_file');
+            $fileName = time() . '_approval_' . $author->id . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('approval_files/' . $article->id, $fileName, 'public');
+
+            // Update submission with approval file
+            $submission->update([
+                'approval_pending_file' => $filePath,
+                'approval_status' => 'pending'
+            ]);
+
+            // Create notification for editor
+            $journal = $article->journal;
+            $editors = \App\Models\Editor::where('journal_id', $journal->id)
+                ->where('status', 'active')
+                ->with('user')
+                ->get();
+
+            foreach ($editors as $editor) {
+                if ($editor->user) {
+                    \App\Models\Notification::create([
+                        'user_id' => $editor->user->id,
+                        'type' => 'reminder',
+                        'message' => "Author has uploaded a file for verification: \"{$article->title}\"",
+                        'status' => 'unread',
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('author.articles.show', $article)
+                ->with('success', 'File uploaded successfully for verification! The editor has been notified.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->with('error', 'Error uploading file: ' . $e->getMessage())
+                ->withInput();
         }
     }
 }

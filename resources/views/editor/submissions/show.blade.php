@@ -31,8 +31,10 @@
                             {{ $submission->status === 'published' ? 'bg-green-100 text-green-800' : 
                                ($submission->status === 'under_review' ? 'bg-blue-100 text-blue-800' : 
                                ($submission->status === 'submitted' ? 'bg-yellow-100 text-yellow-800' : 
+                               ($submission->status === 'verified' ? 'bg-emerald-100 text-emerald-800' :
                                ($submission->status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 
-                               ($submission->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                               ($submission->status === 'pending_verify' ? 'bg-purple-100 text-purple-800' :
+                               ($submission->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))))) }}">
                             {{ ucfirst(str_replace('_', ' ', $submission->status)) }}
                         </span>
                         <span class="text-sm text-gray-500">Version {{ $submission->version_number }}</span>
@@ -124,6 +126,64 @@
                 </div>
                 @endif
             </div>
+
+            <!-- Pending Verification Files -->
+            @if($submission->approval_status === 'pending' && $submission->approval_pending_file)
+            <div class="bg-white rounded-2xl shadow-lg border-2 border-purple-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-purple-900 flex items-center">
+                        <i data-lucide="clock" class="w-5 h-5 mr-2"></i>
+                        Pending Verification Files
+                    </h3>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                        Pending Review
+                    </span>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                                <i data-lucide="file-check" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ basename($submission->approval_pending_file) }}</p>
+                                <p class="text-xs text-gray-500">Uploaded for verification</p>
+                                @if($submission->updated_at)
+                                <p class="text-xs text-gray-400 mt-1">Uploaded: {{ $submission->updated_at->format('M d, Y H:i') }}</p>
+                                @endif
+                            </div>
+                        </div>
+                        <a href="{{ asset('storage/' . $submission->approval_pending_file) }}" target="_blank" 
+                           class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors duration-200 shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                            Download
+                        </a>
+                    </div>
+                    
+                    <!-- Verification Actions -->
+                    <div class="flex items-center space-x-3 pt-4 border-t border-purple-200">
+                        <form action="{{ route('editor.submissions.approve-article', $submission) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    onclick="return confirm('Are you sure you want to verify this article? This will change the status to verified.')"
+                                    class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200">
+                                <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
+                                Verify Article
+                            </button>
+                        </form>
+                        <form action="{{ route('editor.submissions.reject-approval', $submission) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    onclick="return confirm('Are you sure you want to reject this verification request? The author will be notified.')"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
+                                <i data-lucide="x-circle" class="w-4 h-4 mr-2"></i>
+                                Reject / Request Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Author Information -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -290,6 +350,14 @@
                                             <p class="text-xs text-gray-500">No comment submitted yet</p>
                                         </div>
                                     </div>
+                                    <form action="{{ route('editor.reviews.remind-reviewer', $review) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                                                title="Send Reminder">
+                                            <i data-lucide="mail" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                             @endforeach
@@ -371,9 +439,9 @@
                         <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
                         Edit Submission
                     </a>
-                    <button class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                        <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
-                        Send Notification
+                    <button onclick="openMessageModal()" class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i data-lucide="message-square" class="w-4 h-4 mr-2"></i>
+                        Send Message
                     </button>
                     <form action="{{ route('editor.submissions.destroy', $submission) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this submission?')">
                         @csrf
@@ -463,10 +531,115 @@
     }
 </style>
 
+<!-- Message Modal -->
+<div id="messageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Send Message</h3>
+                <button onclick="closeMessageModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="messageForm" method="POST" action="{{ route('editor.submissions.send-message', $submission) }}">
+                @csrf
+                @if(request('from') === 'reminders')
+                    <input type="hidden" name="redirect_to" value="reminders">
+                @endif
+                <div class="mb-4">
+                    <label for="recipientType" class="block text-sm font-medium text-gray-700 mb-2">Send To *</label>
+                    <select id="recipientType" name="recipient_type" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="both">Both Author and Reviewers</option>
+                        <option value="author">Author Only</option>
+                        <option value="reviewer">Reviewers Only</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="messageText" class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+                    <textarea id="messageText" name="message" rows="6" required
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="Enter your message here..."></textarea>
+                    <p class="text-xs text-gray-500 mt-1">This message will be visible to the selected recipients</p>
+                </div>
+                
+                <!-- Send for Verification Option - Only show when status IS accepted or verified -->
+                @if($submission->status === 'accepted' || $submission->status === 'verified' || $submission->article->status === 'accepted' || $submission->article->status === 'verified')
+                <div class="mb-4">
+                    <div class="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                        <input type="checkbox" id="sendForApproval" name="send_for_approval" value="1" 
+                               class="mt-1 w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                               @if($submission->approval_status === 'pending' || $submission->approval_status === 'verified') disabled @endif>
+                        <div class="flex-1">
+                            <label for="sendForApproval" class="block text-sm font-medium text-gray-900 cursor-pointer">
+                                Send for Verification
+                            </label>
+                            <p class="text-xs text-gray-600 mt-1">
+                                When checked, this will change the article status to "Pending Verify" and request the author to upload a revised file for verification.
+                            </p>
+                            @if($submission->approval_status === 'pending')
+                                <p class="text-xs text-orange-600 mt-1 font-semibold">
+                                    ⚠️ A verification request is already pending. Please wait for the author to upload a file.
+                                </p>
+                            @elseif($submission->approval_status === 'verified')
+                                <p class="text-xs text-green-600 mt-1 font-semibold">
+                                    ✓ This article has already been verified.
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                    <p class="text-xs text-blue-800">
+                        <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                        <strong>Article:</strong> {{ $submission->article->title }}
+                    </p>
+                </div>
+                
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" onclick="closeMessageModal()" 
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                        <i data-lucide="send" class="w-4 h-4 inline mr-2"></i>
+                        Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
+
+    function openMessageModal() {
+        const modal = document.getElementById('messageModal');
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    function closeMessageModal() {
+        const modal = document.getElementById('messageModal');
+        const form = document.getElementById('messageForm');
+        modal.classList.add('hidden');
+        form.reset();
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('messageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeMessageModal();
+        }
+    });
 </script>
 @endsection

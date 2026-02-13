@@ -8,10 +8,13 @@ use App\Models\User;
 use App\Models\Review;
 use App\Models\Submission;
 use App\Models\Journal;
+use App\Models\Notification;
+use App\Models\EditorMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewerController extends Controller
 {
@@ -275,6 +278,101 @@ class ReviewerController extends Controller
             ->paginate(15);
 
         return view('admin.reviewers.reviewer-articles', compact('reviews', 'reviewer'));
+    }
+
+    /**
+     * Send reminder to reviewer about their review assignment (Admin)
+     */
+    public function sendReminderToReviewer(Request $request, Review $review)
+    {
+        $request->validate([
+            'message' => 'required|string|min:10|max:2000'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $review->load(['submission', 'reviewer.user']);
+            $adminName = Auth::user()->name ?? 'Admin';
+
+            // Store message for reviewer
+            EditorMessage::create([
+                'article_id' => $review->submission->article_id,
+                'submission_id' => $review->submission_id,
+                'editor_id' => Auth::id(),
+                'sender_type' => 'admin',
+                'reviewer_id' => $review->reviewer_id,
+                'message' => $request->message,
+                'recipient_type' => 'reviewer',
+            ]);
+
+            // Create notification for reviewer if they have a user account
+            if ($review->reviewer->user) {
+                Notification::create([
+                    'user_id' => $review->reviewer->user->id,
+                    'type' => 'reminder',
+                    'message' => "New message from {$adminName} about your review assignment: \"{$review->submission->article->title}\"",
+                    'status' => 'unread',
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Message sent successfully to the reviewer!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Error sending message: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send reminder to author about their article (Admin)
+     */
+    public function sendReminderToAuthor(Request $request, Submission $submission)
+    {
+        $request->validate([
+            'message' => 'required|string|min:10|max:2000'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $submission->load(['article', 'author']);
+            $adminName = Auth::user()->name ?? 'Admin';
+
+            // Store message for author
+            EditorMessage::create([
+                'article_id' => $submission->article_id,
+                'submission_id' => $submission->id,
+                'editor_id' => Auth::id(),
+                'sender_type' => 'admin',
+                'author_id' => $submission->author_id,
+                'message' => $request->message,
+                'recipient_type' => 'author',
+            ]);
+
+            // Create notification for author if they have a user account
+            $authorUser = User::where('email', $submission->author->email)->first();
+            if ($authorUser) {
+                Notification::create([
+                    'user_id' => $authorUser->id,
+                    'type' => 'reminder',
+                    'message' => "New message from {$adminName} about your article: \"{$submission->article->title}\"",
+                    'status' => 'unread',
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Message sent successfully to the author!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Error sending message: ' . $e->getMessage());
+        }
     }
 }
 

@@ -102,6 +102,8 @@
                                 'submitted' => 'bg-blue-100 text-blue-800 border-blue-200',
                                 'under_review' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
                                 'revision_required' => 'bg-orange-100 text-orange-800 border-orange-200',
+                                'pending_verify' => 'bg-purple-100 text-purple-800 border-purple-200',
+                                'verified' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
                                 'accepted' => 'bg-green-100 text-green-800 border-green-200',
                                 'published' => 'bg-purple-100 text-purple-800 border-purple-200',
                                 'rejected' => 'bg-red-100 text-red-800 border-red-200',
@@ -340,6 +342,8 @@
                                                         'submitted' => 'bg-blue-100 text-blue-800',
                                                         'under_review' => 'bg-yellow-100 text-yellow-800',
                                                         'revision_required' => 'bg-orange-100 text-orange-800',
+                                                        'pending_verify' => 'bg-purple-100 text-purple-800',
+                                                        'verified' => 'bg-emerald-100 text-emerald-800',
                                                         'accepted' => 'bg-green-100 text-green-800',
                                                         'published' => 'bg-purple-100 text-purple-800',
                                                         'rejected' => 'bg-red-100 text-red-800',
@@ -461,6 +465,156 @@
                 </div>
                 @endif
             </div>
+            
+            <!-- Editor Messages Section -->
+            @if(isset($editorMessages) && $editorMessages->count() > 0)
+            <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-gray-900 flex items-center">
+                            <i data-lucide="message-square" class="w-5 h-5 mr-2 text-blue-600"></i>
+                            Messages from Editor
+                        </h3>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white">
+                            Article ID: {{ $article->id }}
+                        </span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        @php
+                            $latestSubmission = $article->submissions()->orderBy('version_number', 'desc')->first();
+                            $hasApprovalRequest = $editorMessages->where('is_approval_request', true)->count() > 0;
+                            $canUploadApproval = $article->status === 'pending_verify' && 
+                                                (!$latestSubmission || $latestSubmission->approval_status !== 'verified') &&
+                                                (!$latestSubmission || $latestSubmission->approval_status !== 'pending');
+                            $hasPendingFile = $latestSubmission && $latestSubmission->approval_status === 'pending' && $latestSubmission->approval_pending_file;
+                        @endphp
+                        
+                        @foreach($editorMessages as $message)
+                        <div class="bg-gradient-to-r {{ $message->is_approval_request ? 'from-purple-50 to-pink-50 border-purple-300' : 'from-blue-50 to-indigo-50 border-blue-200' }} border-2 rounded-lg p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 {{ $message->is_approval_request ? 'bg-purple-600' : ($message->sender_type === 'admin' ? 'bg-indigo-600' : 'bg-blue-600') }} rounded-full flex items-center justify-center">
+                                        <span class="text-xs font-bold text-white">{{ substr($message->sender_type === 'admin' ? ($message->editor->name ?? 'A') : ($message->editor->name ?? 'E'), 0, 1) }}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">
+                                            {{ $message->sender_type === 'admin' ? ($message->editor->name ?? 'Admin') : ($message->editor->name ?? 'Editor') }}
+                                            @if($message->sender_type === 'admin')
+                                                <span class="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded-full">Admin</span>
+                                            @endif
+                                            @if($message->is_approval_request)
+                                                <span class="ml-2 px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full font-bold">VERIFICATION REQUEST</span>
+                                            @endif
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ $message->created_at->format('M d, Y h:i A') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $message->message }}</p>
+                            </div>
+                        </div>
+                        @endforeach
+                        
+                        <!-- Approval File Upload Form -->
+                        @if($hasApprovalRequest && $canUploadApproval && !$hasPendingFile)
+                        <div class="mt-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 rounded-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                                    <i data-lucide="upload" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">Upload Revised File for Verification</h4>
+                                    <p class="text-sm text-gray-600">Please upload your revised file for editor verification</p>
+                                </div>
+                            </div>
+                            
+                            <form action="{{ route('author.articles.upload-approval-file', $article) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label for="approval_file" class="block text-sm font-medium text-gray-700 mb-2">
+                                        File (PDF, DOC, DOCX) *
+                                    </label>
+                                    <input type="file" id="approval_file" name="approval_file" required
+                                           accept=".pdf,.doc,.docx"
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700">
+                                    <p class="text-xs text-gray-500 mt-1">Maximum file size: 10MB</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="approval_message" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Message/Notes (Optional)
+                                    </label>
+                                    <textarea id="approval_message" name="approval_message" rows="3"
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                              placeholder="Add any notes or comments for the editor..."></textarea>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <button type="submit"
+                                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 transform hover:scale-105">
+                                        <i data-lucide="upload" class="w-5 h-5 mr-2"></i>
+                                        Submit for Verification
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        @endif
+                        
+                        <!-- Pending File Status -->
+                        @if($hasPendingFile)
+                        <div class="mt-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300 rounded-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center mr-3">
+                                    <i data-lucide="clock" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">File Already Uploaded</h4>
+                                    <p class="text-sm text-gray-600">Your file is pending editor review. You cannot upload another file until the editor reviews this one.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 p-4 bg-white border border-yellow-200 rounded-lg">
+                                <p class="text-sm font-semibold text-gray-900 mb-2">Uploaded File:</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">{{ basename($latestSubmission->approval_pending_file) }}</span>
+                                    <a href="{{ asset('storage/' . $latestSubmission->approval_pending_file) }}" target="_blank"
+                                       class="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                        Download
+                                    </a>
+                                </div>
+                                <p class="text-xs text-yellow-600 mt-2 font-semibold flex items-center">
+                                    <i data-lucide="clock" class="w-3 h-3 mr-1"></i>
+                                    ⏳ Waiting for editor review - Uploaded on {{ $latestSubmission->updated_at->format('M d, Y H:i') }}
+                                </p>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        <!-- Previously Uploaded File (if rejected or approved) -->
+                        @if($latestSubmission && $latestSubmission->approval_pending_file && !$hasPendingFile)
+                        <div class="mt-4 p-4 bg-white border border-purple-200 rounded-lg">
+                            <p class="text-sm font-semibold text-gray-900 mb-2">Previously Uploaded File:</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">{{ basename($latestSubmission->approval_pending_file) }}</span>
+                                <a href="{{ asset('storage/' . $latestSubmission->approval_pending_file) }}" target="_blank"
+                                   class="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                    Download
+                                </a>
+                            </div>
+                                @if($latestSubmission->approval_status === 'rejected')
+                                <p class="text-xs text-red-600 mt-2 font-semibold">❌ Verification rejected. Please upload a new file.</p>
+                                @elseif($latestSubmission->approval_status === 'verified')
+                                <p class="text-xs text-green-600 mt-2 font-semibold">✓ Verified on {{ $latestSubmission->updated_at->format('M d, Y') }}</p>
+                                @endif
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>

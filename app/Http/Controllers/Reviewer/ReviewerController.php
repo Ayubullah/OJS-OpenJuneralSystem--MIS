@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reviewer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
+use App\Models\EditorMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -87,12 +88,44 @@ class ReviewerController extends Controller
         ->limit(5)
         ->get();
 
+        // Get all messages for this reviewer
+        $allMessages = EditorMessage::where(function($query) use ($reviewer) {
+                $query->where(function($q) use ($reviewer) {
+                    $q->where('reviewer_id', $reviewer->id)
+                      ->where(function($q2) {
+                          $q2->where('recipient_type', 'reviewer')
+                            ->orWhere('recipient_type', 'both');
+                      });
+                })
+                ->orWhere(function($q) use ($reviewer) {
+                    // Admin messages sent to this specific reviewer
+                    $q->where('sender_type', 'admin')
+                      ->where('recipient_type', 'reviewer')
+                      ->where('reviewer_id', $reviewer->id);
+                });
+            })
+            ->with(['editor', 'editorRecipient', 'article'])
+            ->latest()
+            ->get();
+
+        // Separate messages into categories
+        $editorMessages = $allMessages->filter(function($msg) {
+            return $msg->sender_type !== 'admin';
+        });
+        
+        $adminMessages = $allMessages->filter(function($msg) {
+            return $msg->sender_type === 'admin';
+        });
+
         return view('reviewer.dashboard', compact(
             'pendingCount',
             'inProgressCount',
             'completedCount',
             'totalCount',
-            'recentReviews'
+            'recentReviews',
+            'allMessages',
+            'editorMessages',
+            'adminMessages'
         ));
     }
 }

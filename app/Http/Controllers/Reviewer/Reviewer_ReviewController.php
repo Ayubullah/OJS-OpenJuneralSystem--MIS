@@ -172,8 +172,28 @@ class Reviewer_ReviewController extends Controller
 
         // Get current review's author reply if exists
         $review->load('submission.article');
+        
+        // Load editor and admin messages for this article (for reviewer)
+        $editorMessages = \App\Models\EditorMessage::where('article_id', $review->submission->article_id)
+            ->where(function($query) use ($reviewer) {
+                $query->where(function($q) use ($reviewer) {
+                    $q->where('reviewer_id', $reviewer->id)
+                      ->where(function($q2) {
+                          $q2->where('recipient_type', 'reviewer')
+                            ->orWhere('recipient_type', 'both');
+                      });
+                })
+                ->orWhere(function($q) {
+                    // Admin messages sent to all reviewers
+                    $q->where('sender_type', 'admin')
+                      ->where('recipient_type', 'reviewer');
+                });
+            })
+            ->with(['editor', 'editorRecipient'])
+            ->latest()
+            ->get();
 
-        return view('reviewer.reviews.show', compact('review', 'previousReviews'));
+        return view('reviewer.reviews.show', compact('review', 'previousReviews', 'editorMessages'));
     }
 
     /**
