@@ -13,6 +13,7 @@ class Review extends Model
         'rating',
         'plagiarism_percentage',
         'comments',
+        'review_file',
         'author_reply',
         'review_date',
         'editor_approved',

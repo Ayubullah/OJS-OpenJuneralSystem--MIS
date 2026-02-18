@@ -16,7 +16,10 @@ class Submission extends Model
         'version_number',
         'file_path',
         'approval_pending_file',
-        'approval_status'
+        'approval_status',
+        'plagiarism_percentage',
+        'ai_report_file',
+        'other_resources_report_file'
     ];
 
     /**

@@ -191,6 +191,47 @@
             </div>
             @endif
 
+            <!-- Date Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-6">
+                <!-- Created At -->
+                <div class="space-y-2">
+                    <label for="created_at" class="block text-sm font-semibold text-gray-700">
+                        {{ __('Created Date') }}
+                    </label>
+                    <input type="datetime-local" 
+                           id="created_at" 
+                           name="created_at" 
+                           value="{{ old('created_at', $article->created_at ? $article->created_at->format('Y-m-d\TH:i') : '') }}"
+                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('created_at') border-red-300 @enderror">
+                    @error('created_at')
+                    <p class="text-sm text-red-600 flex items-center">
+                        <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                        {{ $message }}
+                    </p>
+                    @enderror
+                    <p class="text-xs text-gray-500">{{ __('Date when article was created') }}</p>
+                </div>
+
+                <!-- Updated At -->
+                <div class="space-y-2">
+                    <label for="updated_at" class="block text-sm font-semibold text-gray-700">
+                        {{ __('Updated Date') }}
+                    </label>
+                    <input type="datetime-local" 
+                           id="updated_at" 
+                           name="updated_at" 
+                           value="{{ old('updated_at', $article->updated_at ? $article->updated_at->format('Y-m-d\TH:i') : '') }}"
+                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('updated_at') border-red-300 @enderror">
+                    @error('updated_at')
+                    <p class="text-sm text-red-600 flex items-center">
+                        <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                        {{ $message }}
+                    </p>
+                    @enderror
+                    <p class="text-xs text-gray-500">{{ __('Date when article was last updated') }}</p>
+                </div>
+            </div>
+
             <!-- Form Actions -->
             <div class="flex items-center justify-end space-x-4 pt-8 border-t border-gray-100">
                 <a href="{{ route('admin.articles.show', $article) }}" 

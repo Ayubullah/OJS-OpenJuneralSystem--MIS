@@ -151,7 +151,7 @@ class RegisteredUserController extends Controller
             Notification::create([
                 'user_id' => $user->id,
                 'type' => 'registration',
-                'message' => 'Welcome to OJS! Your author account has been created successfully and your article "' . $article->title . '" has been submitted. Please go to the login page and login with your email (' . $user->email . ') and password to access your dashboard and view your submission status.',
+                'message' => 'Welcome to KJOS! Your author account has been created successfully and your article "' . $article->title . '" has been submitted. Please go to the login page and login with your email (' . $user->email . ') and password to access your dashboard and view your submission status.',
                 'status' => 'unread',
             ]);
 

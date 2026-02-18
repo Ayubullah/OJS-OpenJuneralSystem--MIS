@@ -34,10 +34,6 @@
                             
                             <div class="flex items-center space-x-6 text-sm text-gray-500 mb-3">
                                 <div class="flex items-center space-x-1">
-                                    <i data-lucide="user" class="w-4 h-4"></i>
-                                    <span>{{ $review->submission->article->author->name ?? __('Unknown Author') }}</span>
-                                </div>
-                                <div class="flex items-center space-x-1">
                                     <i data-lucide="book" class="w-4 h-4"></i>
                                     <span>{{ $review->submission->article->journal->name ?? __('Unknown Journal') }}</span>
                                 </div>

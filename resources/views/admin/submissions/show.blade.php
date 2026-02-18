@@ -44,10 +44,6 @@
                             <i data-lucide="book" class="w-4 h-4"></i>
                             <span>{{ $submission->article->journal->name ?? 'Unknown Journal' }}</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="user" class="w-4 h-4"></i>
-                            <span>{{ $submission->author->name ?? 'Unknown Author' }}</span>
-                        </div>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -82,21 +78,6 @@
                             <label class="block text-sm font-medium text-gray-500 mb-1">Category</label>
                             <p class="text-sm font-semibold text-gray-900">{{ $submission->article->category->name ?? 'Uncategorized' }}</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Author Information -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">Author Information</h3>
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center">
-                        <span class="text-lg font-bold text-white">{{ substr($submission->author->name ?? 'A', 0, 1) }}</span>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900">{{ $submission->author->name ?? 'Unknown Author' }}</h4>
-                        <p class="text-sm text-gray-600">{{ $submission->author->email ?? 'No email' }}</p>
-                        <p class="text-sm text-gray-500">{{ $submission->author->affiliation ?? 'No affiliation' }}</p>
                     </div>
                 </div>
             </div>

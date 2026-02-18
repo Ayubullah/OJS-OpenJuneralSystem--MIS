@@ -88,10 +88,6 @@
                                         {{ $submission->article->journal->name ?? 'Unknown Journal' }}
                                     </span>
                                     <span class="flex items-center">
-                                        <i data-lucide="user" class="w-4 h-4 mr-1"></i>
-                                        {{ $submission->author->name ?? 'Unknown Author' }}
-                                    </span>
-                                    <span class="flex items-center">
                                         <i data-lucide="calendar" class="w-4 h-4 mr-1"></i>
                                         {{ __('Verified on') }} {{ $submission->updated_at->format('M d, Y') }}
                                     </span>

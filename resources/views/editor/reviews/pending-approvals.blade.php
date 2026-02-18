@@ -1,17 +1,17 @@
 @extends('layout.app_editor')
 
-@section('title', 'Pending Review Approvals')
-@section('page-title', 'Pending Review Approvals')
-@section('page-description', 'Review and approve reviewer comments')
+@section('title', __('Pending Review Approvals'))
+@section('page-title', __('Pending Review Approvals'))
+@section('page-description', __('Review and approve reviewer comments'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <span class="ml-2 text-sm font-medium text-gray-500">Dashboard</span>
+    <span class="ml-2 text-sm font-medium text-gray-500">{{ __('Dashboard') }}</span>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">Pending Approvals</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('Pending Approvals') }}</span>
 </li>
 @endsection
 
@@ -22,8 +22,8 @@
         <div class="px-8 py-6 bg-gradient-to-r from-orange-50 to-amber-50">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Pending Review Approvals</h1>
-                    <p class="text-sm text-gray-600">Review and approve reviewer comments before they are shown to authors</p>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ __('Pending Review Approvals') }}</h1>
+                    <p class="text-sm text-gray-600">{{ __('Review and approve reviewer comments before they are shown to authors') }}</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -31,7 +31,7 @@
                     </div>
                     <div>
                         <div class="text-2xl font-bold text-gray-900">{{ $pendingReviews->total() }}</div>
-                        <div class="text-xs text-gray-600">Pending Reviews</div>
+                        <div class="text-xs text-gray-600">{{ __('Pending Reviews') }}</div>
                     </div>
                 </div>
             </div>
@@ -71,8 +71,8 @@
                                     <span class="text-lg font-bold text-white">{{ substr($review->reviewer->user->name ?? 'R', 0, 1) }}</span>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-gray-900">{{ $review->reviewer->user->name ?? 'Unknown Reviewer' }}</h3>
-                                    <p class="text-sm text-gray-600">{{ $review->review_date?->format('F d, Y \a\t h:i A') ?? 'N/A' }}</p>
+                                    <h3 class="text-lg font-bold text-gray-900">{{ $review->reviewer->user->name ?? __('Unknown Reviewer') }}</h3>
+                                    <p class="text-sm text-gray-600">{{ $review->review_date?->format('F d, Y \a\t h:i A') ?? __('N/A') }}</p>
                                 </div>
                             </div>
                             
@@ -80,21 +80,17 @@
                             <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
                                 <div class="flex items-center space-x-2 mb-2">
                                     <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
-                                    <span class="text-sm font-semibold text-gray-700">Article:</span>
+                                    <span class="text-sm font-semibold text-gray-700">{{ __('Article:') }}</span>
                                 </div>
-                                <p class="text-sm font-bold text-gray-900">{{ $review->submission->article->title ?? 'Untitled Article' }}</p>
+                                <p class="text-sm font-bold text-gray-900">{{ $review->submission->article->title ?? __('Untitled Article') }}</p>
                                 <div class="flex items-center space-x-4 mt-2 text-xs text-gray-600">
                                     <span class="flex items-center">
                                         <i data-lucide="book" class="w-3 h-3 mr-1"></i>
-                                        {{ $review->submission->article->journal->name ?? 'Unknown Journal' }}
-                                    </span>
-                                    <span class="flex items-center">
-                                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
-                                        {{ $review->submission->author->name ?? 'Unknown Author' }}
+                                        {{ $review->submission->article->journal->name ?? __('Unknown Journal') }}
                                     </span>
                                     <span class="flex items-center">
                                         <i data-lucide="hash" class="w-3 h-3 mr-1"></i>
-                                        Version {{ $review->submission->version_number }}
+                                        {{ __('Version') }} {{ $review->submission->version_number }}
                                     </span>
                                 </div>
                             </div>
@@ -102,7 +98,7 @@
                             <!-- Rating -->
                             @if($review->rating)
                             <div class="mb-4 flex items-center space-x-3">
-                                <span class="text-sm font-semibold text-gray-700">Rating:</span>
+                                <span class="text-sm font-semibold text-gray-700">{{ __('Rating:') }}</span>
                                 <span class="text-lg font-bold text-gray-900">{{ $review->rating }}/10</span>
                                 <div class="flex space-x-1">
                                     @for($i = 1; $i <= 5; $i++)
@@ -114,7 +110,7 @@
 
                             <!-- Reviewer Comment -->
                             <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Reviewer's Comment:</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Reviewer\'s Comment:') }}</label>
                                 <div class="bg-white border border-gray-200 rounded-lg p-4">
                                     <div class="text-sm text-gray-700 leading-relaxed ql-editor" style="padding: 0;">
                                         {!! $review->comments !!}
@@ -129,21 +125,21 @@
                         <a href="{{ route('editor.reviews.edit', $review) }}" 
                            class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-md hover:shadow-lg">
                             <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
-                            Edit & Approve
+                            {{ __('Edit & Approve') }}
                         </a>
                         <form action="{{ route('editor.reviews.approve', $review) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" 
                                     class="inline-flex items-center px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-md hover:shadow-lg"
-                                    onclick="return confirm('Are you sure you want to approve this review without editing?')">
+                                    onclick="return confirm('{{ __('Are you sure you want to approve this review without editing?') }}')">
                                 <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
-                                Approve Without Editing
+                                {{ __('Approve Without Editing') }}
                             </button>
                         </form>
                         <a href="{{ route('editor.submissions.show', $review->submission) }}" 
                            class="inline-flex items-center px-5 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                             <i data-lucide="eye" class="w-4 h-4 mr-2"></i>
-                            View Submission
+                            {{ __('View Submission') }}
                         </a>
                     </div>
                 </div>
@@ -162,12 +158,12 @@
             <div class="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i data-lucide="check-circle" class="w-10 h-10 text-green-600"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">All Caught Up!</h3>
-            <p class="text-gray-600 mb-6">There are no pending reviews waiting for approval.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('All Caught Up!') }}</h3>
+            <p class="text-gray-600 mb-6">{{ __('There are no pending reviews waiting for approval.') }}</p>
             <a href="{{ route('editor.submissions.index') }}" 
                class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">
                 <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                Back to Submissions
+                {{ __('Back to Submissions') }}
             </a>
         </div>
     </div>

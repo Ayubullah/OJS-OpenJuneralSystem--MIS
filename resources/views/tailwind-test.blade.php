@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tailwind CSS Test - OJS Project</title>
+    <title>Tailwind CSS Test - KJOS Project</title>
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -18,7 +18,7 @@
                 🎉 Tailwind CSS Test Page
             </h1>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                This page demonstrates that Tailwind CSS is properly installed and working in your Laravel OJS project.
+                This page demonstrates that Tailwind CSS is properly installed and working in your Laravel KJOS project.
             </p>
         </header>
 

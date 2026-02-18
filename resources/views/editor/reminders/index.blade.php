@@ -1,17 +1,17 @@
 @extends('layout.app_editor')
 
-@section('title', 'Reminders')
-@section('page-title', 'Reminders & Messages')
-@section('page-description', 'Manage reminders and messages sent to authors and reviewers')
+@section('title', __('Reminders'))
+@section('page-title', __('Reminders & Messages'))
+@section('page-description', __('Manage reminders and messages sent to authors and reviewers'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <a href="{{ route('editor.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">Dashboard</a>
+    <a href="{{ route('editor.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{{ __('Dashboard') }}</a>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">Reminders</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('Reminders') }}</span>
 </li>
 @endsection
 
@@ -45,8 +45,8 @@
         <div class="px-8 py-6 bg-gradient-to-r from-purple-50 to-pink-50">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Reminders & Messages</h1>
-                    <p class="mt-2 text-sm text-gray-600">Send reminders and messages to authors and reviewers about their articles</p>
+                    <h1 class="text-2xl font-bold text-gray-900">{{ __('Reminders & Messages') }}</h1>
+                    <p class="mt-2 text-sm text-gray-600">{{ __('Send reminders and messages to authors and reviewers about their articles') }}</p>
                 </div>
             </div>
         </div>
@@ -58,25 +58,25 @@
             <nav class="flex -mb-px overflow-x-auto">
                 <button onclick="showTab('submissions')" id="submissionsTab" class="tab-button active px-6 py-4 text-sm font-medium text-purple-600 border-b-2 border-purple-600 whitespace-nowrap">
                     <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
-                    Articles
+                    {{ __('Articles') }}
                 </button>
                 <button onclick="showTab('authorMessages')" id="authorMessagesTab" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                     <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
-                    Author Messages
+                    {{ __('Author Messages') }}
                     @if(isset($authorMessages) && $authorMessages->count() > 0)
                     <span class="ml-2 px-2 py-0.5 bg-blue-500 text-white text-xs font-bold rounded-full">{{ $authorMessages->count() }}</span>
                     @endif
                 </button>
                 <button onclick="showTab('reviewerMessages')" id="reviewerMessagesTab" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                     <i data-lucide="user-check" class="w-4 h-4 inline mr-2"></i>
-                    Reviewer Messages
+                    {{ __('Reviewer Messages') }}
                     @if(isset($reviewerMessages) && $reviewerMessages->count() > 0)
                     <span class="ml-2 px-2 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full">{{ $reviewerMessages->count() }}</span>
                     @endif
                 </button>
                 <button onclick="showTab('adminMessages')" id="adminMessagesTab" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                     <i data-lucide="shield" class="w-4 h-4 inline mr-2"></i>
-                    Admin Messages
+                    {{ __('Admin Messages') }}
                     @if(isset($adminMessages) && $adminMessages->count() > 0)
                     <span class="ml-2 px-2 py-0.5 bg-indigo-500 text-white text-xs font-bold rounded-full">{{ $adminMessages->count() }}</span>
                     @endif
@@ -87,7 +87,7 @@
         <!-- Submissions Tab -->
         <div id="submissionsTabContent" class="tab-content p-6">
             <div class="mb-4">
-                <p class="text-sm text-gray-600">Select an article to send a reminder message to the author and/or reviewers.</p>
+                <p class="text-sm text-gray-600">{{ __('Select an article to send a reminder message to the author and/or reviewers.') }}</p>
             </div>
 
             @if($submissions->count() > 0)
@@ -98,36 +98,32 @@
                         <div class="flex-1">
                             <div class="flex items-center space-x-3 mb-2">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
-                                    Article ID: {{ $submission->article_id }}
+                                    {{ __('Article ID') }}: {{ $submission->article_id }}
                                 </span>
                                 <h3 class="text-lg font-bold text-gray-900">{{ $submission->article->title }}</h3>
                             </div>
                             <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
                                 <div class="flex items-center space-x-1">
                                     <i data-lucide="book" class="w-4 h-4"></i>
-                                    <span>{{ $submission->article->journal->name ?? 'N/A' }}</span>
-                                </div>
-                                <div class="flex items-center space-x-1">
-                                    <i data-lucide="user" class="w-4 h-4"></i>
-                                    <span><strong>Author:</strong> {{ $submission->author->name ?? 'N/A' }}</span>
+                                    <span>{{ $submission->article->journal->name ?? __('N/A') }}</span>
                                 </div>
                                 <div class="flex items-center space-x-1">
                                     <i data-lucide="tag" class="w-4 h-4"></i>
-                                    <span>{{ $submission->article->category->name ?? 'N/A' }}</span>
+                                    <span>{{ $submission->article->category->name ?? __('N/A') }}</span>
                                 </div>
                                 <div class="flex items-center space-x-1">
                                     <i data-lucide="calendar" class="w-4 h-4"></i>
-                                    <span>{{ $submission->submission_date?->format('M d, Y') ?? 'N/A' }}</span>
+                                    <span>{{ $submission->submission_date?->format('M d, Y') ?? __('N/A') }}</span>
                                 </div>
                             </div>
                             @if($submission->reviews->count() > 0)
                             <div class="mb-3">
-                                <p class="text-xs text-gray-600 mb-1"><strong>Reviewers:</strong></p>
+                                <p class="text-xs text-gray-600 mb-1"><strong>{{ __('Reviewers') }}:</strong></p>
                                 <div class="flex flex-wrap gap-2">
                                     @foreach($submission->reviews as $review)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                         <i data-lucide="user-check" class="w-3 h-3 mr-1"></i>
-                                        {{ $review->reviewer->user->name ?? 'Reviewer' }}
+                                        {{ $review->reviewer->user->name ?? __('Reviewer') }}
                                     </span>
                                     @endforeach
                                 </div>
@@ -144,7 +140,7 @@
                                 </span>
                                 @if($submission->reviews->count() > 0)
                                 <span class="text-xs text-gray-500">
-                                    {{ $submission->reviews->count() }} reviewer(s) assigned
+                                    {{ $submission->reviews->count() }} {{ __('reviewer(s) assigned') }}
                                 </span>
                                 @endif
                             </div>
@@ -153,7 +149,7 @@
                             <a href="{{ route('editor.submissions.show', ['submission' => $submission, 'from' => 'reminders']) }}" 
                                class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors duration-200">
                                 <i data-lucide="send" class="w-4 h-4 mr-2"></i>
-                                Send Message
+                                {{ __('Send Message') }}
                             </a>
                         </div>
                     </div>
@@ -172,8 +168,8 @@
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="file-text" class="w-8 h-8 text-gray-400"></i>
                 </div>
-                <p class="text-gray-500 font-medium">No articles found</p>
-                <p class="text-sm text-gray-400 mt-1">Articles will appear here once they are submitted</p>
+                <p class="text-gray-500 font-medium">{{ __('No articles found') }}</p>
+                <p class="text-sm text-gray-400 mt-1">{{ __('Articles will appear here once they are submitted') }}</p>
             </div>
             @endif
         </div>
@@ -186,15 +182,14 @@
                 <div class="bg-white rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors">
                     <div class="flex items-start gap-3">
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span class="text-xs font-bold text-white">{{ substr($message->author->name ?? 'A', 0, 1) }}</span>
+                            <i data-lucide="user" class="w-4 h-4 text-white"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-sm font-semibold text-gray-900">{{ $message->author->name ?? 'Author' }}</span>
                                     @if($message->article_id)
-                                    <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
-                                    <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? 'Untitled Article' }}</span>
+                                    <span class="text-xs text-gray-500">• {{ __('Article ID') }}: {{ $message->article_id }}</span>
+                                    <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
                                     @endif
                                 </div>
                                 <span class="text-xs text-gray-500 whitespace-nowrap">{{ $message->created_at->format('M d, h:i A') }}</span>
@@ -205,11 +200,11 @@
                             @if($message->sender_type !== 'admin')
                             <button onclick="openEditModal({{ $message->id }}, this)" 
                                     data-message="{{ htmlspecialchars($message->message, ENT_QUOTES, 'UTF-8') }}"
-                                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Edit">
+                                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="{{ __('Edit') }}">
                                 <i data-lucide="edit" class="w-4 h-4"></i>
                             </button>
                             <button onclick="confirmDelete({{ $message->id }})" 
-                                    class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                                    class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" title="{{ __('Delete') }}">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                             @endif
@@ -222,7 +217,7 @@
             @else
             <div class="text-center py-8">
                 <i data-lucide="user" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
-                <p class="text-sm text-gray-500">No messages sent to authors yet</p>
+                <p class="text-sm text-gray-500">{{ __('No messages sent to authors yet') }}</p>
             </div>
             @endif
         </div>
@@ -240,10 +235,10 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-sm font-semibold text-gray-900">{{ $message->reviewer->user->name ?? ($message->reviewer->email ?? 'Reviewer') }}</span>
+                                    <span class="text-sm font-semibold text-gray-900">{{ $message->reviewer->user->name ?? ($message->reviewer->email ?? __('Reviewer')) }}</span>
                                     @if($message->article_id)
-                                    <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
-                                    <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? 'Untitled Article' }}</span>
+                                    <span class="text-xs text-gray-500">• {{ __('Article ID') }}: {{ $message->article_id }}</span>
+                                    <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
                                     @endif
                                 </div>
                                 <span class="text-xs text-gray-500 whitespace-nowrap">{{ $message->created_at->format('M d, h:i A') }}</span>
@@ -253,11 +248,11 @@
                         <div class="flex items-center gap-1">
                             <button onclick="openEditModal({{ $message->id }}, this)" 
                                     data-message="{{ htmlspecialchars($message->message, ENT_QUOTES, 'UTF-8') }}"
-                                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Edit">
+                                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="{{ __('Edit') }}">
                                 <i data-lucide="edit" class="w-4 h-4"></i>
                             </button>
                             <button onclick="confirmDelete({{ $message->id }})" 
-                                    class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                                    class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" title="{{ __('Delete') }}">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -268,7 +263,7 @@
             @else
             <div class="text-center py-8">
                 <i data-lucide="user-check" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
-                <p class="text-sm text-gray-500">No messages sent to reviewers yet</p>
+                <p class="text-sm text-gray-500">{{ __('No messages sent to reviewers yet') }}</p>
             </div>
             @endif
         </div>
@@ -286,11 +281,11 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? 'Admin' }}</span>
-                                    <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">Admin</span>
+                                    <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? __('Admin') }}</span>
+                                    <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">{{ __('Admin') }}</span>
                                     @if($message->article_id)
-                                    <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
-                                    <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? 'Untitled Article' }}</span>
+                                    <span class="text-xs text-gray-500">• {{ __('Article ID') }}: {{ $message->article_id }}</span>
+                                    <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
                                     @endif
                                 </div>
                                 <span class="text-xs text-gray-500 whitespace-nowrap">{{ $message->created_at->format('M d, h:i A') }}</span>
@@ -304,7 +299,7 @@
             @else
             <div class="text-center py-8">
                 <i data-lucide="shield" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
-                <p class="text-sm text-gray-500">No admin messages yet</p>
+                <p class="text-sm text-gray-500">{{ __('No admin messages yet') }}</p>
             </div>
             @endif
         </div>
@@ -316,7 +311,7 @@
     <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
         <div class="p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-gray-900">Edit Message</h3>
+                <h3 class="text-xl font-bold text-gray-900">{{ __('Edit Message') }}</h3>
                 <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
@@ -326,22 +321,22 @@
                 @csrf
                 @method('PUT')
                 <div class="mb-4">
-                    <label for="editMessageText" class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+                    <label for="editMessageText" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Message') }} *</label>
                     <textarea id="editMessageText" name="message" rows="6" required
                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="Enter your message here..."></textarea>
-                    <p class="text-xs text-gray-500 mt-1">Minimum 10 characters, maximum 2000 characters</p>
+                              placeholder="{{ __('Enter your message here...') }}"></textarea>
+                    <p class="text-xs text-gray-500 mt-1">{{ __('Minimum 10 characters, maximum 2000 characters') }}</p>
                 </div>
                 
                 <div class="flex items-center justify-end space-x-3">
                     <button type="button" onclick="closeEditModal()" 
                             class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
-                        Cancel
+                        {{ __('Cancel') }}
                     </button>
                     <button type="submit" 
                             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200">
                         <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
-                        Save Changes
+                        {{ __('Save Changes') }}
                     </button>
                 </div>
             </form>
@@ -431,7 +426,7 @@
 
     // Delete Message Function
     function confirmDelete(messageId) {
-        if (confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+        if (confirm('{{ __('Are you sure you want to delete this message? This action cannot be undone.') }}')) {
             // Create a form and submit it
             const form = document.createElement('form');
             form.method = 'POST';

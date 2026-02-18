@@ -149,17 +149,6 @@ Best regards">{{ old('message_to_reviewers') }}</textarea>
                     @enderror
                 </div>
 
-                <!-- Optional Notes -->
-                <div>
-                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                        Revision Notes (Optional - For Your Reference Only)
-                    </label>
-                    <textarea name="notes" id="notes" rows="3" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="Private notes about this revision (not visible to reviewers)...">{{ old('notes') }}</textarea>
-                    <p class="mt-1 text-sm text-gray-500">These notes are for your personal reference only and will not be shared with reviewers</p>
-                </div>
-
                 <!-- Information Box -->
                 <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
                     <div class="flex items-start">

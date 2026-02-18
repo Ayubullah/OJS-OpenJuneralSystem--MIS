@@ -66,7 +66,10 @@ class Editor_SubmissionController extends Controller
         
         $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
             ->whereIn('submissions.id', $latestSubmissionIds)
-            ->latest()
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
             ->paginate(10);
         
         return view('editor.submissions.index', compact('submissions'));
@@ -77,10 +80,24 @@ class Editor_SubmissionController extends Controller
      */
     public function published()
     {
-        $submissions = $this->filterByEditorJournals(
-            Submission::with(['article.journal', 'author', 'reviews.reviewer'])
-                ->where('status', 'published')
-        )->latest()->paginate(10);
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'published')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
         $statusFilter = 'published';
         return view('editor.submissions.index', compact('submissions', 'statusFilter'));
     }
@@ -90,10 +107,24 @@ class Editor_SubmissionController extends Controller
      */
     public function accepted()
     {
-        $submissions = $this->filterByEditorJournals(
-            Submission::with(['article.journal', 'author', 'reviews.reviewer'])
-                ->where('status', 'accepted')
-        )->latest()->paginate(10);
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'accepted')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
         $statusFilter = 'accepted';
         return view('editor.submissions.index', compact('submissions', 'statusFilter'));
     }
@@ -103,10 +134,24 @@ class Editor_SubmissionController extends Controller
      */
     public function submitted()
     {
-        $submissions = $this->filterByEditorJournals(
-            Submission::with(['article.journal', 'author', 'reviews.reviewer'])
-                ->where('status', 'submitted')
-        )->latest()->paginate(10);
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'submitted')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
         $statusFilter = 'submitted';
         return view('editor.submissions.index', compact('submissions', 'statusFilter'));
     }
@@ -116,10 +161,24 @@ class Editor_SubmissionController extends Controller
      */
     public function underReview()
     {
-        $submissions = $this->filterByEditorJournals(
-            Submission::with(['article.journal', 'author', 'reviews.reviewer'])
-                ->where('status', 'under_review')
-        )->latest()->paginate(10);
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'under_review')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
         $statusFilter = 'under_review';
         return view('editor.submissions.index', compact('submissions', 'statusFilter'));
     }
@@ -129,10 +188,24 @@ class Editor_SubmissionController extends Controller
      */
     public function revisionRequired()
     {
-        $submissions = $this->filterByEditorJournals(
-            Submission::with(['article.journal', 'author', 'reviews.reviewer'])
-                ->where('status', 'revision_required')
-        )->latest()->paginate(10);
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'revision_required')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
         $statusFilter = 'revision_required';
         return view('editor.submissions.index', compact('submissions', 'statusFilter'));
     }
@@ -142,10 +215,24 @@ class Editor_SubmissionController extends Controller
      */
     public function rejected()
     {
-        $submissions = $this->filterByEditorJournals(
-            Submission::with(['article.journal', 'author', 'reviews.reviewer'])
-                ->where('status', 'rejected')
-        )->latest()->paginate(10);
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'rejected')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
         $statusFilter = 'rejected';
         return view('editor.submissions.index', compact('submissions', 'statusFilter'));
     }
@@ -225,7 +312,7 @@ class Editor_SubmissionController extends Controller
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'author_id' => 'required|exists:authors,id',
-            'status' => 'required|in:submitted,under_review,revision_required,pending_verify,verified,accepted,published,rejected',
+            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,accepted,published,rejected',
             'version_number' => 'required|integer|min:1'
         ]);
 
@@ -247,7 +334,24 @@ class Editor_SubmissionController extends Controller
         }
         
         $submission->load(['article.journal', 'author', 'reviews.reviewer']);
-        return view('editor.submissions.show', compact('submission'));
+        
+        // Load all submissions for this article (version history)
+        $allSubmissions = Submission::where('article_id', $submission->article_id)
+            ->orderBy('version_number', 'desc')
+            ->with(['reviews.reviewer.user'])
+            ->get();
+        
+        // Load editor messages for this article
+        $editorMessages = EditorMessage::where('article_id', $submission->article_id)
+            ->where(function($query) use ($submission) {
+                $query->where('submission_id', $submission->id)
+                      ->orWhereNull('submission_id');
+            })
+            ->with(['editor', 'editorRecipient'])
+            ->latest()
+            ->get();
+        
+        return view('editor.submissions.show', compact('submission', 'allSubmissions', 'editorMessages'));
     }
 
     /**
@@ -257,8 +361,9 @@ class Editor_SubmissionController extends Controller
     {
         $articles = Article::with('journal')->get();
         $authors = Author::all();
+        $journals = \App\Models\Journal::where('status', 'active')->orderBy('name')->get();
         
-        return view('editor.submissions.edit', compact('submission', 'articles', 'authors'));
+        return view('editor.submissions.edit', compact('submission', 'articles', 'authors', 'journals'));
     }
 
     /**
@@ -269,10 +374,18 @@ class Editor_SubmissionController extends Controller
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'author_id' => 'required|exists:authors,id',
-            'status' => 'required|in:submitted,under_review,revision_required,pending_verify,verified,accepted,published,rejected',
+            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,accepted,published,rejected',
             'version_number' => 'required|integer|min:1',
             'file_path' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
-            'approval_status' => 'nullable|in:pending,verified,rejected'
+            'approval_status' => 'nullable|in:pending,verified,rejected',
+            'plagiarism_percentage' => 'nullable|numeric|min:0|max:100',
+            'ai_report_file' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
+            'other_resources_report_file' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
+            'disc_review_recipient' => 'nullable|in:author,reviewer,both',
+            'disc_review_message' => 'nullable|string|max:2000|required_with:send_disc_review_message|min:10',
+            'send_disc_review_message' => 'nullable|boolean',
+            'article_created_at' => 'nullable|date',
+            'article_updated_at' => 'nullable|date'
         ]);
 
         $updateData = [
@@ -287,6 +400,21 @@ class Editor_SubmissionController extends Controller
             $updateData['approval_status'] = $request->approval_status ?: null;
         }
 
+        // Handle plagiarism_percentage if provided (including 0.00)
+        // Check if the field exists in the request and has a value (including 0.00)
+        if ($request->has('plagiarism_percentage')) {
+            $plagiarismValue = $request->input('plagiarism_percentage');
+            // If value is provided (not null and not empty string), update it
+            // This allows 0.00 to be saved explicitly
+            if ($plagiarismValue !== null && $plagiarismValue !== '') {
+                $updateData['plagiarism_percentage'] = (float)$plagiarismValue;
+            } else {
+                // If explicitly cleared (empty string), set to null
+                $updateData['plagiarism_percentage'] = null;
+            }
+        }
+        // If field is not in request at all, don't update (preserve existing value)
+
         // Handle file upload if new file provided
         if ($request->hasFile('file_path')) {
             // Delete old file if exists
@@ -300,10 +428,145 @@ class Editor_SubmissionController extends Controller
             $updateData['file_path'] = $file->storeAs('submissions', $fileName, 'public');
         }
 
-        $submission->update($updateData);
+        // Handle AI report file upload
+        if ($request->hasFile('ai_report_file')) {
+            // Delete old file if exists
+            if ($submission->ai_report_file && Storage::disk('public')->exists($submission->ai_report_file)) {
+                Storage::disk('public')->delete($submission->ai_report_file);
+            }
+            
+            // Upload new file
+            $file = $request->file('ai_report_file');
+            $fileName = time() . '_ai_report_' . $submission->id . '_' . $file->getClientOriginalName();
+            $updateData['ai_report_file'] = $file->storeAs('plagiarism_reports', $fileName, 'public');
+        }
 
-        return redirect()->route('editor.submissions.show', $submission)
-            ->with('success', 'Submission updated successfully.');
+        // Handle other resources report file upload
+        if ($request->hasFile('other_resources_report_file')) {
+            // Delete old file if exists
+            if ($submission->other_resources_report_file && Storage::disk('public')->exists($submission->other_resources_report_file)) {
+                Storage::disk('public')->delete($submission->other_resources_report_file);
+            }
+            
+            // Upload new file
+            $file = $request->file('other_resources_report_file');
+            $fileName = time() . '_other_resources_report_' . $submission->id . '_' . $file->getClientOriginalName();
+            $updateData['other_resources_report_file'] = $file->storeAs('plagiarism_reports', $fileName, 'public');
+        }
+
+        DB::beginTransaction();
+        try {
+            $submission->update($updateData);
+            
+            // Update article's journal_id and dates if provided
+            $article = Article::find($request->article_id);
+            if ($article) {
+                $articleUpdateData = [];
+                
+                if ($request->has('journal_id') && $request->journal_id && $article->journal_id != $request->journal_id) {
+                    $articleUpdateData['journal_id'] = $request->journal_id;
+                }
+                
+                // Sync article status with submission status when rejected
+                if ($request->status === 'rejected' && $article->status !== 'rejected') {
+                    $articleUpdateData['status'] = 'rejected';
+                }
+                
+                // Handle article date fields if provided
+                $hasManualTimestamps = false;
+                if ($request->filled('article_created_at')) {
+                    $articleUpdateData['created_at'] = $request->article_created_at;
+                    $hasManualTimestamps = true;
+                }
+                if ($request->filled('article_updated_at')) {
+                    $articleUpdateData['updated_at'] = $request->article_updated_at;
+                    $hasManualTimestamps = true;
+                }
+                
+                if (!empty($articleUpdateData)) {
+                    if ($hasManualTimestamps) {
+                        // Temporarily disable automatic timestamps when manually setting them
+                        Article::withoutTimestamps(function () use ($article, $articleUpdateData) {
+                            $article->update($articleUpdateData);
+                        });
+                    } else {
+                        $article->update($articleUpdateData);
+                    }
+                }
+            }
+
+            // Handle disc review message if checkbox is checked and message is provided
+            if ($request->has('send_disc_review_message') && $request->send_disc_review_message && $request->filled('disc_review_message')) {
+                $submission->load(['article', 'author', 'reviews.reviewer.user']);
+                $editorName = Auth::user()->name ?? 'Editor';
+                $recipientType = $request->disc_review_recipient ?? 'author';
+
+                // Store message for author if recipient is author or both
+                if ($recipientType === 'author' || $recipientType === 'both') {
+                    EditorMessage::create([
+                        'article_id' => $submission->article_id,
+                        'submission_id' => $submission->id,
+                        'editor_id' => Auth::id(),
+                        'author_id' => $submission->author_id,
+                        'message' => $request->disc_review_message,
+                        'recipient_type' => 'author',
+                    ]);
+
+                    // Create notification for author if they have a user account
+                    $authorUser = User::where('email', $submission->author->email)->first();
+                    if ($authorUser) {
+                        Notification::create([
+                            'user_id' => $authorUser->id,
+                            'type' => 'reminder',
+                            'message' => "Disc review message from {$editorName} for your article: \"{$submission->article->title}\"",
+                            'status' => 'unread',
+                        ]);
+                    }
+                }
+
+                // Store message for reviewers if recipient is reviewer or both
+                if ($recipientType === 'reviewer' || $recipientType === 'both') {
+                    $reviewers = $submission->reviews()->with('reviewer.user')->get();
+                    
+                    foreach ($reviewers as $review) {
+                        EditorMessage::create([
+                            'article_id' => $submission->article_id,
+                            'submission_id' => $submission->id,
+                            'editor_id' => Auth::id(),
+                            'reviewer_id' => $review->reviewer_id,
+                            'message' => $request->disc_review_message,
+                            'recipient_type' => 'reviewer',
+                        ]);
+
+                        // Create notification for reviewer if they have a user account
+                        if ($review->reviewer->user) {
+                            Notification::create([
+                                'user_id' => $review->reviewer->user->id,
+                                'type' => 'reminder',
+                                'message' => "Disc review message from {$editorName} about your review assignment: \"{$submission->article->title}\"",
+                                'status' => 'unread',
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
+
+            $successMessage = 'Submission updated successfully.';
+            if ($request->has('send_disc_review_message') && $request->send_disc_review_message && $request->filled('disc_review_message')) {
+                $successMessage .= ' Disc review message sent successfully.';
+            }
+
+            return redirect()->route('editor.submissions.show', $submission)
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Error updating submission: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -422,14 +685,79 @@ class Editor_SubmissionController extends Controller
     public function updateReview(Request $request, Review $review)
     {
         $request->validate([
-            'editor_edited_comments' => 'required|string|min:10',
+            // General Comments - 6 Questions
+            'originality_comment' => 'nullable|string',
+            'relationship_to_literature_comment' => 'nullable|string',
+            'methodology_comment' => 'nullable|string',
+            'results_comment' => 'nullable|string',
+            'implications_comment' => 'nullable|string',
+            'quality_of_communication_comment' => 'nullable|string',
+            // Strengths and Weaknesses
+            'strengths' => 'nullable|string',
+            'weaknesses' => 'nullable|string',
+            // Suggestions for Improvement
+            'suggestions_for_improvement' => 'nullable|string',
+            // Paper Score
+            'relevance_score' => 'nullable|numeric|min:0|max:5',
+            'originality_score' => 'nullable|numeric|min:0|max:10',
+            'significance_score' => 'nullable|numeric|min:0|max:15',
+            'technical_soundness_score' => 'nullable|numeric|min:0|max:15',
+            'clarity_score' => 'nullable|numeric|min:0|max:10',
+            'documentation_score' => 'nullable|numeric|min:0|max:5',
+            'total_score' => 'nullable|numeric|min:0|max:60',
+            // Final Evaluation
+            'final_evaluation' => 'nullable|in:excellent,very_good,fair,poor',
+            // Recommendation
+            'recommendation' => 'nullable|in:acceptance,minor_revision,major_revision,rejection',
+            // General Review Comments
+            'comments' => 'nullable|string',
+            'editor_edited_comments' => 'nullable|string',
             'approve' => 'nullable|boolean'
         ]);
 
         DB::beginTransaction();
         try {
+            // Calculate total score if individual scores are provided
+            $totalScore = null;
+            if ($request->filled('relevance_score') || $request->filled('originality_score') || 
+                $request->filled('significance_score') || $request->filled('technical_soundness_score') ||
+                $request->filled('clarity_score') || $request->filled('documentation_score')) {
+                $totalScore = ($request->relevance_score ?? 0) + 
+                             ($request->originality_score ?? 0) + 
+                             ($request->significance_score ?? 0) + 
+                             ($request->technical_soundness_score ?? 0) + 
+                             ($request->clarity_score ?? 0) + 
+                             ($request->documentation_score ?? 0);
+            }
+
             $updateData = [
-                'editor_edited_comments' => $request->editor_edited_comments
+                // General Comments - 6 Questions
+                'originality_comment' => $request->originality_comment,
+                'relationship_to_literature_comment' => $request->relationship_to_literature_comment,
+                'methodology_comment' => $request->methodology_comment,
+                'results_comment' => $request->results_comment,
+                'implications_comment' => $request->implications_comment,
+                'quality_of_communication_comment' => $request->quality_of_communication_comment,
+                // Strengths and Weaknesses
+                'strengths' => $request->strengths,
+                'weaknesses' => $request->weaknesses,
+                // Suggestions for Improvement
+                'suggestions_for_improvement' => $request->suggestions_for_improvement,
+                // Paper Score
+                'relevance_score' => $request->relevance_score,
+                'originality_score' => $request->originality_score,
+                'significance_score' => $request->significance_score,
+                'technical_soundness_score' => $request->technical_soundness_score,
+                'clarity_score' => $request->clarity_score,
+                'documentation_score' => $request->documentation_score,
+                'total_score' => $request->total_score ?? $totalScore,
+                // Final Evaluation
+                'final_evaluation' => $request->final_evaluation,
+                // Recommendation
+                'recommendation' => $request->recommendation,
+                // General Review Comments
+                'comments' => $request->comments,
+                'editor_edited_comments' => $request->editor_edited_comments ?? $request->comments,
             ];
 
             // If approve checkbox is checked, approve the review

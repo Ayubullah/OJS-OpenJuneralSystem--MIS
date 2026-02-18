@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        // Add 'disc_review' status to submissions table enum
+        DB::statement("ALTER TABLE submissions MODIFY COLUMN status ENUM('submitted', 'under_review', 'revision_required', 'pending_verify', 'verified', 'accepted', 'published', 'rejected', 'disc_review') DEFAULT 'submitted'");
+        
+        // Also add to articles table if it exists
+        if (Schema::hasTable('articles')) {
+            DB::statement("ALTER TABLE articles MODIFY COLUMN status ENUM('submitted', 'under_review', 'revision_required', 'pending_verify', 'verified', 'accepted', 'published', 'rejected', 'disc_review') DEFAULT 'submitted'");
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        // Remove 'disc_review' status from submissions table enum
+        DB::statement("ALTER TABLE submissions MODIFY COLUMN status ENUM('submitted', 'under_review', 'revision_required', 'pending_verify', 'verified', 'accepted', 'published', 'rejected') DEFAULT 'submitted'");
+        
+        // Also remove from articles table if it exists
+        if (Schema::hasTable('articles')) {
+            DB::statement("ALTER TABLE articles MODIFY COLUMN status ENUM('submitted', 'under_review', 'revision_required', 'pending_verify', 'verified', 'accepted', 'published', 'rejected') DEFAULT 'submitted'");
+        }
+    }
+};
+

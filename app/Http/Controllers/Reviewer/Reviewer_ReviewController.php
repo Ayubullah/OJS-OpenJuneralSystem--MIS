@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Reviewer_ReviewController extends Controller
 {
@@ -238,8 +239,8 @@ class Reviewer_ReviewController extends Controller
 
         $request->validate([
             'rating' => 'nullable|numeric|min:0|max:10',
-            'plagiarism_percentage' => 'nullable|numeric|min:0|max:100',
             'comments' => 'nullable|string|min:10',
+            'review_file' => 'nullable|file|mimes:pdf,doc,docx,txt,rtf|max:10240', // 10MB max
             // General Comments - 6 Questions
             'originality_comment' => 'nullable|string',
             'relationship_to_literature_comment' => 'nullable|string',
@@ -268,6 +269,20 @@ class Reviewer_ReviewController extends Controller
 
         DB::beginTransaction();
         try {
+            // Handle file upload
+            $reviewFilePath = $review->review_file; // Keep existing file if no new file uploaded
+            if ($request->hasFile('review_file')) {
+                // Delete old file if exists
+                if ($review->review_file && Storage::disk('public')->exists($review->review_file)) {
+                    Storage::disk('public')->delete($review->review_file);
+                }
+                
+                // Store new file
+                $file = $request->file('review_file');
+                $fileName = 'review_' . time() . '_' . $review->id . '_' . $file->getClientOriginalName();
+                $reviewFilePath = $file->storeAs('review_files', $fileName, 'public');
+            }
+
             // Calculate total score if individual scores are provided
             $totalScore = null;
             if ($request->filled('relevance_score') || $request->filled('originality_score') || 
@@ -283,8 +298,8 @@ class Reviewer_ReviewController extends Controller
 
             // Update review
             $review->update([
+                'review_file' => $reviewFilePath,
                 'rating' => $request->rating,
-                'plagiarism_percentage' => $request->plagiarism_percentage,
                 'comments' => $request->comments,
                 // General Comments - 6 Questions
                 'originality_comment' => $request->originality_comment,
@@ -317,15 +332,20 @@ class Reviewer_ReviewController extends Controller
             $submission->load('reviews'); // Reload reviews to get latest data
             $allReviews = $submission->reviews;
             
-            // Check if all reviews have been completed (have ratings)
-            $completedReviews = $allReviews->whereNotNull('rating');
+            // Check if all reviews have been completed (have ratings or total_score)
+            $completedReviews = $allReviews->filter(function($review) {
+                return $review->rating !== null || $review->total_score !== null;
+            });
             $totalReviews = $allReviews->count();
             
-            // Check if all reviewers have given a rating of 10
+            // Check if all reviewers have given a perfect score
+            // Perfect score = rating of 10/10 OR total_score of 10.0/60 (treated as 10/10 equivalent)
             $allRatedTen = $completedReviews->count() > 0 
                 && $completedReviews->count() === $totalReviews 
                 && $completedReviews->every(function($review) {
-                    return (float)$review->rating == 10.0;
+                    $hasPerfectRating = (float)$review->rating == 10.0;
+                    $hasPerfectTotalScore = (float)$review->total_score == 10.0; // 10.0/60 treated as 10/10
+                    return $hasPerfectRating || $hasPerfectTotalScore;
                 });
 
             // Update submission status
@@ -368,7 +388,7 @@ class Reviewer_ReviewController extends Controller
             DB::commit();
 
             $successMessage = $allRatedTen 
-                ? 'Review submitted successfully! All reviewers have given a perfect score (10/10). The article status has been automatically updated to "Accepted".'
+                ? 'Review submitted successfully! All reviewers have given a perfect score (10/10 or 10.0/60). The article status has been automatically updated to "Accepted".'
                 : 'Review submitted successfully! The article status has been updated to "Under Review".';
 
             return redirect()->route('reviewer.reviews.show', $review->id)

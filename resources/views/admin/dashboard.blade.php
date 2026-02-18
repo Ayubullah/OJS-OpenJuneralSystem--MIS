@@ -2,7 +2,7 @@
 
 @section('title', __('Admin Dashboard'))
 @section('page-title', __('Dashboard'))
-@section('page-description', __('Welcome to your OJS admin dashboard'))
+@section('page-description', __('Welcome to your KJOS admin dashboard'))
 
 @section('breadcrumb')
 <li class="flex items-center">

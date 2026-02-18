@@ -55,7 +55,6 @@
                         <option value="id">{{ __('Article ID') }}</option>
                         <option value="title">{{ __('Article Title') }}</option>
                         <option value="journal">{{ __('Journal') }}</option>
-                        <option value="author">{{ __('Author') }}</option>
                         <option value="status">{{ __('Status') }}</option>
                     </select>
                     <i data-lucide="filter" class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
@@ -114,31 +113,28 @@
                 <thead class="bg-gradient-to-r from-orange-50 to-red-50">
                     <tr>
                         <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Article ID
+                            {{ __('Article ID') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Article Title
+                            {{ __('Article Title') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Journal
+                            {{ __('Journal') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Author
-                        </th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Status
+                            {{ __('Status') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Version
+                            {{ __('Version') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Reviews
+                            {{ __('Reviews') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Submission Date
+                            {{ __('Submission Date') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Actions
+                            {{ __('Actions') }}
                         </th>
                     </tr>
                 </thead>
@@ -157,22 +153,14 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm font-semibold text-gray-900">
-                            {{ $submission->article->title ?? 'Untitled Article' }}
+                            {{ $submission->article->title ?? __('Untitled Article') }}
                             </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center space-x-2">
                                 <i data-lucide="book" class="w-4 h-4 text-gray-400"></i>
-                                <span class="text-sm text-gray-700">{{ $submission->article->journal->name ?? 'Unknown Journal' }}</span>
+                                <span class="text-sm text-gray-700">{{ $submission->article->journal->name ?? __('Unknown Journal') }}</span>
                         </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
-                                    <span class="text-xs font-bold text-white">{{ substr($submission->author->name ?? 'A', 0, 1) }}</span>
-                        </div>
-                                <span class="text-sm text-gray-700">{{ $submission->author->name ?? 'Unknown Author' }}</span>
-                    </div>
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
@@ -216,25 +204,25 @@
                             <div class="flex items-center justify-end space-x-2">
                         <a href="{{ route('editor.submissions.show', $submission) }}" 
                                    class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                                   title="View">
+                                   title="{{ __('View') }}">
                             <i data-lucide="eye" class="w-4 h-4"></i>
                         </a>
                         <a href="{{ route('editor.submissions.edit', $submission) }}" 
                                    class="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200"
-                                   title="Edit">
+                                   title="{{ __('Edit') }}">
                             <i data-lucide="edit" class="w-4 h-4"></i>
                         </a>
                         <a href="{{ route('editor.submissions.assign-reviewer', $submission) }}" 
                                    class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                                   title="Send to Reviewer">
+                                   title="{{ __('Send to Reviewer') }}">
                             <i data-lucide="user-plus" class="w-4 h-4"></i>
                         </a>
-                        <form action="{{ route('editor.submissions.destroy', $submission) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this submission?')">
+                        <form action="{{ route('editor.submissions.destroy', $submission) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('Are you sure you want to delete this submission?') }}')">
                             @csrf
                             @method('DELETE')
                                     <button type="submit" 
                                             class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                                            title="Delete">
+                                            title="{{ __('Delete') }}">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </form>
@@ -248,11 +236,11 @@
                 <div class="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <i data-lucide="inbox" class="w-8 h-8 text-orange-600"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">No submissions found</h3>
-                <p class="text-gray-500 mb-6">Get started by creating your first submission.</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('No submissions found') }}</h3>
+                <p class="text-gray-500 mb-6">{{ __('Get started by creating your first submission.') }}</p>
                 <a href="{{ route('editor.submissions.create') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-medium rounded-lg hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
                     <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                    Add New Submission
+                    {{ __('Add New Submission') }}
                 </a>
             </div>
                         </td>
@@ -265,8 +253,8 @@
                                 <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
                                     <i data-lucide="search-x" class="w-8 h-8 text-gray-400"></i>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">No results found</h3>
-                                <p class="text-gray-500">Try adjusting your search to find what you're looking for.</p>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('No results found') }}</h3>
+                                <p class="text-gray-500">{{ __('Try adjusting your search to find what you\'re looking for.') }}</p>
                             </div>
                         </td>
                     </tr>
@@ -308,14 +296,13 @@
         function updatePlaceholder() {
             const fieldValue = searchField.value;
             const placeholders = {
-                'all': 'Search all fields...',
-                'id': 'Search by Article ID...',
-                'title': 'Search by Article Title...',
-                'journal': 'Search by Journal...',
-                'author': 'Search by Author...',
-                'status': 'Search by Status...'
+                'all': '{{ __('Search all fields...') }}',
+                'id': '{{ __('Search by Article ID...') }}',
+                'title': '{{ __('Search by Article Title...') }}',
+                'journal': '{{ __('Search by Journal...') }}',
+                'status': '{{ __('Search by Status...') }}'
             };
-            searchInput.placeholder = placeholders[fieldValue] || 'Search...';
+            searchInput.placeholder = placeholders[fieldValue] || '{{ __('Search...') }}';
         }
 
         // Search function
@@ -347,7 +334,6 @@
                         row.getAttribute('data-article-id') + ' ' +
                         row.getAttribute('data-article-title') + ' ' +
                         row.getAttribute('data-journal') + ' ' +
-                        row.getAttribute('data-author') + ' ' +
                         row.getAttribute('data-status');
                 } else if (selectedField === 'id') {
                     searchContent = row.getAttribute('data-article-id');
@@ -355,8 +341,6 @@
                     searchContent = row.getAttribute('data-article-title');
                 } else if (selectedField === 'journal') {
                     searchContent = row.getAttribute('data-journal');
-                } else if (selectedField === 'author') {
-                    searchContent = row.getAttribute('data-author');
                 } else if (selectedField === 'status') {
                     searchContent = row.getAttribute('data-status');
                 }

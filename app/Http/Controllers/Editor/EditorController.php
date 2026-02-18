@@ -7,6 +7,7 @@ use App\Models\Submission;
 use App\Models\Review;
 use App\Models\Article;
 use App\Models\Editor;
+use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -151,12 +152,19 @@ class EditorController extends Controller
             ->orderBy('month');
         $monthly_submissions = $monthly_submissions_query->get();
 
+        // Get journal names for the editor
+        $journalNames = Journal::whereIn('id', $journalIds)
+            ->where('status', 'active')
+            ->pluck('name')
+            ->toArray();
+
         return view('editor.dashboard', compact(
             'stats',
             'recent_submissions',
             'recent_reviews',
             'submissions_by_status',
-            'monthly_submissions'
+            'monthly_submissions',
+            'journalNames'
         ));
     }
 

@@ -9,9 +9,32 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
+            <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl shadow-xl overflow-hidden mb-6">
+                <div class="px-8 py-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white mb-2">{{ __('Welcome back, :name!', ['name' => Auth::user()->name]) }}</h1>
+                            <p class="text-purple-100 text-lg mb-2">{{ __('Here\'s what\'s happening with your submissions today') }}</p>
+                            @if(isset($journalName) && $journalName)
+                            <div class="mt-3">
+                                <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-semibold bg-white/20 backdrop-blur-sm border border-white/30 text-white">
+                                    <i data-lucide="book-open" class="w-4 h-4 mr-1.5"></i>
+                                    {{ $journalName }}
+                                </span>
+                            </div>
+                            @endif
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30">
+                                <i data-lucide="layout-dashboard" class="w-12 h-12 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ __('Reviewer Dashboard') }}</h1>
+                    <h2 class="text-2xl font-bold text-gray-900">{{ __('Reviewer Dashboard') }}</h2>
                     <p class="mt-2 text-gray-600">{{ __('Manage your article reviews and assignments') }}</p>
                 </div>
             </div>
@@ -141,9 +164,9 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-1">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? 'Editor' }}</span>
+                                        <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? __('Editor') }}</span>
                                         @if($message->article_id)
-                                        <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
+                                        <span class="text-xs text-gray-500">• {{ __('Article ID') }}: {{ $message->article_id }}</span>
                                         <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
                                         @endif
                                     </div>
@@ -176,10 +199,10 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-1">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? 'Admin' }}</span>
-                                        <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">Admin</span>
+                                        <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? __('Admin') }}</span>
+                                        <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">{{ __('Admin') }}</span>
                                         @if($message->article_id)
-                                        <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
+                                        <span class="text-xs text-gray-500">• {{ __('Article ID') }}: {{ $message->article_id }}</span>
                                         <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
                                         @endif
                                     </div>
@@ -222,8 +245,6 @@
                                 {{ $review->submission->article->title ?? __('No Title') }}
                             </h3>
                             <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                <span>{{ $review->submission->article->author->name ?? __('Unknown Author') }}</span>
-                                <span>•</span>
                                 <span>{{ $review->submission->article->journal->name ?? __('Unknown Journal') }}</span>
                                 <span>•</span>
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 

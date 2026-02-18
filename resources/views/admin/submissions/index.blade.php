@@ -53,7 +53,6 @@
                         <option value="id">{{ __('Article ID') }}</option>
                         <option value="title">{{ __('Article Title') }}</option>
                         <option value="journal">{{ __('Journal') }}</option>
-                        <option value="author">{{ __('Author') }}</option>
                         <option value="status">{{ __('Status') }}</option>
                     </select>
                     <i data-lucide="filter" class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
@@ -121,9 +120,6 @@
                             {{ __('Journal') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            {{ __('Author') }}
-                        </th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                             {{ __('Status') }}
                         </th>
                         <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
@@ -163,14 +159,6 @@
                                 <i data-lucide="book" class="w-4 h-4 text-gray-400"></i>
                                 <span class="text-sm text-gray-700">{{ $submission->article->journal->name ?? __('Unknown Journal') }}</span>
                         </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
-                                    <span class="text-xs font-bold text-white">{{ substr($submission->author->name ?? 'A', 0, 1) }}</span>
-                        </div>
-                                <span class="text-sm text-gray-700">{{ $submission->author->name ?? __('Unknown Author') }}</span>
-                    </div>
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
@@ -299,7 +287,6 @@
                 'id': '{{ __('Search by Article ID...') }}',
                 'title': '{{ __('Search by Article Title...') }}',
                 'journal': '{{ __('Search by Journal...') }}',
-                'author': '{{ __('Search by Author...') }}',
                 'status': '{{ __('Search by Status...') }}'
             };
             pageSearchInput.placeholder = placeholders[fieldValue] || '{{ __('Search...') }}';
@@ -337,7 +324,6 @@
                         row.getAttribute('data-article-id') + ' ' +
                         row.getAttribute('data-article-title') + ' ' +
                         row.getAttribute('data-journal') + ' ' +
-                        row.getAttribute('data-author') + ' ' +
                         row.getAttribute('data-status');
                 } else if (selectedField === 'id') {
                     searchContent = row.getAttribute('data-article-id');
@@ -345,8 +331,6 @@
                     searchContent = row.getAttribute('data-article-title');
                 } else if (selectedField === 'journal') {
                     searchContent = row.getAttribute('data-journal');
-                } else if (selectedField === 'author') {
-                    searchContent = row.getAttribute('data-author');
                 } else if (selectedField === 'status') {
                     searchContent = row.getAttribute('data-status');
                 }

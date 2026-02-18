@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reviewer;
 use App\Http\Controllers\Controller;
 use App\Models\Review;
 use App\Models\EditorMessage;
+use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,7 +24,8 @@ class ReviewerController extends Controller
                 'inProgressCount' => 0,
                 'completedCount' => 0,
                 'totalCount' => 0,
-                'recentReviews' => collect([])
+                'recentReviews' => collect([]),
+                'journalName' => null
             ]);
         }
 
@@ -88,6 +90,9 @@ class ReviewerController extends Controller
         ->limit(5)
         ->get();
 
+        // Load journal relationship
+        $reviewer->load('journal');
+
         // Get all messages for this reviewer
         $allMessages = EditorMessage::where(function($query) use ($reviewer) {
                 $query->where(function($q) use ($reviewer) {
@@ -117,6 +122,9 @@ class ReviewerController extends Controller
             return $msg->sender_type === 'admin';
         });
 
+        // Get journal name for the reviewer
+        $journalName = $reviewer->journal ? $reviewer->journal->name : null;
+
         return view('reviewer.dashboard', compact(
             'pendingCount',
             'inProgressCount',
@@ -125,7 +133,8 @@ class ReviewerController extends Controller
             'recentReviews',
             'allMessages',
             'editorMessages',
-            'adminMessages'
+            'adminMessages',
+            'journalName'
         ));
     }
 }

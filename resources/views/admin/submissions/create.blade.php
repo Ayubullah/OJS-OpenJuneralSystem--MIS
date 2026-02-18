@@ -30,7 +30,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">Create New Submission</h1>
-                    <p class="text-sm text-gray-600">Add a new submission to your Open Journal System</p>
+                    <p class="text-sm text-gray-600">Add a new submission to your Kardan Journal Operating System</p>
                 </div>
             </div>
         </div>

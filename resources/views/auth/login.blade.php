@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Sign In - OJS</title>
+    <title>Sign In - KJOS</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -121,8 +121,8 @@
                             <i data-lucide="book-open" class="w-8 h-8 text-white"></i>
                         </div>
                         <div>
-                            <h1 class="text-4xl font-black text-white tracking-tight">OJS</h1>
-                            <p class="text-white/70 font-medium">Open Journal System</p>
+                            <h1 class="text-4xl font-black text-white tracking-tight">KJOS</h1>
+                            <p class="text-white/70 font-medium">Kardan Journal Operating System</p>
                         </div>
                     </div>
                 </div>
@@ -172,7 +172,7 @@
             
             <!-- Bottom Decoration -->
             <div class="absolute bottom-8 left-16 xl:left-24 slide-up stagger-3">
-                <p class="text-white/40 text-sm">© {{ date('Y') }} OJS. All rights reserved.</p>
+                <p class="text-white/40 text-sm">© {{ date('Y') }} KJOS. All rights reserved.</p>
             </div>
         </div>
         
@@ -185,7 +185,7 @@
                         <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center shadow-lg">
                             <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
                         </div>
-                        <span class="text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">OJS</span>
+                        <span class="text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">KJOS</span>
                     </div>
                 </div>
                 
@@ -313,7 +313,7 @@
                 
                 <!-- Footer -->
                 <p class="mt-8 text-center text-sm text-gray-500 lg:hidden">
-                    © {{ date('Y') }} OJS. All rights reserved.
+                    © {{ date('Y') }} KJOS. All rights reserved.
                 </p>
             </div>
         </div>

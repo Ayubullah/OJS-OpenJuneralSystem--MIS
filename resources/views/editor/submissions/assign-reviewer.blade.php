@@ -1,21 +1,21 @@
 @extends('layout.app_editor')
 
-@section('title', 'Assign Reviewer')
-@section('page-title', 'Assign Reviewer')
-@section('page-description', 'Send submission to reviewer for review')
+@section('title', __('Assign Reviewer'))
+@section('page-title', __('Assign Reviewer'))
+@section('page-description', __('Send submission to reviewer for review'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <span class="ml-2 text-sm font-medium text-gray-500">Dashboard</span>
+    <span class="ml-2 text-sm font-medium text-gray-500">{{ __('Dashboard') }}</span>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <a href="{{ route('editor.submissions.index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">Submissions</a>
+    <a href="{{ route('editor.submissions.index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">{{ __('Submissions') }}</a>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">Assign Reviewer</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('Assign Reviewer') }}</span>
 </li>
 @endsection
 
@@ -29,18 +29,14 @@
                     <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
                 </div>
                 <div class="flex-1">
-                    <h2 class="text-xl font-bold text-gray-900">{{ $submission->article->title ?? 'Untitled Article' }}</h2>
+                    <h2 class="text-xl font-bold text-gray-900">{{ $submission->article->title ?? __('Untitled Article') }}</h2>
                     <div class="flex items-center space-x-4 mt-2 text-sm text-gray-600">
                         <span class="flex items-center">
                             <i data-lucide="book" class="w-4 h-4 mr-1"></i>
-                            {{ $submission->article->journal->name ?? 'Unknown Journal' }}
-                        </span>
-                        <span class="flex items-center">
-                            <i data-lucide="user" class="w-4 h-4 mr-1"></i>
-                            {{ $submission->author->name ?? 'Unknown Author' }}
+                            {{ $submission->article->journal->name ?? __('Unknown Journal') }}
                         </span>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            Version {{ $submission->version_number }}
+                            {{ __('Version') }} {{ $submission->version_number }}
                         </span>
                     </div>
                 </div>
@@ -56,8 +52,8 @@
                     <i data-lucide="user-check" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Assign Reviewers</h1>
-                    <p class="text-sm text-gray-600">Select one or more reviewers to review this submission</p>
+                    <h1 class="text-2xl font-bold text-gray-900">{{ __('Assign Reviewers') }}</h1>
+                    <p class="text-sm text-gray-600">{{ __('Select one or more reviewers to review this submission') }}</p>
                 </div>
             </div>
         </div>
@@ -78,8 +74,8 @@
             <div class="flex items-start">
                 <i data-lucide="x-circle" class="w-6 h-6 text-red-600 mr-3 mt-0.5"></i>
                 <div>
-                    <p class="text-sm font-bold text-red-800 mb-1">Article Rejected by Author</p>
-                    <p class="text-sm text-red-700">This article has been rejected by the author. Reviewers cannot be assigned to rejected articles.</p>
+                    <p class="text-sm font-bold text-red-800 mb-1">{{ __('Article Rejected by Author') }}</p>
+                    <p class="text-sm text-red-700">{{ __('This article has been rejected by the author. Reviewers cannot be assigned to rejected articles.') }}</p>
                 </div>
             </div>
         </div>
@@ -94,9 +90,9 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-gray-900 flex items-center">
                         <i data-lucide="history" class="w-5 h-5 mr-2 text-orange-600"></i>
-                        Review History by Version
+                        {{ __('Review History by Version') }}
                     </h3>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Click version to select reviewers</span>
+                    <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ __('Click version to select reviewers') }}</span>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     @foreach($allSubmissions as $sub)
@@ -122,13 +118,13 @@
                                     </div>
                                     @if($sub->id == $submission->id)
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md">
-                                        Current
+                                        {{ __('Current') }}
                                     </span>
                                     @endif
                                 </div>
                                 <div class="text-right">
                                     <p class="text-xs font-semibold text-gray-600">{{ $sub->submission_date->format('M d, Y') }}</p>
-                                    <p class="text-xs text-gray-400">{{ $sub->reviews->count() }} {{ $sub->reviews->count() == 1 ? 'reviewer' : 'reviewers' }}</p>
+                                    <p class="text-xs text-gray-400">{{ $sub->reviews->count() }} {{ $sub->reviews->count() == 1 ? __('reviewer') : __('reviewers') }}</p>
                                 </div>
                             </div>
                             
@@ -151,7 +147,7 @@
                                         @if((float)$review->rating == 10.0)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700 flex-shrink-0">
                                             <i data-lucide="award" class="w-3 h-3 mr-1"></i>
-                                            Review Complete
+                                            {{ __('Review Complete') }}
                                         </span>
                                         @else
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 flex-shrink-0">
@@ -162,7 +158,7 @@
                                     @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 flex-shrink-0">
                                         <i data-lucide="clock" class="w-3 h-3 mr-1"></i>
-                                        Pending
+                                        {{ __('Pending') }}
                                     </span>
                                     @endif
                                 </div>
@@ -173,7 +169,7 @@
                             <div class="mt-3 pt-3 border-t border-gray-200 flex items-center justify-center">
                                 <span class="text-xs text-orange-600 font-medium flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <i data-lucide="mouse-pointer-click" class="w-3 h-3 mr-1"></i>
-                                    Click to select all
+                                    {{ __('Click to select all') }}
                                 </span>
                             </div>
                         </div>
@@ -188,14 +184,14 @@
                 <div class="flex items-center justify-between">
                     <label class="block text-lg font-bold text-gray-900 flex items-center">
                         <i data-lucide="users" class="w-5 h-5 mr-2 text-orange-600"></i>
-                        Select Reviewers <span class="text-red-500">*</span>
+                        {{ __('Select Reviewers') }} <span class="text-red-500">*</span>
                     </label>
                     @if($reviewers->count() > 0)
                     <button type="button" 
                             id="selectAllReviewers"
                             class="inline-flex items-center px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
                         <i data-lucide="check-square" class="w-4 h-4 mr-2"></i>
-                        Select All
+                        {{ __('Select All') }}
                     </button>
                     @endif
                 </div>
@@ -204,7 +200,7 @@
                 <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
                     <div class="flex items-center">
                         <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 mr-3"></i>
-                        <p class="text-sm font-medium text-yellow-800">No active reviewers available. Please add reviewers first.</p>
+                        <p class="text-sm font-medium text-yellow-800">{{ __('No active reviewers available. Please add reviewers first.') }}</p>
                     </div>
                 </div>
                 @else
@@ -258,12 +254,12 @@
                                     @if($hasRatedTen)
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
                                         <i data-lucide="award" class="w-3 h-3 mr-1"></i>
-                                        Review Complete (10/10)
+                                        {{ __('Review Complete') }} (10/10)
                                     </span>
                                     @else
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
                                         <i data-lucide="file-text" class="w-3 h-3 mr-1"></i>
-                                        {{ $reviewCount }} {{ $reviewCount == 1 ? 'review' : 'reviews' }}
+                                        {{ $reviewCount }} {{ $reviewCount == 1 ? __('review') : __('reviews') }}
                                     </span>
                                     @endif
                                 </div>
@@ -285,7 +281,7 @@
                 @enderror
                 <p class="text-xs text-gray-500 mt-2 flex items-center">
                     <i data-lucide="info" class="w-3 h-3 mr-1"></i>
-                    You can select multiple reviewers to assign them all at once.
+                    {{ __('You can select multiple reviewers to assign them all at once.') }}
                 </p>
             </div>
 
@@ -293,7 +289,7 @@
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-100">
                 <label for="deadline" class="block text-sm font-bold text-gray-900 mb-3 flex items-center">
                     <i data-lucide="calendar" class="w-5 h-5 mr-2 text-blue-600"></i>
-                    Review Deadline (Optional)
+                    {{ __('Review Deadline') }} ({{ __('Optional') }})
                 </label>
                 <div class="relative">
                     <input type="date" 
@@ -311,7 +307,7 @@
                 @enderror
                 <p class="text-xs text-gray-600 mt-2 flex items-center">
                     <i data-lucide="info" class="w-3 h-3 mr-1"></i>
-                    Set a deadline for reviewers to complete the review
+                    {{ __('Set a deadline for reviewers to complete the review') }}
                 </p>
             </div>
 
@@ -322,23 +318,23 @@
                         <i data-lucide="info" class="w-5 h-5 text-white"></i>
                     </div>
                     <div class="flex-1">
-                        <p class="font-bold text-green-900 mb-2 text-sm">What happens when you assign reviewers:</p>
+                        <p class="font-bold text-green-900 mb-2 text-sm">{{ __('What happens when you assign reviewers:') }}</p>
                         <ul class="space-y-2 text-sm text-green-800">
                             <li class="flex items-start">
                                 <i data-lucide="check-circle" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
-                                <span>A review record will be created for each selected reviewer</span>
+                                <span>{{ __('A review record will be created for each selected reviewer') }}</span>
                             </li>
                             <li class="flex items-start">
                                 <i data-lucide="check-circle" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
-                                <span>The submission status will be updated to "Under Review" (if currently "Submitted")</span>
+                                <span>{{ __('The submission status will be updated to "Under Review" (if currently "Submitted")') }}</span>
                             </li>
                             <li class="flex items-start">
                                 <i data-lucide="check-circle" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
-                                <span>All selected reviewers will be able to access and review this submission</span>
+                                <span>{{ __('All selected reviewers will be able to access and review this submission') }}</span>
                             </li>
                             <li class="flex items-start">
                                 <i data-lucide="check-circle" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
-                                <span>Reviewers can be assigned multiple times for different review rounds</span>
+                                <span>{{ __('Reviewers can be assigned multiple times for different review rounds') }}</span>
                             </li>
                         </ul>
                     </div>
@@ -350,14 +346,14 @@
             <div class="flex items-center justify-end space-x-4 pt-8 border-t border-gray-100">
                 <a href="{{ route('editor.submissions.show', $submission) }}" 
                    class="px-6 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
                 <button type="submit" 
                         id="submitBtn"
                         class="px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white text-sm font-semibold rounded-xl hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         {{ $reviewers->isEmpty() ? 'disabled' : '' }}>
                     <i data-lucide="send" class="w-4 h-4 mr-2 inline"></i>
-                    Assign Reviewers
+                    {{ __('Assign Reviewers') }}
                 </button>
             </div>
         </form>
@@ -383,7 +379,7 @@
                     checkbox.checked = allSelected;
                 }
             });
-            selectAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
+            selectAllBtn.textContent = allSelected ? '{{ __('Deselect All') }}' : '{{ __('Select All') }}';
             updateSubmitButton();
         });
     }

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'OJS Editor Dashboard')</title>
+    <title>@yield('title', 'KJOS Editor Dashboard')</title>
 
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -176,7 +176,7 @@
                             <i data-lucide="book-open" class="w-4 h-4 text-white"></i>
                         </div>
                         <div>
-                            <span class="text-lg font-black text-white tracking-tight">OJS</span>
+                            <span class="text-lg font-black text-white tracking-tight">KJOS</span>
                             <p class="text-xs text-white/80 font-medium">Editor</p>
                         </div>
                     </div>

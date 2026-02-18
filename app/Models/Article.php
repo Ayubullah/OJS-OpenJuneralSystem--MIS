@@ -24,7 +24,9 @@ class Article extends Model
         'confirm_not_published_elsewhere',
         'confirm_prepared_as_per_guidelines',
         'status',
-        'manuscript_file'
+        'manuscript_file',
+        'created_at',
+        'updated_at'
     ];
 
     public function journal(): BelongsTo

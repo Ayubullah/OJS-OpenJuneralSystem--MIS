@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Register & Submit Article - OJS</title>
+    <title>Register & Submit Article - KJOS</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@
                     <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center shadow-lg">
                         <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
                     </div>
-                    <span class="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">OJS</span>
+                    <span class="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">KJOS</span>
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Register as Author & Submit Article</h1>
                 <p class="text-gray-600">Create your account and submit your research article in one step</p>

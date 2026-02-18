@@ -126,6 +126,34 @@
                     @enderror
                     <p class="mt-1 text-sm text-gray-500">Optional: Describe specific contributions to the research</p>
                 </div>
+
+                <!-- Created At -->
+                <div>
+                    <label for="created_at" class="block text-sm font-medium text-gray-700 mb-2">
+                        Created Date
+                    </label>
+                    <input type="datetime-local" name="created_at" id="created_at" 
+                        value="{{ old('created_at', $author->created_at ? $author->created_at->format('Y-m-d\TH:i') : '') }}" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('created_at') border-red-500 @enderror">
+                    @error('created_at')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">Date when author was created</p>
+                </div>
+
+                <!-- Updated At -->
+                <div>
+                    <label for="updated_at" class="block text-sm font-medium text-gray-700 mb-2">
+                        Updated Date
+                    </label>
+                    <input type="datetime-local" name="updated_at" id="updated_at" 
+                        value="{{ old('updated_at', $author->updated_at ? $author->updated_at->format('Y-m-d\TH:i') : '') }}" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('updated_at') border-red-500 @enderror">
+                    @error('updated_at')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-sm text-gray-500">Date when author was last updated</p>
+                </div>
             </div>
 
             <!-- Action Buttons -->

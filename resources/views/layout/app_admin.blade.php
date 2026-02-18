@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'OJS Admin Dashboard')</title>
+    <title>@yield('title', 'KJOS Admin Dashboard')</title>
     
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -169,7 +169,7 @@
                             <i data-lucide="book-open" class="w-4 h-4 text-white"></i>
                         </div>
                          <div>
-                             <span class="text-lg font-black text-white tracking-tight">OJS</span>
+                             <span class="text-lg font-black text-white tracking-tight">KJOS</span>
                              <p class="text-xs text-white/80 font-medium">Admin</p>
                          </div>
                     </div>
@@ -432,7 +432,7 @@
                             </div>
                         </div>
                         <p class="mt-1 text-xs text-gray-600 font-medium">
-                             @yield('page-description', __('Welcome to your OJS admin dashboard'))
+                             @yield('page-description', __('Welcome to your KJOS admin dashboard'))
                         </p>
                     </div>
                     

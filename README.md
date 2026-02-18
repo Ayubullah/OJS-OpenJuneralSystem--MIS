@@ -1,4 +1,4 @@
-# OJS - Open Journal System (MIS)
+# KJOS - Kardan Journal Operating System (MIS)
 
 A comprehensive Management Information System (MIS) for academic journals built with Laravel and Tailwind CSS. This system provides a complete solution for managing academic publications, peer review processes, and journal administration.
 
@@ -176,7 +176,7 @@ For support and questions:
 
 - Laravel framework and community
 - Tailwind CSS for styling
-- Open Journal Systems community
+- Kardan Journal Operating System community
 - All contributors and testers
 
 ---

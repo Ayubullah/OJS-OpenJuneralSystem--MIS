@@ -30,7 +30,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">{{ __('Create New User') }}</h1>
-                    <p class="text-sm text-gray-600">{{ __('Add a new user to your Open Journal System') }}</p>
+                    <p class="text-sm text-gray-600">{{ __('Add a new user to your Kardan Journal Operating System') }}</p>
                 </div>
             </div>
         </div>

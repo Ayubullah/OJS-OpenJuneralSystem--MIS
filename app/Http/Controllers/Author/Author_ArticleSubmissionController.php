@@ -181,7 +181,10 @@ class Author_ArticleSubmissionController extends Controller
             'journal', 
             'category', 
             'keywords',
-            'submissions.reviews.reviewer.user'
+            'submissions' => function($query) {
+                $query->orderBy('version_number', 'desc')
+                      ->with(['reviews.reviewer.user']);
+            }
         ]);
         
         // Load editor and admin messages for this article (for author)
@@ -346,6 +349,12 @@ class Author_ArticleSubmissionController extends Controller
                 ->with('error', 'Unauthorized access.');
         }
 
+        // Prevent resubmission if article is rejected
+        if ($article->status === 'rejected') {
+            return redirect()->route('author.articles.show', $article)
+                ->with('error', 'Cannot resubmit a rejected article. This article has been rejected and cannot be resubmitted.');
+        }
+
         // Only allow resubmission if status is submitted, under_review, or revision_required
         if (!in_array($article->status, ['submitted', 'under_review', 'revision_required'])) {
             return redirect()->route('author.articles.show', $article)
@@ -372,6 +381,12 @@ class Author_ArticleSubmissionController extends Controller
         if ($article->author_id !== $author->id) {
             return redirect()->route('author.articles.index')
                 ->with('error', 'Unauthorized access.');
+        }
+
+        // Prevent resubmission if article is rejected
+        if ($article->status === 'rejected') {
+            return redirect()->route('author.articles.show', $article)
+                ->with('error', 'Cannot resubmit a rejected article. This article has been rejected and cannot be resubmitted.');
         }
 
         // Only allow resubmission if status is submitted, under_review, or revision_required

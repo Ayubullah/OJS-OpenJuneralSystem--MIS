@@ -117,10 +117,40 @@ class ArticleController extends Controller
             'journal_id' => 'required|exists:journals,id',
             'author_id' => 'required|exists:authors,id',
             'category_id' => 'required|exists:categories,id',
-            'status' => 'required|in:submitted,under_review,revision_required,accepted,published,rejected'
+            'status' => 'required|in:submitted,under_review,revision_required,accepted,published,rejected',
+            'created_at' => 'nullable|date',
+            'updated_at' => 'nullable|date'
         ]);
 
-        $article->update($request->all());
+        // Prepare update data
+        $updateData = [
+            'title' => $request->title,
+            'journal_id' => $request->journal_id,
+            'author_id' => $request->author_id,
+            'category_id' => $request->category_id,
+            'status' => $request->status,
+        ];
+
+        // Handle date fields if provided
+        $hasManualTimestamps = false;
+        if ($request->filled('created_at')) {
+            $updateData['created_at'] = $request->created_at;
+            $hasManualTimestamps = true;
+        }
+        if ($request->filled('updated_at')) {
+            $updateData['updated_at'] = $request->updated_at;
+            $hasManualTimestamps = true;
+        }
+
+        // Update article record
+        if ($hasManualTimestamps) {
+            // Temporarily disable automatic timestamps when manually setting them
+            Article::withoutTimestamps(function () use ($article, $updateData) {
+                $article->update($updateData);
+            });
+        } else {
+            $article->update($updateData);
+        }
 
         return redirect()->route('admin.articles.index')
             ->with('success', 'Article updated successfully.');

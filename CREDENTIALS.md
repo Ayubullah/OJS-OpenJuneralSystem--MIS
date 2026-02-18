@@ -1,4 +1,4 @@
-# OJS System Credentials
+# KJOS System Credentials
 
 ## Admin Account
 

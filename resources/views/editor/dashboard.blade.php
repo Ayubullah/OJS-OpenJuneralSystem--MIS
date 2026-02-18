@@ -1,8 +1,8 @@
 @extends('layout.app_editor')
 
-@section('title', 'Editor Dashboard')
-@section('page-title', 'Dashboard')
-@section('page-description', 'Overview of your editorial activities')
+@section('title', __('Editor Dashboard'))
+@section('page-title', __('Dashboard'))
+@section('page-description', __('Overview of your editorial activities'))
 
 @section('content')
 <div class="space-y-6">
@@ -11,8 +11,21 @@
         <div class="px-8 py-8">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-white mb-2">Welcome back, {{ Auth::user()->name }}!</h1>
-                    <p class="text-blue-100 text-lg">Here's what's happening with your submissions today</p>
+                    <h1 class="text-3xl font-bold text-white mb-2">{{ __('Welcome back, :name!', ['name' => Auth::user()->name]) }}</h1>
+                    <p class="text-blue-100 text-lg mb-2">{{ __('Here\'s what\'s happening with your submissions today') }}</p>
+                    @if(isset($journalNames) && count($journalNames) > 0)
+                    <div class="mt-3">
+                        <p class="text-blue-100 text-sm font-medium mb-1">{{ __('Journal(s)') }}:</p>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($journalNames as $journalName)
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-semibold bg-white/20 backdrop-blur-sm border border-white/30 text-white">
+                                <i data-lucide="book-open" class="w-4 h-4 mr-1.5"></i>
+                                {{ $journalName }}
+                            </span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 <div class="hidden md:block">
                     <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30">
@@ -29,7 +42,7 @@
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Total Submissions</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Total Submissions') }}</p>
                     <p class="text-3xl font-bold text-gray-900">{{ $stats['total_submissions'] }}</p>
                 </div>
                 <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
@@ -42,7 +55,7 @@
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Pending Approvals</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Pending Approvals') }}</p>
                     <p class="text-3xl font-bold text-gray-900">{{ $stats['pending_approvals'] }}</p>
                 </div>
                 <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
@@ -51,7 +64,7 @@
             </div>
             @if($stats['pending_approvals'] > 0)
             <a href="{{ route('editor.reviews.pending-approvals') }}" class="mt-4 inline-flex items-center text-sm font-medium text-orange-600 hover:text-orange-700">
-                Review now <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                {{ __('Review now') }} <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
             </a>
             @endif
         </div>
@@ -60,7 +73,7 @@
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Under Review</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Under Review') }}</p>
                     <p class="text-3xl font-bold text-gray-900">{{ $stats['under_review'] }}</p>
                 </div>
                 <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -73,7 +86,7 @@
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Published</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Published') }}</p>
                     <p class="text-3xl font-bold text-gray-900">{{ $stats['published'] }}</p>
                 </div>
                 <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
@@ -88,42 +101,42 @@
         <!-- Accepted -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Accepted</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('Accepted') }}</h3>
                 <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
                     <i data-lucide="check" class="w-5 h-5 text-teal-600"></i>
                 </div>
             </div>
             <p class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['accepted'] }}</p>
             <a href="{{ route('editor.submissions.accepted') }}" class="text-sm text-teal-600 hover:text-teal-700 font-medium">
-                View all <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+                {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
             </a>
         </div>
 
         <!-- Revision Required -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Revision Required</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('Revision Required') }}</h3>
                 <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                     <i data-lucide="edit" class="w-5 h-5 text-orange-600"></i>
                 </div>
             </div>
             <p class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['revision_required'] }}</p>
             <a href="{{ route('editor.submissions.revision-required') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                View all <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+                {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
             </a>
         </div>
 
         <!-- Rejected -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-gray-900">Rejected</h3>
+                <h3 class="text-lg font-bold text-gray-900">{{ __('Rejected') }}</h3>
                 <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                     <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
                 </div>
             </div>
             <p class="text-3xl font-bold text-gray-900 mb-2">{{ $stats['rejected'] }}</p>
             <a href="{{ route('editor.submissions.rejected') }}" class="text-sm text-red-600 hover:text-red-700 font-medium">
-                View all <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+                {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
             </a>
         </div>
     </div>
@@ -134,9 +147,9 @@
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">Recent Submissions</h3>
+                    <h3 class="text-lg font-bold text-gray-900">{{ __('Recent Submissions') }}</h3>
                     <a href="{{ route('editor.submissions.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                        View all <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+                        {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
                     </a>
                 </div>
             </div>
@@ -148,16 +161,16 @@
                         <div class="flex items-start justify-between">
                             <div class="flex-1 min-w-0">
                                 <h4 class="text-sm font-semibold text-gray-900 truncate mb-1">
-                                    {{ $submission->article->title ?? 'Untitled Article' }}
+                                    {{ $submission->article->title ?? __('Untitled Article') }}
                                 </h4>
                                 <div class="flex items-center space-x-3 text-xs text-gray-500 mb-2">
                                     <span class="flex items-center">
                                         <i data-lucide="user" class="w-3 h-3 mr-1"></i>
-                                        {{ $submission->author->name ?? 'Unknown Author' }}
+                                        {{ $submission->author->name ?? __('Unknown Author') }}
                                     </span>
                                     <span class="flex items-center">
                                         <i data-lucide="book" class="w-3 h-3 mr-1"></i>
-                                        {{ $submission->article->journal->name ?? 'Unknown Journal' }}
+                                        {{ $submission->article->journal->name ?? __('Unknown Journal') }}
                                     </span>
                                 </div>
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
@@ -175,7 +188,7 @@
                             </a>
                         </div>
                         <p class="text-xs text-gray-400 mt-2">
-                            Submitted {{ $submission->submission_date?->diffForHumans() ?? 'N/A' }}
+                            {{ __('Submitted') }} {{ $submission->submission_date?->diffForHumans() ?? __('N/A') }}
                         </p>
                     </div>
                     @endforeach
@@ -185,8 +198,8 @@
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="file-text" class="w-8 h-8 text-gray-400"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-2">No submissions yet</h4>
-                    <p class="text-sm text-gray-500">Submissions will appear here as they are received</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">{{ __('No submissions yet') }}</h4>
+                    <p class="text-sm text-gray-500">{{ __('Submissions will appear here as they are received') }}</p>
                 </div>
                 @endif
             </div>
@@ -196,10 +209,10 @@
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">Recent Reviews</h3>
+                    <h3 class="text-lg font-bold text-gray-900">{{ __('Recent Reviews') }}</h3>
                     @if($stats['pending_approvals'] > 0)
                     <a href="{{ route('editor.reviews.pending-approvals') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                        {{ $stats['pending_approvals'] }} pending <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+                        {{ $stats['pending_approvals'] }} {{ __('pending') }} <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
                     </a>
                     @endif
                 </div>
@@ -217,9 +230,9 @@
                                     </div>
                                     <div>
                                         <h4 class="text-sm font-semibold text-gray-900">
-                                            {{ $review->reviewer->user->name ?? 'Unknown Reviewer' }}
+                                            {{ $review->reviewer->user->name ?? __('Unknown Reviewer') }}
                                         </h4>
-                                        <p class="text-xs text-gray-500">{{ $review->updated_at?->diffForHumans() ?? 'N/A' }}</p>
+                                        <p class="text-xs text-gray-500">{{ $review->updated_at?->diffForHumans() ?? __('N/A') }}</p>
                                     </div>
                                 </div>
                                 <p class="text-xs text-gray-700 line-clamp-2 mb-2">
@@ -231,11 +244,11 @@
                                     @endif
                                     @if($review->editor_approved)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        Approved
+                                        {{ __('Approved') }}
                                     </span>
                                     @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                        Pending
+                                        {{ __('Pending') }}
                                     </span>
                                     @endif
                                 </div>
@@ -253,8 +266,8 @@
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="clipboard-list" class="w-8 h-8 text-gray-400"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-2">No reviews yet</h4>
-                    <p class="text-sm text-gray-500">Reviews will appear here as they are submitted</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">{{ __('No reviews yet') }}</h4>
+                    <p class="text-sm text-gray-500">{{ __('Reviews will appear here as they are submitted') }}</p>
                 </div>
                 @endif
             </div>
@@ -263,7 +276,7 @@
 
     <!-- Quick Actions -->
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+        <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Quick Actions') }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <a href="{{ route('editor.submissions.index') }}" 
                class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group">
@@ -271,8 +284,8 @@
                     <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 group-hover:text-blue-600">View All Submissions</h4>
-                    <p class="text-sm text-gray-500">Browse all article submissions</p>
+                    <h4 class="font-semibold text-gray-900 group-hover:text-blue-600">{{ __('View All Submissions') }}</h4>
+                    <p class="text-sm text-gray-500">{{ __('Browse all article submissions') }}</p>
                 </div>
                 <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 ml-auto group-hover:text-blue-600"></i>
             </a>
@@ -284,8 +297,8 @@
                     <i data-lucide="clock" class="w-5 h-5 text-orange-600"></i>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 group-hover:text-orange-600">Pending Approvals</h4>
-                    <p class="text-sm text-gray-500">{{ $stats['pending_approvals'] }} reviews waiting</p>
+                    <h4 class="font-semibold text-gray-900 group-hover:text-orange-600">{{ __('Pending Approvals') }}</h4>
+                    <p class="text-sm text-gray-500">{{ $stats['pending_approvals'] }} {{ __('reviews waiting') }}</p>
                 </div>
                 <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 ml-auto group-hover:text-orange-600"></i>
             </a>
@@ -295,8 +308,8 @@
                     <i data-lucide="check-circle" class="w-5 h-5 text-gray-400"></i>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-500">Pending Approvals</h4>
-                    <p class="text-sm text-gray-400">All caught up!</p>
+                    <h4 class="font-semibold text-gray-500">{{ __('Pending Approvals') }}</h4>
+                    <p class="text-sm text-gray-400">{{ __('All caught up!') }}</p>
                 </div>
             </div>
             @endif
@@ -307,8 +320,8 @@
                     <i data-lucide="user-circle" class="w-5 h-5 text-indigo-600"></i>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 group-hover:text-indigo-600">Profile Settings</h4>
-                    <p class="text-sm text-gray-500">Update your profile</p>
+                    <h4 class="font-semibold text-gray-900 group-hover:text-indigo-600">{{ __('Profile Settings') }}</h4>
+                    <p class="text-sm text-gray-500">{{ __('Update your profile') }}</p>
                 </div>
                 <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 ml-auto group-hover:text-indigo-600"></i>
             </a>

@@ -107,20 +107,43 @@ class AuthorController extends Controller
             'specialization' => 'nullable|string|max:100',
             'orcid_id' => 'nullable|string|max:50',
             'author_contributions' => 'nullable|string',
-            'website' => 'nullable|url|max:255'
+            'website' => 'nullable|url|max:255',
+            'created_at' => 'nullable|date',
+            'updated_at' => 'nullable|date'
         ]);
 
         DB::beginTransaction();
         try {
-            // Update author record
-            $author->update([
+            // Prepare update data
+            $updateData = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'affiliation' => $request->affiliation,
                 'specialization' => $request->specialization,
                 'orcid_id' => $request->orcid_id,
                 'author_contributions' => $request->author_contributions,
-            ]);
+            ];
+
+            // Handle date fields if provided
+            $hasManualTimestamps = false;
+            if ($request->filled('created_at')) {
+                $updateData['created_at'] = $request->created_at;
+                $hasManualTimestamps = true;
+            }
+            if ($request->filled('updated_at')) {
+                $updateData['updated_at'] = $request->updated_at;
+                $hasManualTimestamps = true;
+            }
+
+            // Update author record
+            if ($hasManualTimestamps) {
+                // Temporarily disable automatic timestamps when manually setting them
+                $author::withoutTimestamps(function () use ($author, $updateData) {
+                    $author->update($updateData);
+                });
+            } else {
+                $author->update($updateData);
+            }
 
             // Find and update associated user record if it exists
             $user = User::where('email', $author->email)->first();

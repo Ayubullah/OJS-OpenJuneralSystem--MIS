@@ -30,7 +30,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-gray-900">Create New Journal</h1>
-                    <p class="text-sm text-gray-600">Add a new journal to your Open Journal System</p>
+                    <p class="text-sm text-gray-600">Add a new journal to your Kardan Journal Operating System</p>
                 </div>
             </div>
         </div>

@@ -1,17 +1,17 @@
 @extends('layout.app_reviewer')
 
-@section('title', 'Profile Settings')
-@section('page-title', 'Profile Settings')
-@section('page-description', 'Manage your account settings and preferences')
+@section('title', __('Profile Settings'))
+@section('page-title', __('Profile Settings'))
+@section('page-description', __('Manage your account settings and preferences'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <a href="{{ route('reviewer.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">Dashboard</a>
+    <a href="{{ route('reviewer.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{{ __('Dashboard') }}</a>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">Profile Settings</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('Profile Settings') }}</span>
 </li>
 @endsection
 
@@ -27,7 +27,7 @@
             </div>
             <div>
                 <p class="text-sm font-semibold text-purple-800">{{ session('success') }}</p>
-                <p class="text-xs text-purple-600 mt-0.5">Your changes have been saved</p>
+                <p class="text-xs text-purple-600 mt-0.5">{{ __('Your changes have been saved') }}</p>
             </div>
         </div>
     </div>
@@ -76,7 +76,7 @@
                                 <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-2 hover:bg-white/30 transition-colors">
                                     <i data-lucide="camera" class="w-6 h-6 text-white"></i>
                                 </div>
-                                <span class="text-xs text-white font-medium">Change Photo</span>
+                                <span class="text-xs text-white font-medium">{{ __('Change Photo') }}</span>
                             </label>
                             <input type="file" id="profile_image" name="profile_image" class="hidden" accept="image/*" onchange="document.getElementById('imageForm').submit()">
                         </form>
@@ -101,15 +101,15 @@
                     <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm text-white text-sm font-medium">
                             <i data-lucide="clipboard-check" class="w-4 h-4 mr-2"></i>
-                            Reviewer
+                            {{ __('Reviewer') }}
                         </span>
                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-green-500/30 backdrop-blur-sm text-white text-sm font-medium">
                             <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-                            {{ ucfirst($user->status ?? 'Active') }}
+                            {{ ucfirst($user->status ?? __('Active')) }}
                         </span>
                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm text-white text-sm font-medium">
                             <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>
-                            Joined {{ $user->created_at->format('M Y') }}
+                            {{ __('Joined') }} {{ $user->created_at->format('M Y') }}
                         </span>
                     </div>
                 </div>
@@ -118,7 +118,7 @@
                 <div class="hidden lg:flex items-center gap-6">
                     <div class="text-center px-6 py-4 bg-white/10 backdrop-blur-sm rounded-2xl">
                         <p class="text-3xl font-black text-white">{{ round($user->created_at->diffInDays(now())) }}</p>
-                        <p class="text-xs text-white/70 font-medium mt-1">Days Active</p>
+                        <p class="text-xs text-white/70 font-medium mt-1">{{ __('Days Active') }}</p>
                     </div>
                 </div>
             </div>
@@ -139,8 +139,8 @@
                             <i data-lucide="user" class="w-5 h-5 text-white"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-gray-900">Personal Information</h2>
-                            <p class="text-sm text-gray-500">Update your personal details</p>
+                            <h2 class="text-lg font-bold text-gray-900">{{ __('Personal Information') }}</h2>
+                            <p class="text-sm text-gray-500">{{ __('Update your personal details') }}</p>
                         </div>
                     </div>
                 </div>
@@ -153,7 +153,7 @@
                         <!-- Full Name -->
                         <div class="space-y-2">
                             <label for="name" class="block text-sm font-semibold text-gray-700">
-                                Full Name <span class="text-red-500">*</span>
+                                {{ __('Full Name') }} <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -170,7 +170,7 @@
                         <!-- Username -->
                         <div class="space-y-2">
                             <label for="username" class="block text-sm font-semibold text-gray-700">
-                                Username <span class="text-red-500">*</span>
+                                {{ __('Username') }} <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -187,7 +187,7 @@
                         <!-- Email -->
                         <div class="space-y-2">
                             <label for="email" class="block text-sm font-semibold text-gray-700">
-                                Email Address <span class="text-red-500">*</span>
+                                {{ __('Email Address') }} <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -204,7 +204,7 @@
                         <!-- Phone -->
                         <div class="space-y-2">
                             <label for="phone" class="block text-sm font-semibold text-gray-700">
-                                Phone Number
+                                {{ __('Phone Number') }}
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -222,14 +222,14 @@
                         <!-- Bio -->
                         <div class="md:col-span-2 space-y-2">
                             <label for="bio" class="block text-sm font-semibold text-gray-700">
-                                Bio
+                                {{ __('Bio') }}
                             </label>
                             <div class="relative">
                                 <textarea id="bio" name="bio" rows="4" 
-                                          placeholder="Tell us about yourself and your reviewing expertise..."
+                                          placeholder="{{ __('Tell us about yourself and your reviewing expertise...') }}"
                                           class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all duration-200 resize-none @error('bio') border-red-500 @enderror">{{ old('bio', $user->bio) }}</textarea>
                             </div>
-                            <p class="text-xs text-gray-400">Max 500 characters</p>
+                            <p class="text-xs text-gray-400">{{ __('Max 500 characters') }}</p>
                             @error('bio')
                                 <p class="text-sm text-red-500 flex items-center"><i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>{{ $message }}</p>
                             @enderror
@@ -240,30 +240,30 @@
                     <div class="mt-8 pt-6 border-t border-gray-100">
                         <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center">
                             <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-gray-400"></i>
-                            Location Information
+                            {{ __('Location Information') }}
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <!-- Address -->
                             <div class="md:col-span-3 space-y-2">
-                                <label for="address" class="block text-sm font-semibold text-gray-700">Address</label>
+                                <label for="address" class="block text-sm font-semibold text-gray-700">{{ __('Address') }}</label>
                                 <input type="text" id="address" name="address" value="{{ old('address', $user->address) }}"
-                                       placeholder="Street address"
+                                       placeholder="{{ __('Street address') }}"
                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all duration-200">
                             </div>
                             
                             <!-- City -->
                             <div class="space-y-2">
-                                <label for="city" class="block text-sm font-semibold text-gray-700">City</label>
+                                <label for="city" class="block text-sm font-semibold text-gray-700">{{ __('City') }}</label>
                                 <input type="text" id="city" name="city" value="{{ old('city', $user->city) }}"
-                                       placeholder="City"
+                                       placeholder="{{ __('City') }}"
                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all duration-200">
                             </div>
                             
                             <!-- Country -->
                             <div class="md:col-span-2 space-y-2">
-                                <label for="country" class="block text-sm font-semibold text-gray-700">Country</label>
+                                <label for="country" class="block text-sm font-semibold text-gray-700">{{ __('Country') }}</label>
                                 <input type="text" id="country" name="country" value="{{ old('country', $user->country) }}"
-                                       placeholder="Country"
+                                       placeholder="{{ __('Country') }}"
                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all duration-200">
                             </div>
                         </div>
@@ -273,7 +273,7 @@
                     <div class="mt-8 flex justify-end">
                         <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
                             <i data-lucide="save" class="w-5 h-5 mr-2"></i>
-                            Save Changes
+                            {{ __('Save Changes') }}
                         </button>
                     </div>
                 </form>
@@ -291,8 +291,8 @@
                             <i data-lucide="lock" class="w-5 h-5 text-white"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-gray-900">Security</h2>
-                            <p class="text-sm text-gray-500">Change your password</p>
+                            <h2 class="text-lg font-bold text-gray-900">{{ __('Security') }}</h2>
+                            <p class="text-sm text-gray-500">{{ __('Change your password') }}</p>
                         </div>
                     </div>
                 </div>
@@ -303,13 +303,13 @@
                     
                     <!-- Current Password -->
                     <div class="space-y-2">
-                        <label for="current_password" class="block text-sm font-semibold text-gray-700">Current Password</label>
+                        <label for="current_password" class="block text-sm font-semibold text-gray-700">{{ __('Current Password') }}</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i data-lucide="key" class="w-5 h-5 text-gray-400"></i>
                             </div>
                             <input type="password" id="current_password" name="current_password" required
-                                   placeholder="Enter current password"
+                                   placeholder="{{ __('Enter current password') }}"
                                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-all duration-200 @error('current_password') border-red-500 @enderror">
                         </div>
                         @error('current_password')
@@ -319,13 +319,13 @@
                     
                     <!-- New Password -->
                     <div class="space-y-2">
-                        <label for="password" class="block text-sm font-semibold text-gray-700">New Password</label>
+                        <label for="password" class="block text-sm font-semibold text-gray-700">{{ __('New Password') }}</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i data-lucide="lock" class="w-5 h-5 text-gray-400"></i>
                             </div>
                             <input type="password" id="password" name="password" required
-                                   placeholder="Enter new password"
+                                   placeholder="{{ __('Enter new password') }}"
                                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-all duration-200 @error('password') border-red-500 @enderror">
                         </div>
                         @error('password')
@@ -335,28 +335,28 @@
                     
                     <!-- Confirm Password -->
                     <div class="space-y-2">
-                        <label for="password_confirmation" class="block text-sm font-semibold text-gray-700">Confirm New Password</label>
+                        <label for="password_confirmation" class="block text-sm font-semibold text-gray-700">{{ __('Confirm New Password') }}</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i data-lucide="lock" class="w-5 h-5 text-gray-400"></i>
                             </div>
                             <input type="password" id="password_confirmation" name="password_confirmation" required
-                                   placeholder="Confirm new password"
+                                   placeholder="{{ __('Confirm new password') }}"
                                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:bg-white transition-all duration-200">
                         </div>
                     </div>
                     
                     <!-- Password Requirements -->
                     <div class="bg-gray-50 rounded-xl p-4">
-                        <p class="text-xs font-semibold text-gray-600 mb-2">Password Requirements:</p>
+                        <p class="text-xs font-semibold text-gray-600 mb-2">{{ __('Password Requirements:') }}</p>
                         <ul class="space-y-1">
                             <li class="text-xs text-gray-500 flex items-center">
                                 <i data-lucide="check-circle" class="w-3 h-3 mr-2 text-gray-400"></i>
-                                Minimum 8 characters
+                                {{ __('Minimum 8 characters') }}
                             </li>
                             <li class="text-xs text-gray-500 flex items-center">
                                 <i data-lucide="check-circle" class="w-3 h-3 mr-2 text-gray-400"></i>
-                                Mix of letters and numbers
+                                {{ __('Mix of letters and numbers') }}
                             </li>
                         </ul>
                     </div>
@@ -364,7 +364,7 @@
                     <!-- Submit Button -->
                     <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
                         <i data-lucide="shield-check" class="w-5 h-5 mr-2"></i>
-                        Update Password
+                        {{ __('Update Password') }}
                     </button>
                 </form>
             </div>
@@ -377,8 +377,8 @@
                             <i data-lucide="info" class="w-5 h-5 text-white"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-gray-900">Account Info</h2>
-                            <p class="text-sm text-gray-500">Your account details</p>
+                            <h2 class="text-lg font-bold text-gray-900">{{ __('Account Info') }}</h2>
+                            <p class="text-sm text-gray-500">{{ __('Your account details') }}</p>
                         </div>
                     </div>
                 </div>
@@ -387,7 +387,7 @@
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
                         <div class="flex items-center">
                             <i data-lucide="user" class="w-5 h-5 text-gray-400 mr-3"></i>
-                            <span class="text-sm text-gray-600">Account ID</span>
+                            <span class="text-sm text-gray-600">{{ __('Account ID') }}</span>
                         </div>
                         <span class="text-sm font-semibold text-gray-900">#{{ $user->id }}</span>
                     </div>
@@ -395,28 +395,28 @@
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
                         <div class="flex items-center">
                             <i data-lucide="clipboard-check" class="w-5 h-5 text-gray-400 mr-3"></i>
-                            <span class="text-sm text-gray-600">Role</span>
+                            <span class="text-sm text-gray-600">{{ __('Role') }}</span>
                         </div>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-semibold">
-                            Reviewer
+                            {{ __('Reviewer') }}
                         </span>
                     </div>
                     
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
                         <div class="flex items-center">
                             <i data-lucide="activity" class="w-5 h-5 text-gray-400 mr-3"></i>
-                            <span class="text-sm text-gray-600">Status</span>
+                            <span class="text-sm text-gray-600">{{ __('Status') }}</span>
                         </div>
                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-green-100 text-green-800 text-xs font-semibold">
                             <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
-                            {{ ucfirst($user->status ?? 'Active') }}
+                            {{ ucfirst($user->status ?? __('Active')) }}
                         </span>
                     </div>
                     
                     <div class="flex items-center justify-between py-3 border-b border-gray-100">
                         <div class="flex items-center">
                             <i data-lucide="calendar" class="w-5 h-5 text-gray-400 mr-3"></i>
-                            <span class="text-sm text-gray-600">Member Since</span>
+                            <span class="text-sm text-gray-600">{{ __('Member Since') }}</span>
                         </div>
                         <span class="text-sm font-semibold text-gray-900">{{ $user->created_at->format('M d, Y') }}</span>
                     </div>
@@ -424,7 +424,7 @@
                     <div class="flex items-center justify-between py-3">
                         <div class="flex items-center">
                             <i data-lucide="clock" class="w-5 h-5 text-gray-400 mr-3"></i>
-                            <span class="text-sm text-gray-600">Last Updated</span>
+                            <span class="text-sm text-gray-600">{{ __('Last Updated') }}</span>
                         </div>
                         <span class="text-sm font-semibold text-gray-900">{{ $user->updated_at->diffForHumans() }}</span>
                     </div>
