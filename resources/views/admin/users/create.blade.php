@@ -163,6 +163,7 @@
                                 <option value="">{{ __('Select a role') }}</option>
                                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>{{ __('Administrator') }}</option>
                                 <option value="editor" {{ old('role') === 'editor' ? 'selected' : '' }}>{{ __('Editor') }}</option>
+                                <option value="editorial_assistant" {{ old('role') === 'editorial_assistant' ? 'selected' : '' }}>{{ __('Editorial Assistant') }}</option>
                                 <option value="reviewer" {{ old('role') === 'reviewer' ? 'selected' : '' }}>{{ __('Reviewer') }}</option>
                                 <option value="author" {{ old('role') === 'author' ? 'selected' : '' }}>{{ __('Author') }}</option>
                             </select>
@@ -224,6 +225,38 @@
                         </select>
                         <i data-lucide="book" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
                     </div>
+                    @error('journal_id')
+                    <p class="text-sm text-red-600 flex items-center">
+                        <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
+                        {{ $message }}
+                    </p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Editorial Assistant Specific Fields -->
+            <div id="editorial-assistant-fields" class="space-y-6 hidden">
+                <h3 class="text-lg font-bold text-gray-900 border-b border-gray-200 pb-2">{{ __('Editorial Assistant Information') }}</h3>
+
+                <!-- Journal Selection -->
+                <div class="space-y-2">
+                    <label for="editorial_assistant_journal_id" class="block text-sm font-semibold text-gray-700">
+                        {{ __('Journal') }} <span class="text-gray-400">({{ __('Optional - leave blank for all journals') }})</span>
+                    </label>
+                    <div class="relative">
+                        <select id="editorial_assistant_journal_id"
+                                name="journal_id"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 @error('journal_id') border-red-300 @enderror">
+                            <option value="">{{ __('All Journals') }}</option>
+                            @foreach($journals as $journal)
+                                <option value="{{ $journal->id }}" {{ old('journal_id') == $journal->id ? 'selected' : '' }}>
+                                    {{ $journal->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <i data-lucide="book" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">{{ __('Select a specific journal or leave blank to assign to all journals') }}</p>
                     @error('journal_id')
                     <p class="text-sm text-red-600 flex items-center">
                         <i data-lucide="alert-circle" class="w-4 h-4 mr-1"></i>
@@ -383,12 +416,18 @@
         editorFields.classList.add('hidden');
         reviewerFields.classList.add('hidden');
         additionalFields.classList.add('hidden');
+        const editorialAssistantFields = document.getElementById('editorial-assistant-fields');
+        if (editorialAssistantFields) {
+            editorialAssistantFields.classList.add('hidden');
+        }
 
         // Show relevant fields based on selected role
         if (selectedRole === 'editor') {
             editorFields.classList.remove('hidden');
         } else if (selectedRole === 'reviewer') {
             reviewerFields.classList.remove('hidden');
+        } else if (selectedRole === 'editorial_assistant') {
+            document.getElementById('editorial-assistant-fields').classList.remove('hidden');
         } else if (selectedRole === 'admin') {
             additionalFields.classList.remove('hidden');
         }

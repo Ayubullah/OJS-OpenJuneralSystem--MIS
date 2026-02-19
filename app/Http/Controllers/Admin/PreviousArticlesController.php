@@ -156,6 +156,10 @@ class PreviousArticlesController extends Controller
             'confirm_not_published_elsewhere' => 'required|accepted',
             'confirm_prepared_as_per_guidelines' => 'required|accepted',
 
+            // Article Status
+            'article_status' => 'required|in:submitted,under_review,revision_required,disc_review,pending,pending_verify,verified,plagiarism,accepted,published,rejected',
+            'status_comment' => 'nullable|string|max:1000',
+
             // Editor and Reviewers (optional for basic submission)
             'editor_id' => 'nullable|exists:editors,id',
             'reviewers' => 'nullable|array',
@@ -265,7 +269,7 @@ class PreviousArticlesController extends Controller
                 'funded_by_outside_source' => $fundedByOutsideSource,
                 'confirm_not_published_elsewhere' => $confirmNotPublished,
                 'confirm_prepared_as_per_guidelines' => $confirmGuidelines,
-                'status' => 'accepted',
+                'status' => $request->article_status ?? 'submitted',
                 'manuscript_file' => $manuscriptPath,
             ]);
 
@@ -273,13 +277,37 @@ class PreviousArticlesController extends Controller
             $this->handleKeywords($article, $request);
 
             // 6. Create Submission
+            $submissionStatus = $request->article_status ?? 'submitted';
             $submission = Submission::create([
                 'article_id' => $article->id,
                 'author_id' => $author->id,
-                'status' => 'accepted',
+                'status' => $submissionStatus,
                 'version_number' => 1,
                 'file_path' => $manuscriptPath,
             ]);
+
+            // Store status comment if provided
+            if ($request->filled('status_comment')) {
+                // You can store this in a comments table or as a note
+                // For now, we'll add it to the submission as a note/comment field if available
+                // If you have a comments/notes table, create a record here
+            }
+
+            // Notify editorial assistants when article is created with accepted status
+            if ($submissionStatus === 'accepted') {
+                $editorialAssistants = \App\Models\User::where('role', 'editorial_assistant')->get();
+                if ($editorialAssistants->count() > 0) {
+                    $articleTitle = $article->title ?? 'An article';
+                    foreach ($editorialAssistants as $assistant) {
+                        \App\Models\Notification::create([
+                            'user_id' => $assistant->id,
+                            'type' => 'article',
+                            'message' => "A new article has been accepted: \"{$articleTitle}\". You can view it in your dashboard.",
+                            'status' => 'unread',
+                        ]);
+                    }
+                }
+            }
 
             // 7. Handle Editor Assignment and Reviews (if provided)
             // Note: Status remains 'accepted' even when reviewers are assigned

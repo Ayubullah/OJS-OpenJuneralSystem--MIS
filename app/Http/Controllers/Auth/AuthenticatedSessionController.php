@@ -36,6 +36,8 @@ class AuthenticatedSessionController extends Controller
             $url = 'author';
         }elseif(Auth::user()->role === 'reviewer'){
             $url = 'reviewer';
+        }elseif(Auth::user()->role === 'editorial_assistant'){
+            $url = 'editorial-assistant';
         }
 
         return redirect()->intended($url);

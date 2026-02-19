@@ -21,14 +21,21 @@ class ArticleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $articles = Article::with([
+        $query = Article::with([
             'journal', 
             'author', 
             'category', 
             'submissions.reviews.reviewer'
-        ])->latest()->paginate(10);
+        ]);
+
+        // Filter by journal if provided
+        if ($request->has('journal_id') && $request->journal_id && $request->journal_id !== 'all') {
+            $query->where('journal_id', $request->journal_id);
+        }
+
+        $articles = $query->latest()->paginate(10)->appends($request->query());
         $journals = Journal::where('status', 'active')->get();
         $categories = Category::all();
         return view('admin.articles.index', compact('articles', 'journals', 'categories'));
@@ -142,6 +149,10 @@ class ArticleController extends Controller
             $hasManualTimestamps = true;
         }
 
+        // Check if status is being changed to accepted
+        $wasAccepted = $article->status === 'accepted';
+        $isNowAccepted = $request->status === 'accepted';
+        
         // Update article record
         if ($hasManualTimestamps) {
             // Temporarily disable automatic timestamps when manually setting them
@@ -150,6 +161,22 @@ class ArticleController extends Controller
             });
         } else {
             $article->update($updateData);
+        }
+        
+        // Notify editorial assistants when article status is changed to accepted
+        if ($isNowAccepted && !$wasAccepted) {
+            $editorialAssistants = \App\Models\User::where('role', 'editorial_assistant')->get();
+            if ($editorialAssistants->count() > 0) {
+                $articleTitle = $article->title ?? 'An article';
+                foreach ($editorialAssistants as $assistant) {
+                    \App\Models\Notification::create([
+                        'user_id' => $assistant->id,
+                        'type' => 'article',
+                        'message' => "A new article has been accepted: \"{$articleTitle}\". You can view it in your dashboard.",
+                        'status' => 'unread',
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('admin.articles.index')

@@ -98,6 +98,7 @@ Route::middleware('auth')->group(function () {
         
         // Users Management
         Route::resource('users', UserController::class);
+        Route::get('editorial-assistants', [UserController::class, 'editorialAssistants'])->name('editorial-assistants.index');
         
         // Editors Management
         Route::resource('editors', \App\Http\Controllers\Admin\EditorController::class);
@@ -108,6 +109,8 @@ Route::middleware('auth')->group(function () {
         Route::get('submissions/status/submitted', [SubmissionController::class, 'submitted'])->name('submissions.submitted');
         Route::get('submissions/status/under-review', [SubmissionController::class, 'underReview'])->name('submissions.under-review');
         Route::get('submissions/status/revision-required', [SubmissionController::class, 'revisionRequired'])->name('submissions.revision-required');
+        Route::get('submissions/status/disc-review', [SubmissionController::class, 'discReview'])->name('submissions.disc-review');
+        Route::get('submissions/status/plagiarism', [SubmissionController::class, 'plagiarism'])->name('submissions.plagiarism');
         Route::get('submissions/status/rejected', [SubmissionController::class, 'rejected'])->name('submissions.rejected');
         // Assign reviewer routes (must be before resource routes)
         Route::get('submissions/{submission}/assign-reviewer', [SubmissionController::class, 'assignReviewer'])->name('submissions.assign-reviewer');
@@ -142,6 +145,8 @@ Route::middleware('auth')->group(function () {
          Route::get('submissions/status/submitted', [Editor_SubmissionController::class, 'submitted'])->name('submissions.submitted');
          Route::get('submissions/status/under-review', [Editor_SubmissionController::class, 'underReview'])->name('submissions.under-review');
          Route::get('submissions/status/revision-required', [Editor_SubmissionController::class, 'revisionRequired'])->name('submissions.revision-required');
+         Route::get('submissions/status/disc-review', [Editor_SubmissionController::class, 'discReview'])->name('submissions.disc-review');
+         Route::get('submissions/status/plagiarism', [Editor_SubmissionController::class, 'plagiarism'])->name('submissions.plagiarism');
          Route::get('submissions/status/pending-verify', [Editor_SubmissionController::class, 'pendingVerify'])->name('submissions.pending-verify');
          Route::get('submissions/status/verified', [Editor_SubmissionController::class, 'verified'])->name('submissions.verified');
          Route::get('submissions/status/rejected', [Editor_SubmissionController::class, 'rejected'])->name('submissions.rejected');
@@ -217,6 +222,23 @@ Route::middleware('auth')->group(function () {
         Route::resource('articles', Author_ArticleSubmissionController::class)->names('articles');
     });
 // End Author Role
+
+// Start Editorial Assistant Role
+    Route::middleware(['auth', 'role:editorial_assistant'])->prefix('editorial-assistant')->name('editorial_assistant.')->group(function () {
+        // Dashboard
+        Route::get('/', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantController::class, 'index'])->name('dashboard');
+        
+        // Profile Settings
+        Route::get('profile', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantProfileController::class, 'update'])->name('profile.update');
+        Route::patch('profile/image', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantProfileController::class, 'updateImage'])->name('profile.image.update');
+        Route::delete('profile/image', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantProfileController::class, 'removeImage'])->name('profile.image.remove');
+        Route::put('profile/password', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantProfileController::class, 'updatePassword'])->name('profile.password.update');
+        
+        // Accepted Articles Management
+        Route::resource('articles', \App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class);
+    });
+// End Editorial Assistant Role
 
 // Download route for review format files
 Route::get('/download/review-format/{file}', function ($file) {

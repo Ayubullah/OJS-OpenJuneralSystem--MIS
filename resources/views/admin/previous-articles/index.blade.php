@@ -641,6 +641,55 @@
                 </div>
 
                 <div class="space-y-4">
+                    <!-- Article Status -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="activity" class="w-4 h-4 mr-2 text-gray-600"></i>
+                            Article Status
+                        </h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label for="article_status" class="block text-xs font-medium text-gray-700 mb-1">
+                                    Status <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select id="article_status" name="article_status" 
+                                            class="w-full px-3 py-2 pl-9 pr-8 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 bg-white appearance-none" required>
+                                        <option value="">{{ __('Select status') }}</option>
+                                        <option value="submitted" selected>{{ __('Submitted') }}</option>
+                                        <option value="under_review">{{ __('Under Review') }}</option>
+                                        <option value="revision_required">{{ __('Revision Required') }}</option>
+                                        <option value="disc_review">{{ __('Disc Review') }}</option>
+                                        <option value="pending">{{ __('Pending') }}</option>
+                                        <option value="pending_verify">{{ __('Pending Verify') }}</option>
+                                        <option value="verified">{{ __('Verified') }}</option>
+                                        <option value="plagiarism">{{ __('Plagiarism') }}</option>
+                                        <option value="accepted">{{ __('Accepted') }}</option>
+                                        <option value="published">{{ __('Published') }}</option>
+                                        <option value="rejected">{{ __('Rejected') }}</option>
+                                    </select>
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                        <i data-lucide="activity" class="w-4 h-4"></i>
+                                    </div>
+                                    <div class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Comment Field (shown when pending statuses are selected) -->
+                            <div id="status_comment_section" class="hidden">
+                                <label for="status_comment" class="block text-xs font-medium text-gray-700 mb-1">
+                                    Status Comment <span class="text-xs text-gray-500">(Optional)</span>
+                                </label>
+                                <textarea id="status_comment" name="status_comment" rows="3"
+                                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 bg-white resize-none"
+                                          placeholder="Add a short comment about the status..."></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Provide additional context or notes about this status.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Submission History -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
@@ -1523,6 +1572,19 @@ $(document).ready(function() {
     $('#manuscript_type').change(function() {
         const selectedText = $(this).find('option:selected').text();
         $('#manuscript-type-display').text(selectedText);
+    });
+
+    // Status dropdown change handler - show comment field for pending statuses
+    $('#article_status').on('change', function() {
+        const selectedStatus = $(this).val();
+        const pendingStatuses = ['pending', 'pending_verify', 'revision_required', 'under_review', 'disc_review', 'plagiarism'];
+        
+        if (pendingStatuses.includes(selectedStatus)) {
+            $('#status_comment_section').removeClass('hidden');
+        } else {
+            $('#status_comment_section').addClass('hidden');
+            $('#status_comment').val(''); // Clear comment when hidden
+        }
     });
 
     // File upload handling

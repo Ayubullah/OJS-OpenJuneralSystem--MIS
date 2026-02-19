@@ -129,6 +129,7 @@
                             <option value="disc_review" {{ old('status', $submission->status) === 'disc_review' ? 'selected' : '' }}>{{ __('Disc Review') }}</option>
                             <option value="pending_verify" {{ old('status', $submission->status) === 'pending_verify' ? 'selected' : '' }}>{{ __('Pending Verify') }}</option>
                             <option value="verified" {{ old('status', $submission->status) === 'verified' ? 'selected' : '' }}>{{ __('Verified') }}</option>
+                            <option value="plagiarism" {{ old('status', $submission->status) === 'plagiarism' ? 'selected' : '' }}>{{ __('Plagiarism') }}</option>
                             <option value="accepted" {{ old('status', $submission->status) === 'accepted' ? 'selected' : '' }}>{{ __('Accepted') }}</option>
                             <option value="published" {{ old('status', $submission->status) === 'published' ? 'selected' : '' }}>{{ __('Published') }}</option>
                             <option value="rejected" {{ old('status', $submission->status) === 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
@@ -207,10 +208,10 @@
 
             <!-- Plagiarism Section -->
             <div class="border-t border-gray-100 pt-4 space-y-3">
-                <!-- First Row: Plagiarism Percentage -->
+                <!-- Plagiarism Percentage Input -->
                 <div class="flex items-center gap-2">
                     <label for="plagiarism_percentage" class="text-xs font-semibold text-gray-700 whitespace-nowrap">
-                        <i data-lucide="file-search" class="w-3 h-3 inline mr-1"></i>{{ __('Plagiarism') }}:
+                        <i data-lucide="file-search" class="w-3 h-3 inline mr-1"></i>{{ __('Plagiarism Percentage') }}:
                     </label>
                     <div class="flex items-center gap-1 flex-1 max-w-xs">
                         <input type="number" 
@@ -439,6 +440,7 @@
                 articleIdInput.value = '{{ $currentArticleId }}';
             }
         });
+        
     });
 </script>
 @endsection

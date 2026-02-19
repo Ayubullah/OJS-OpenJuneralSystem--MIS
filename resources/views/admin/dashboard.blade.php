@@ -84,6 +84,75 @@
         </div>
     </div>
 
+    <!-- Top Journals and Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Top Journals -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-900">{{ __('Top Journals') }}</h3>
+                <a href="{{ route('admin.journals.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">{{ __('View all') }}</a>
+            </div>
+            <div class="space-y-4">
+                @forelse($top_journals as $journal)
+                <a href="{{ route('admin.articles.index', ['journal_id' => $journal->id]) }}" class="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <i data-lucide="book" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900 hover:text-blue-600 hover:underline transition-colors">{{ $journal->name }}</h4>
+                            <p class="text-sm text-gray-500">{{ $journal->issn }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-gray-900">{{ $journal->articles_count }}</p>
+                        <p class="text-xs text-gray-500">{{ __('articles') }}</p>
+                    </div>
+                </a>
+                @empty
+                <div class="text-center py-8">
+                    <i data-lucide="book" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                    <p class="text-gray-500 text-sm">{{ __('No journals found') }}</p>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">{{ __('Quick Actions') }}</h3>
+            <div class="space-y-3">
+                <a href="{{ route('admin.journals.create') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-gray-100 transition-all duration-200 group">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200">
+                        <i data-lucide="plus" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">{{ __('Add New Journal') }}</span>
+                </a>
+
+                <a href="{{ route('admin.articles.create') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-green-50 hover:border-green-200 border border-gray-100 transition-all duration-200 group">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200">
+                        <i data-lucide="file-plus" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-green-700">{{ __('Add New Article') }}</span>
+                </a>
+
+                <a href="{{ route('admin.users.create') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 hover:border-purple-200 border border-gray-100 transition-all duration-200 group">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200">
+                        <i data-lucide="user-plus" class="w-4 h-4 text-purple-600"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-purple-700">{{ __('Add New User') }}</span>
+                </a>
+
+                <a href="{{ route('admin.submissions.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-gray-100 transition-all duration-200 group">
+                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200">
+                        <i data-lucide="inbox" class="w-4 h-4 text-orange-600"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-orange-700">{{ __('Review Submissions') }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts and Analytics -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Articles by Status Chart -->
@@ -146,74 +215,7 @@
         </div>
     </div>
 
-    <!-- Top Journals and Quick Actions -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Top Journals -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-gray-900">{{ __('Top Journals') }}</h3>
-                <a href="{{ route('admin.journals.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">{{ __('View all') }}</a>
-            </div>
-            <div class="space-y-4">
-                @forelse($top_journals as $journal)
-                <div class="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-200">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                            <i data-lucide="book" class="w-6 h-6 text-white"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-medium text-gray-900">{{ $journal->name }}</h4>
-                            <p class="text-sm text-gray-500">{{ $journal->issn }}</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-bold text-gray-900">{{ $journal->articles_count }}</p>
-                        <p class="text-xs text-gray-500">{{ __('articles') }}</p>
-                    </div>
-                </div>
-                @empty
-                <div class="text-center py-8">
-                    <i data-lucide="book" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
-                    <p class="text-gray-500 text-sm">{{ __('No journals found') }}</p>
-                </div>
-                @endforelse
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-6">{{ __('Quick Actions') }}</h3>
-            <div class="space-y-3">
-                <a href="{{ route('admin.journals.create') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-gray-100 transition-all duration-200 group">
-                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200">
-                        <i data-lucide="plus" class="w-4 h-4 text-blue-600"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">{{ __('Add New Journal') }}</span>
-                </a>
-
-                <a href="{{ route('admin.articles.create') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-green-50 hover:border-green-200 border border-gray-100 transition-all duration-200 group">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200">
-                        <i data-lucide="file-plus" class="w-4 h-4 text-green-600"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700 group-hover:text-green-700">{{ __('Add New Article') }}</span>
-                </a>
-
-                <a href="{{ route('admin.users.create') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 hover:border-purple-200 border border-gray-100 transition-all duration-200 group">
-                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200">
-                        <i data-lucide="user-plus" class="w-4 h-4 text-purple-600"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700 group-hover:text-purple-700">{{ __('Add New User') }}</span>
-                </a>
-
-                <a href="{{ route('admin.submissions.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-gray-100 transition-all duration-200 group">
-                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200">
-                        <i data-lucide="inbox" class="w-4 h-4 text-orange-600"></i>
-                    </div>
-                    <span class="text-sm font-medium text-gray-700 group-hover:text-orange-700">{{ __('Review Submissions') }}</span>
-                </a>
-            </div>
-        </div>
-    </div>
+    
 </div>
 
 <script>

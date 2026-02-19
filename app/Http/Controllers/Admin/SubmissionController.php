@@ -103,6 +103,32 @@ class SubmissionController extends Controller
     }
 
     /**
+     * Display disc review submissions.
+     */
+    public function discReview()
+    {
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->where('status', 'disc_review')
+            ->latest()
+            ->paginate(10);
+        $statusFilter = 'disc_review';
+        return view('admin.submissions.index', compact('submissions', 'statusFilter'));
+    }
+
+    /**
+     * Display plagiarism submissions.
+     */
+    public function plagiarism()
+    {
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->where('status', 'plagiarism')
+            ->latest()
+            ->paginate(10);
+        $statusFilter = 'plagiarism';
+        return view('admin.submissions.index', compact('submissions', 'statusFilter'));
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -163,7 +189,29 @@ class SubmissionController extends Controller
             'version_number' => 'required|integer|min:1'
         ]);
 
+        $wasAccepted = $submission->status === 'accepted';
         $submission->update($request->all());
+        
+        // Notify editorial assistants when submission status is changed to accepted
+        if ($request->status === 'accepted' && !$wasAccepted) {
+            $article = $submission->article;
+            if ($article) {
+                $article->update(['status' => 'accepted']);
+                
+                $editorialAssistants = \App\Models\User::where('role', 'editorial_assistant')->get();
+                if ($editorialAssistants->count() > 0) {
+                    $articleTitle = $article->title ?? 'An article';
+                    foreach ($editorialAssistants as $assistant) {
+                        \App\Models\Notification::create([
+                            'user_id' => $assistant->id,
+                            'type' => 'article',
+                            'message' => "A new article has been accepted: \"{$articleTitle}\". You can view it in your dashboard.",
+                            'status' => 'unread',
+                        ]);
+                    }
+                }
+            }
+        }
 
         return redirect()->route('admin.submissions.index')
             ->with('success', 'Submission updated successfully.');

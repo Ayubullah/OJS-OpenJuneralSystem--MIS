@@ -24,28 +24,6 @@
                         {{ __('Resubmit Article') }}
                     </a>
                     @endif
-                    @if(in_array($article->status, ['submitted', 'under_review', 'revision_required']))
-                    <a href="{{ route('author.articles.edit', $article) }}" 
-                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                        {{ __('Edit Article') }}
-                    </a>
-                    @endif
-                    @if(in_array($article->status, ['submitted', 'under_review']))
-                    <form action="{{ route('author.articles.reject', $article) }}" method="POST" onsubmit="return confirm('{{ __('Are you sure you want to reject this article? This action cannot be undone and no further reviewers will be assigned.') }}')" class="inline">
-                        @csrf
-                        @method('POST')
-                        <button type="submit" 
-                                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-sm font-medium rounded-lg hover:from-red-700 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 transform hover:scale-105">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            {{ __('Reject Article') }}
-                        </button>
-                    </form>
-                    @endif
                     <a href="{{ route('author.articles.index') }}" 
                         class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

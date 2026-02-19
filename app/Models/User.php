@@ -68,6 +68,11 @@ class User extends Authenticatable
         return $this->hasMany(Editor::class);
     }
 
+    public function editorialAssistants(): HasMany
+    {
+        return $this->hasMany(EditorialAssistant::class);
+    }
+
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);

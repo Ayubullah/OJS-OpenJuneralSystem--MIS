@@ -29,7 +29,9 @@
                        ($statusFilter === 'submitted' ? 'bg-yellow-100 text-yellow-800' : 
                        ($statusFilter === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 
                        ($statusFilter === 'rejected' ? 'bg-red-100 text-red-800' : 
-                       ($statusFilter === 'revision_required' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'))))) }}">
+                       ($statusFilter === 'revision_required' ? 'bg-orange-100 text-orange-800' :
+                       ($statusFilter === 'disc_review' ? 'bg-indigo-100 text-indigo-800' :
+                       ($statusFilter === 'plagiarism' ? 'bg-pink-100 text-pink-800' : 'bg-gray-100 text-gray-800'))))))) }}">
                     {{ __(ucfirst(str_replace('_', ' ', $statusFilter))) }}
                 </span>
                 @endif
@@ -74,13 +76,18 @@
             
             <!-- Filter Dropdown -->
             <div class="relative">
-                <select class="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    <option>{{ __('All Status') }}</option>
-                    <option>{{ __('Submitted') }}</option>
-                    <option>{{ __('Under Review') }}</option>
-                    <option>{{ __('Accepted') }}</option>
-                    <option>{{ __('Published') }}</option>
-                    <option>{{ __('Rejected') }}</option>
+                <select id="statusFilter" class="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                    <option value="all">{{ __('All Status') }}</option>
+                    <option value="submitted">{{ __('Submitted') }}</option>
+                    <option value="under_review">{{ __('Under Review') }}</option>
+                    <option value="revision_required">{{ __('Revision Required') }}</option>
+                    <option value="disc_review">{{ __('Disc Review') }}</option>
+                    <option value="pending_verify">{{ __('Pending Verify') }}</option>
+                    <option value="verified">{{ __('Verified') }}</option>
+                    <option value="plagiarism">{{ __('Plagiarism') }}</option>
+                    <option value="accepted">{{ __('Accepted') }}</option>
+                    <option value="published">{{ __('Published') }}</option>
+                    <option value="rejected">{{ __('Rejected') }}</option>
                 </select>
                 <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
             </div>
@@ -166,7 +173,12 @@
                                ($submission->status === 'under_review' ? 'bg-blue-100 text-blue-800' : 
                                ($submission->status === 'submitted' ? 'bg-yellow-100 text-yellow-800' : 
                                ($submission->status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 
-                               ($submission->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))) }}">
+                               ($submission->status === 'revision_required' ? 'bg-orange-100 text-orange-800' :
+                               ($submission->status === 'disc_review' ? 'bg-indigo-100 text-indigo-800' :
+                               ($submission->status === 'pending_verify' ? 'bg-purple-100 text-purple-800' :
+                               ($submission->status === 'verified' ? 'bg-emerald-100 text-emerald-800' :
+                               ($submission->status === 'plagiarism' ? 'bg-pink-100 text-pink-800' :
+                               ($submission->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))))))))) }}">
                             {{ __(ucfirst(str_replace('_', ' ', $submission->status))) }}
                         </span>
                         </td>
@@ -292,73 +304,6 @@
             pageSearchInput.placeholder = placeholders[fieldValue] || '{{ __('Search...') }}';
         }
 
-        // Search function
-        function performSearch() {
-            if (!pageSearchInput) return;
-            const searchTerm = pageSearchInput.value.toLowerCase().trim();
-            const selectedField = searchField ? searchField.value : 'all';
-            let visibleCount = 0;
-
-            // Show/hide clear button
-            if (clearSearchBtn) {
-                if (searchTerm) {
-                    clearSearchBtn.classList.remove('hidden');
-                } else {
-                    clearSearchBtn.classList.add('hidden');
-                }
-            }
-
-            // Hide empty state when searching
-            if (emptyState) {
-                emptyState.classList.add('hidden');
-            }
-
-            // Filter rows
-            submissionRows.forEach(row => {
-                let searchContent = '';
-                
-                // Get search content based on selected field
-                if (selectedField === 'all') {
-                    // Search all fields
-                    searchContent = 
-                        row.getAttribute('data-article-id') + ' ' +
-                        row.getAttribute('data-article-title') + ' ' +
-                        row.getAttribute('data-journal') + ' ' +
-                        row.getAttribute('data-status');
-                } else if (selectedField === 'id') {
-                    searchContent = row.getAttribute('data-article-id');
-                } else if (selectedField === 'title') {
-                    searchContent = row.getAttribute('data-article-title');
-                } else if (selectedField === 'journal') {
-                    searchContent = row.getAttribute('data-journal');
-                } else if (selectedField === 'status') {
-                    searchContent = row.getAttribute('data-status');
-                }
-                
-                searchContent = searchContent.toLowerCase();
-                
-                if (searchContent.includes(searchTerm)) {
-                    row.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
-
-            // Show/hide no results message
-            if (noResultsRow) {
-                if (searchTerm && visibleCount === 0) {
-                    noResultsRow.classList.remove('hidden');
-                } else {
-                    noResultsRow.classList.add('hidden');
-                }
-            }
-
-            // Reinitialize icons for newly visible elements
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
 
         // Clear search function
         function clearSearch() {
@@ -367,21 +312,17 @@
             if (clearSearchBtn) {
                 clearSearchBtn.classList.add('hidden');
             }
-            submissionRows.forEach(row => {
-                row.classList.remove('hidden');
-            });
-            if (noResultsRow) {
-                noResultsRow.classList.add('hidden');
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                statusFilter.value = 'all';
             }
-            if (emptyState && submissionRows.length === 0) {
-                emptyState.classList.remove('hidden');
-            }
+            performCombinedFilter();
             pageSearchInput.focus();
         }
 
         // Event listeners
         if (pageSearchInput) {
-            pageSearchInput.addEventListener('input', performSearch);
+            pageSearchInput.addEventListener('input', performCombinedFilter);
             pageSearchInput.addEventListener('keyup', function(e) {
                 if (e.key === 'Escape') {
                     clearSearch();
@@ -392,8 +333,13 @@
         if (searchField) {
             searchField.addEventListener('change', function() {
                 updatePlaceholder();
-                performSearch(); // Re-run search with new field
+                performCombinedFilter(); // Re-run search with new field
             });
+        }
+        
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', performCombinedFilter);
         }
         
         if (clearSearchBtn) {

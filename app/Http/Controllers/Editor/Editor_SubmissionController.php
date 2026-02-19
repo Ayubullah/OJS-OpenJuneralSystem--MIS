@@ -238,6 +238,60 @@ class Editor_SubmissionController extends Controller
     }
 
     /**
+     * Display disc review submissions.
+     */
+    public function discReview()
+    {
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'disc_review')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
+        $statusFilter = 'disc_review';
+        return view('editor.submissions.index', compact('submissions', 'statusFilter'));
+    }
+
+    /**
+     * Display plagiarism submissions.
+     */
+    public function plagiarism()
+    {
+        $journalIds = $this->getEditorJournalIds();
+        
+        // Get unique articles (one per article_id) with their latest submission matching the status
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'plagiarism')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+        
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
+        $statusFilter = 'plagiarism';
+        return view('editor.submissions.index', compact('submissions', 'statusFilter'));
+    }
+
+    /**
      * Display pending verification submissions (files uploaded by authors for verification).
      */
     public function pendingVerify()
@@ -312,7 +366,7 @@ class Editor_SubmissionController extends Controller
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'author_id' => 'required|exists:authors,id',
-            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,accepted,published,rejected',
+            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,plagiarism,accepted,published,rejected',
             'version_number' => 'required|integer|min:1'
         ]);
 
@@ -374,7 +428,7 @@ class Editor_SubmissionController extends Controller
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'author_id' => 'required|exists:authors,id',
-            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,accepted,published,rejected',
+            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,plagiarism,accepted,published,rejected',
             'version_number' => 'required|integer|min:1',
             'file_path' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'approval_status' => 'nullable|in:pending,verified,rejected',
@@ -467,9 +521,24 @@ class Editor_SubmissionController extends Controller
                     $articleUpdateData['journal_id'] = $request->journal_id;
                 }
                 
-                // Sync article status with submission status when rejected
-                if ($request->status === 'rejected' && $article->status !== 'rejected') {
-                    $articleUpdateData['status'] = 'rejected';
+                // Sync article status with submission status
+                // Map submission statuses to article statuses
+                $statusMapping = [
+                    'submitted' => 'submitted',
+                    'under_review' => 'under_review',
+                    'revision_required' => 'revision_required',
+                    'disc_review' => 'disc_review',
+                    'pending_verify' => 'pending_verify',
+                    'verified' => 'verified',
+                    'plagiarism' => 'plagiarism',
+                    'accepted' => 'accepted',
+                    'published' => 'published',
+                    'rejected' => 'rejected'
+                ];
+                
+                // Update article status if submission status changed and mapping exists
+                if (isset($statusMapping[$request->status]) && $article->status !== $statusMapping[$request->status]) {
+                    $articleUpdateData['status'] = $statusMapping[$request->status];
                 }
                 
                 // Handle article date fields if provided

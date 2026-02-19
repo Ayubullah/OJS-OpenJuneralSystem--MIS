@@ -272,6 +272,24 @@
                                 </a>
                             </li>
                             <li class="submenu-item">
+                                <a href="{{ route('admin.submissions.disc-review') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-indigo-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-indigo-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="message-square" class="w-4 h-4 text-indigo-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Disc Review') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('admin.submissions.plagiarism') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-pink-50 hover:to-rose-50 hover:text-pink-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-pink-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-pink-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="file-search" class="w-4 h-4 text-pink-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Plagiarism') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-pink-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
                                 <a href="{{ route('admin.submissions.rejected') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 hover:text-red-700 transition-all duration-300 group relative">
                                     <div class="submenu-icon w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-red-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i>
@@ -340,6 +358,15 @@
                                     </div>
                                     <span class="font-medium text-sm">{{ __('Reviewers') }}</span>
                                     <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('admin.editorial-assistants.index') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 hover:text-teal-700 transition-all duration-300 group relative">
+                                    <div class="submenu-icon w-7 h-7 bg-teal-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-teal-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="user-cog-2" class="w-4 h-4 text-teal-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Editorial Assistants') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-teal-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                                 </a>
                             </li>
                             <li class="submenu-item">

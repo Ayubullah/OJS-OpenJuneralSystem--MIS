@@ -385,6 +385,23 @@ class Reviewer_ReviewController extends Controller
                 }
             }
 
+            // Notify editorial assistants when article is accepted
+            if ($article && $article->status === 'accepted') {
+                $editorialAssistants = User::where('role', 'editorial_assistant')->get();
+                if ($editorialAssistants->count() > 0) {
+                    $articleTitle = $article->title ?? 'An article';
+                    
+                    foreach ($editorialAssistants as $assistant) {
+                        Notification::create([
+                            'user_id' => $assistant->id,
+                            'type' => 'article',
+                            'message' => "A new article has been accepted: \"{$articleTitle}\". You can view it in your dashboard.",
+                            'status' => 'unread',
+                        ]);
+                    }
+                }
+            }
+
             DB::commit();
 
             $successMessage = $allRatedTen 

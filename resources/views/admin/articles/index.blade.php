@@ -53,10 +53,11 @@
                 <div>
                     <label for="journal_id" class="block text-sm font-medium text-gray-700 mb-2">Journal</label>
                     <select id="journal_id" 
+                            name="journal_id"
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="all">All Journals</option>
+                        <option value="all" {{ request('journal_id') == 'all' || !request('journal_id') ? 'selected' : '' }}>All Journals</option>
                         @foreach($journals as $journal)
-                        <option value="{{ $journal->id }}">{{ $journal->name }}</option>
+                        <option value="{{ $journal->id }}" {{ request('journal_id') == $journal->id ? 'selected' : '' }}>{{ $journal->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -439,7 +440,55 @@
             searchInput.addEventListener('keyup', filterArticles);
         }
         if (journalSelect) {
-            journalSelect.addEventListener('change', filterArticles);
+            journalSelect.addEventListener('change', function() {
+                // If journal filter changes, submit form to use server-side filtering
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = '{{ route("admin.articles.index") }}';
+                
+                // Add journal_id parameter
+                const journalInput = document.createElement('input');
+                journalInput.type = 'hidden';
+                journalInput.name = 'journal_id';
+                journalInput.value = this.value;
+                form.appendChild(journalInput);
+                
+                // Preserve search if exists
+                if (searchInput && searchInput.value) {
+                    const searchInputField = document.createElement('input');
+                    searchInputField.type = 'hidden';
+                    searchInputField.name = 'search';
+                    searchInputField.value = searchInput.value;
+                    form.appendChild(searchInputField);
+                }
+                
+                // Preserve category if exists
+                if (categorySelect && categorySelect.value && categorySelect.value !== 'all') {
+                    const categoryInput = document.createElement('input');
+                    categoryInput.type = 'hidden';
+                    categoryInput.name = 'category_id';
+                    categoryInput.value = categorySelect.value;
+                    form.appendChild(categoryInput);
+                }
+                
+                // Preserve status if exists
+                if (statusSelect && statusSelect.value && statusSelect.value !== 'all') {
+                    const statusInput = document.createElement('input');
+                    statusInput.type = 'hidden';
+                    statusInput.name = 'status';
+                    statusInput.value = statusSelect.value;
+                    form.appendChild(statusInput);
+                }
+                
+                document.body.appendChild(form);
+                form.submit();
+            });
+            
+            // If journal_id is in URL, trigger filter on page load
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('journal_id')) {
+                filterArticles();
+            }
         }
         if (categorySelect) {
             categorySelect.addEventListener('change', filterArticles);
