@@ -569,7 +569,7 @@ class Author_ArticleSubmissionController extends Controller
         // Check if there's already a pending file
         if ($submission->approval_status === 'pending' && $submission->approval_pending_file) {
             return redirect()->route('author.articles.show', $article)
-                ->with('error', 'You have already uploaded a file for approval. Please wait for the editor to review it before uploading again.');
+                ->with('error', __('You have already uploaded a file for verification. Please wait for the editorial assistant to review it before uploading again.'));
         }
 
         $request->validate([
@@ -584,13 +584,14 @@ class Author_ArticleSubmissionController extends Controller
             $fileName = time() . '_approval_' . $author->id . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('approval_files/' . $article->id, $fileName, 'public');
 
-            // Update submission with approval file
+            // Update submission with approval file and author's message
             $submission->update([
                 'approval_pending_file' => $filePath,
+                'approval_message' => $request->approval_message,
                 'approval_status' => 'pending'
             ]);
 
-            // Create notification for editor
+            // Create notification for editors
             $journal = $article->journal;
             $editors = \App\Models\Editor::where('journal_id', $journal->id)
                 ->where('status', 'active')
@@ -608,10 +609,21 @@ class Author_ArticleSubmissionController extends Controller
                 }
             }
 
+            // Create notification for editorial assistants
+            $editorialAssistants = \App\Models\User::where('role', 'editorial_assistant')->get();
+            foreach ($editorialAssistants as $ea) {
+                \App\Models\Notification::create([
+                    'user_id' => $ea->id,
+                    'type' => 'reminder',
+                    'message' => "Author has uploaded a file for verification: \"{$article->title}\"",
+                    'status' => 'unread',
+                ]);
+            }
+
             DB::commit();
 
             return redirect()->route('author.articles.show', $article)
-                ->with('success', 'File uploaded successfully for verification! The editor has been notified.');
+                ->with('success', __('File uploaded successfully for verification! The editorial assistant has been notified.'));
 
         } catch (\Exception $e) {
             DB::rollback();

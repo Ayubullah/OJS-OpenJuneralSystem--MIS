@@ -16,6 +16,8 @@ class Submission extends Model
         'version_number',
         'file_path',
         'approval_pending_file',
+        'approval_message',
+        'chief_editor_comment',
         'approval_status',
         'plagiarism_percentage',
         'ai_report_file',

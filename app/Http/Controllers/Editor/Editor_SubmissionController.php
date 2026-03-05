@@ -292,15 +292,29 @@ class Editor_SubmissionController extends Controller
     }
 
     /**
-     * Display pending verification submissions (files uploaded by authors for verification).
+     * Display pending verification submissions.
+     * Shows: (1) Articles sent to Editorial Assistant (status pending_verify, no file yet),
+     *        (2) Files uploaded by authors for verification (approval_status pending, has file).
      */
     public function pendingVerify()
     {
-        $submissions = $this->filterByEditorJournals(
-            Submission::with(['article.journal', 'author', 'reviews.reviewer'])
-                ->where('approval_status', 'pending')
-                ->whereNotNull('approval_pending_file')
-        )->latest()->paginate(10);
+        $journalIds = $this->getEditorJournalIds();
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'pending_verify')
+            ->where('articles.status', 'pending_verify')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->where('articles.status', 'pending_verify')
+            ->select('submissions.*')
+            ->orderBy('submissions.updated_at', 'desc')
+            ->paginate(10);
         $statusFilter = 'pending_verify';
         return view('editor.submissions.pending-verify', compact('submissions', 'statusFilter'));
     }
@@ -317,6 +331,62 @@ class Editor_SubmissionController extends Controller
         )->latest()->paginate(10);
         $statusFilter = 'verified';
         return view('editor.submissions.verified', compact('submissions', 'statusFilter'));
+    }
+
+    /**
+     * Display submissions sent to Chief Editor (chief_editor_review).
+     * Only shows articles pending Chief Editor review - NOT approved_chief_editor.
+     */
+    public function chiefEditorReview()
+    {
+        $journalIds = $this->getEditorJournalIds();
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'chief_editor_review')
+            ->where('articles.status', 'chief_editor_review')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->where('articles.status', 'chief_editor_review')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
+        $statusFilter = 'chief_editor_review';
+        return view('editor.submissions.index', compact('submissions', 'statusFilter'));
+    }
+
+    /**
+     * Display submissions approved by Chief Editor (approved_chief_editor).
+     * Only shows articles that Chief Editor has approved - NOT those still in chief_editor_review.
+     */
+    public function approvedByChiefEditor()
+    {
+        $journalIds = $this->getEditorJournalIds();
+        $latestSubmissionIds = DB::table('submissions')
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->whereIn('articles.journal_id', $journalIds ?: [0])
+            ->where('submissions.status', 'approved_chief_editor')
+            ->where('articles.status', 'approved_chief_editor')
+            ->select(DB::raw('MAX(submissions.id) as id'))
+            ->groupBy('submissions.article_id')
+            ->pluck('id');
+
+        $submissions = Submission::with(['article.journal', 'author', 'reviews.reviewer'])
+            ->whereIn('submissions.id', $latestSubmissionIds)
+            ->join('articles', 'submissions.article_id', '=', 'articles.id')
+            ->where('articles.status', 'approved_chief_editor')
+            ->select('submissions.*')
+            ->orderBy('articles.id', 'asc')
+            ->orderBy('submissions.created_at', 'desc')
+            ->paginate(10);
+        $statusFilter = 'approved_chief_editor';
+        return view('editor.submissions.index', compact('submissions', 'statusFilter'));
     }
 
     /**
@@ -366,7 +436,7 @@ class Editor_SubmissionController extends Controller
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'author_id' => 'required|exists:authors,id',
-            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,plagiarism,accepted,published,rejected',
+            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,plagiarism,accepted,chief_editor_review,approved_chief_editor,published,rejected',
             'version_number' => 'required|integer|min:1'
         ]);
 
@@ -387,24 +457,24 @@ class Editor_SubmissionController extends Controller
             abort(403, 'You do not have access to this submission.');
         }
         
-        $submission->load(['article.journal', 'author', 'reviews.reviewer']);
-        
+        $submission->load(['article.journal', 'article.category', 'article.keywords', 'author', 'reviews.reviewer.user']);
+
         // Load all submissions for this article (version history)
         $allSubmissions = Submission::where('article_id', $submission->article_id)
             ->orderBy('version_number', 'desc')
             ->with(['reviews.reviewer.user'])
             ->get();
-        
-        // Load editor messages for this article
+
+        // Load editor messages for this article (disc review messages)
         $editorMessages = EditorMessage::where('article_id', $submission->article_id)
-            ->where(function($query) use ($submission) {
-                $query->where('submission_id', $submission->id)
-                      ->orWhereNull('submission_id');
+            ->where(function ($q) {
+                $q->where('recipient_type', 'author')
+                    ->orWhere('recipient_type', 'both');
             })
             ->with(['editor', 'editorRecipient'])
             ->latest()
             ->get();
-        
+
         return view('editor.submissions.show', compact('submission', 'allSubmissions', 'editorMessages'));
     }
 
@@ -428,7 +498,7 @@ class Editor_SubmissionController extends Controller
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'author_id' => 'required|exists:authors,id',
-            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,plagiarism,accepted,published,rejected',
+            'status' => 'required|in:submitted,under_review,revision_required,disc_review,pending_verify,verified,plagiarism,accepted,chief_editor_review,approved_chief_editor,published,rejected',
             'version_number' => 'required|integer|min:1',
             'file_path' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
             'approval_status' => 'nullable|in:pending,verified,rejected',
@@ -1302,6 +1372,51 @@ class Editor_SubmissionController extends Controller
             return redirect()->back()
                 ->with('error', 'Error verifying article: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Send accepted article to Chief Editor for review.
+     */
+    public function sendToChiefEditor(Submission $submission)
+    {
+        $journalIds = $this->getEditorJournalIds();
+        if (!empty($journalIds) && !in_array($submission->article->journal_id, $journalIds)) {
+            abort(403, 'You do not have access to this submission.');
+        }
+
+        if ($submission->status !== 'accepted') {
+            return redirect()->back()
+                ->with('error', __('Only accepted articles can be sent to Chief Editor.'));
+        }
+
+        $submission->update(['status' => 'chief_editor_review']);
+        $submission->article->update(['status' => 'chief_editor_review']);
+        $submission->update(['chief_editor_comment' => null]); // Clear any previous comment
+
+        return redirect()->back()
+            ->with('success', __('Article sent to Chief Editor for review.'));
+    }
+
+    /**
+     * Send approved-chief-editor article to Editorial Assistant for verification.
+     */
+    public function sendToEditorialAssistant(Submission $submission)
+    {
+        $journalIds = $this->getEditorJournalIds();
+        if (!empty($journalIds) && !in_array($submission->article->journal_id, $journalIds)) {
+            abort(403, 'You do not have access to this submission.');
+        }
+
+        if ($submission->status !== 'approved_chief_editor') {
+            return redirect()->back()
+                ->with('error', __('Only articles approved by Chief Editor can be sent to Editorial Assistant.'));
+        }
+
+        $submission->update(['status' => 'pending_verify']);
+        $submission->article->update(['status' => 'pending_verify']);
+
+        return redirect()->back()
+            ->with('success', __('Article sent to Editorial Assistant for verification.'));
     }
 
     /**

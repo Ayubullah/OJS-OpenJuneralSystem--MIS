@@ -163,6 +163,7 @@
                                 <option value="">{{ __('Select a role') }}</option>
                                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>{{ __('Administrator') }}</option>
                                 <option value="editor" {{ old('role') === 'editor' ? 'selected' : '' }}>{{ __('Editor') }}</option>
+                                <option value="chief_editor" {{ old('role') === 'chief_editor' ? 'selected' : '' }}>{{ __('Chief Editor') }}</option>
                                 <option value="editorial_assistant" {{ old('role') === 'editorial_assistant' ? 'selected' : '' }}>{{ __('Editorial Assistant') }}</option>
                                 <option value="reviewer" {{ old('role') === 'reviewer' ? 'selected' : '' }}>{{ __('Reviewer') }}</option>
                                 <option value="author" {{ old('role') === 'author' ? 'selected' : '' }}>{{ __('Author') }}</option>

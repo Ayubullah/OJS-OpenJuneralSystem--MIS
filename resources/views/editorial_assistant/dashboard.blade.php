@@ -2,7 +2,7 @@
 
 @section('title', __('Editorial Assistant Dashboard'))
 @section('page-title', __('Dashboard'))
-@section('page-description', __('Overview of accepted articles'))
+@section('page-description', __('Overview of articles'))
 
 @section('content')
 <div class="space-y-6">
@@ -12,7 +12,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-3xl font-bold text-white mb-2">{{ __('Welcome back, :name!', ['name' => Auth::user()->name]) }}</h1>
-                    <p class="text-teal-100 text-lg mb-2">{{ __('Here\'s an overview of all accepted articles') }}</p>
+                    <p class="text-teal-100 text-lg mb-2">{{ __('Here\'s an overview of your articles') }}</p>
                     @if(isset($journalNames) && count($journalNames) > 0)
                     <div class="mt-3">
                         <p class="text-teal-100 text-sm font-medium mb-1">{{ __('Journal(s)') }}:</p>
@@ -38,11 +38,11 @@
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Total Accepted Articles -->
+        <!-- Total Articles -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Total Accepted Articles') }}</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Total Articles') }}</p>
                     <p class="text-3xl font-bold text-gray-900">{{ $stats['total_accepted'] }}</p>
                 </div>
                 <div class="w-14 h-14 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -51,11 +51,11 @@
             </div>
         </div>
 
-        <!-- Total Accepted Submissions -->
+        <!-- Total Submissions -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Total Accepted Submissions') }}</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Total Submissions') }}</p>
                     <p class="text-3xl font-bold text-gray-900">{{ $stats['total_accepted_submissions'] }}</p>
                 </div>
                 <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
@@ -64,11 +64,11 @@
             </div>
         </div>
 
-        <!-- Recent Accepted (Last 7 Days) -->
+        <!-- Recent (Last 7 Days) -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Recent Accepted (7 Days)') }}</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">{{ __('Recent (7 Days)') }}</p>
                     <p class="text-3xl font-bold text-gray-900">{{ $stats['recent_accepted'] }}</p>
                 </div>
                 <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
@@ -80,11 +80,11 @@
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Accepted Articles -->
+        <!-- Recent Articles -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-cyan-50">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">{{ __('Recent Accepted Articles') }}</h3>
+                    <h3 class="text-lg font-bold text-gray-900">{{ __('Recent Articles') }}</h3>
                     <a href="{{ route('editorial_assistant.articles.index') }}" class="text-sm text-teal-600 hover:text-teal-700 font-medium">
                         {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
                     </a>
@@ -110,8 +110,8 @@
                                         {{ $article->journal->name ?? __('Unknown Journal') }}
                                     </span>
                                 </div>
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
-                                    Accepted
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $article->status === 'verified' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800' }}">
+                                    {{ ucfirst(str_replace('_', ' ', $article->status)) }}
                                 </span>
                             </div>
                             <a href="{{ route('editorial_assistant.articles.show', $article) }}" 
@@ -120,7 +120,7 @@
                             </a>
                         </div>
                         <p class="text-xs text-gray-400 mt-2">
-                            {{ __('Accepted') }} {{ $article->created_at?->diffForHumans() ?? __('N/A') }}
+                            {{ $article->created_at?->diffForHumans() ?? __('N/A') }}
                         </p>
                     </div>
                     @endforeach
@@ -130,18 +130,18 @@
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="file-text" class="w-8 h-8 text-gray-400"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-2">{{ __('No accepted articles yet') }}</h4>
-                    <p class="text-sm text-gray-500">{{ __('Accepted articles will appear here') }}</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">{{ __('No articles yet') }}</h4>
+                    <p class="text-sm text-gray-500">{{ __('Articles will appear here when sent from Editor') }}</p>
                 </div>
                 @endif
             </div>
         </div>
 
-        <!-- Recent Accepted Submissions -->
+        <!-- Recent Submissions -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">{{ __('Recent Accepted Submissions') }}</h3>
+                    <h3 class="text-lg font-bold text-gray-900">{{ __('Recent Submissions') }}</h3>
                     <a href="{{ route('editorial_assistant.articles.index') }}" class="text-sm text-green-600 hover:text-green-700 font-medium">
                         {{ __('View all') }} <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
                     </a>
@@ -167,8 +167,8 @@
                                         {{ $submission->article->journal->name ?? __('Unknown Journal') }}
                                     </span>
                                 </div>
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Accepted
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $submission->article->status === 'verified' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800' }}">
+                                    {{ ucfirst(str_replace('_', ' ', $submission->article->status)) }}
                                 </span>
                             </div>
                             <a href="{{ route('editorial_assistant.articles.show', $submission->article) }}" 
@@ -177,7 +177,7 @@
                             </a>
                         </div>
                         <p class="text-xs text-gray-400 mt-2">
-                            {{ __('Accepted') }} {{ $submission->created_at?->diffForHumans() ?? __('N/A') }}
+                            {{ $submission->created_at?->diffForHumans() ?? __('N/A') }}
                         </p>
                     </div>
                     @endforeach
@@ -187,8 +187,8 @@
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i data-lucide="file-check" class="w-8 h-8 text-gray-400"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-2">{{ __('No accepted submissions yet') }}</h4>
-                    <p class="text-sm text-gray-500">{{ __('Accepted submissions will appear here') }}</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">{{ __('No submissions yet') }}</h4>
+                    <p class="text-sm text-gray-500">{{ __('Submissions will appear here when sent from Editor') }}</p>
                 </div>
                 @endif
             </div>
@@ -205,8 +205,8 @@
                     <i data-lucide="file-check" class="w-5 h-5 text-teal-600"></i>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 group-hover:text-teal-600">{{ __('View All Accepted Articles') }}</h4>
-                    <p class="text-sm text-gray-500">{{ __('Browse all accepted articles') }}</p>
+                    <h4 class="font-semibold text-gray-900 group-hover:text-teal-600">{{ __('View All Articles') }}</h4>
+                    <p class="text-sm text-gray-500">{{ __('Browse pending verify and verified articles') }}</p>
                 </div>
                 <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 ml-auto group-hover:text-teal-600"></i>
             </a>

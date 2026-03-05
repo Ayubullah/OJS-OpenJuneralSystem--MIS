@@ -17,7 +17,8 @@ class EditorMessage extends Model
         'editor_recipient_id',
         'message',
         'recipient_type',
-        'is_approval_request'
+        'is_approval_request',
+        'is_rejection'
     ];
 
     public function article(): BelongsTo
@@ -55,6 +56,7 @@ class EditorMessage extends Model
      */
     protected $casts = [
         'is_approval_request' => 'boolean',
+        'is_rejection' => 'boolean',
     ];
 }
 

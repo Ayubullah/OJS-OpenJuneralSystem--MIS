@@ -1,8 +1,8 @@
 @extends('layout.app_admin')
 
-@section('title', __('Users Management'))
-@section('page-title', __('Users'))
-@section('page-description', __('Manage all users in the system'))
+@section('title', isset($roleFilter) && $roleFilter === 'chief_editor' ? __('Chief Editors') : (isset($roleFilter) && $roleFilter === 'editorial_assistant' ? __('Editorial Assistants') : __('Users Management')))
+@section('page-title', isset($roleFilter) && $roleFilter === 'chief_editor' ? __('Chief Editors') : (isset($roleFilter) && $roleFilter === 'editorial_assistant' ? __('Editorial Assistants') : __('Users')))
+@section('page-description', isset($roleFilter) && $roleFilter === 'chief_editor' ? __('Manage chief editors') : (isset($roleFilter) && $roleFilter === 'editorial_assistant' ? __('Manage editorial assistants') : __('Manage all users in the system')))
 
 @section('breadcrumb')
 <li class="flex items-center">
@@ -11,8 +11,19 @@
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">{{ __('Users') }}</span>
+    <a href="{{ route('admin.users.index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">{{ __('Users') }}</a>
 </li>
+@if(isset($roleFilter) && $roleFilter === 'chief_editor')
+<li class="flex items-center">
+    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+    <span class="text-sm font-medium text-gray-500">{{ __('Chief Editors') }}</span>
+</li>
+@elseif(isset($roleFilter) && $roleFilter === 'editorial_assistant')
+<li class="flex items-center">
+    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
+    <span class="text-sm font-medium text-gray-500">{{ __('Editorial Assistants') }}</span>
+</li>
+@endif
 @endsection
 
 @section('content')
@@ -20,8 +31,8 @@
     <!-- Header with Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ __('Users Management') }}</h1>
-            <p class="mt-1 text-sm text-gray-600">{{ __('Manage all users and their roles') }}</p>
+            <h1 class="text-2xl font-bold text-gray-900">@if(isset($roleFilter) && $roleFilter === 'chief_editor'){{ __('Chief Editors') }}@elseif(isset($roleFilter) && $roleFilter === 'editorial_assistant'){{ __('Editorial Assistants') }}@else{{ __('Users Management') }}@endif</h1>
+            <p class="mt-1 text-sm text-gray-600">@if(isset($roleFilter) && $roleFilter === 'chief_editor'){{ __('Manage chief editors') }}@elseif(isset($roleFilter) && $roleFilter === 'editorial_assistant'){{ __('Manage editorial assistants') }}@else{{ __('Manage all users and their roles') }}@endif</p>
         </div>
         <div class="mt-4 sm:mt-0 flex items-center space-x-3">
             <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
@@ -52,9 +63,11 @@
                     <label for="role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                     <select id="role" 
                             class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="all">All Roles</option>
+                        <option value="all" {{ (isset($roleFilter) && $roleFilter === 'all') || !isset($roleFilter) ? 'selected' : '' }}>All Roles</option>
                         <option value="admin">Admin</option>
                         <option value="editor">Editor</option>
+                        <option value="chief_editor" {{ isset($roleFilter) && $roleFilter === 'chief_editor' ? 'selected' : '' }}>{{ __('Chief Editor') }}</option>
+                        <option value="editorial_assistant" {{ isset($roleFilter) && $roleFilter === 'editorial_assistant' ? 'selected' : '' }}>{{ __('Editorial Assistant') }}</option>
                         <option value="reviewer">Reviewer</option>
                         <option value="author">Author</option>
                     </select>
@@ -123,8 +136,10 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                             {{ $user->role === 'admin' ? 'bg-red-100 text-red-800' : 
                                ($user->role === 'editor' ? 'bg-blue-100 text-blue-800' : 
-                               ($user->role === 'reviewer' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800')) }}">
-                            {{ __(ucfirst($user->role)) }}
+                               ($user->role === 'chief_editor' ? 'bg-amber-100 text-amber-800' :
+                               ($user->role === 'editorial_assistant' ? 'bg-teal-100 text-teal-800' :
+                               ($user->role === 'reviewer' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800')))) }}">
+                            {{ $user->role === 'chief_editor' ? __('Chief Editor') : ($user->role === 'editorial_assistant' ? __('Editorial Assistant') : __(ucfirst(str_replace('_', ' ', $user->role)))) }}
                         </span>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ __(ucfirst($user->status)) }}

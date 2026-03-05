@@ -283,6 +283,24 @@
                                 </a>
                             </li>
                             <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.chief-editor-review') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-700 transition-colors duration-300 group relative {{ request()->routeIs('editor.submissions.chief-editor-review') ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700' : '' }}">
+                                    <div class="submenu-icon w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-amber-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="send" class="w-4 h-4 text-amber-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Chief Editor Review') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-amber-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{{ route('editor.submissions.approved-chief-editor') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-lime-50 hover:to-green-50 hover:text-lime-700 transition-colors duration-300 group relative {{ request()->routeIs('editor.submissions.approved-chief-editor') ? 'bg-gradient-to-r from-lime-50 to-green-50 text-lime-700' : '' }}">
+                                    <div class="submenu-icon w-7 h-7 bg-lime-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-lime-200 transition-all duration-300 shadow-sm">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-lime-600"></i>
+                                    </div>
+                                    <span class="font-medium text-sm">{{ __('Approved by Chief') }}</span>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-lime-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
                                 <a href="{{ route('editor.submissions.pending-verify') }}" class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 transition-all duration-300 group relative {{ request()->routeIs('editor.submissions.pending-verify') ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700' : '' }}">
                                     <div class="submenu-icon w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-all duration-300 shadow-sm">
                                         <i data-lucide="clock" class="w-4 h-4 text-purple-600"></i>

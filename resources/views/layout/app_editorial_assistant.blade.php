@@ -196,13 +196,40 @@
                         <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                     </a>
 
-                    <!-- Accepted Articles -->
-                    <a href="{{ route('editorial_assistant.articles.index') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 hover:text-teal-700 transition-all duration-300 group btn-modern border border-transparent hover:border-teal-100 hover:shadow-md mt-4 {{ request()->routeIs('editorial_assistant.articles.*') ? 'bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-700 border-teal-100' : '' }}">
-                        <div class="w-7 h-7 bg-teal-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-teal-200 transition-colors duration-300 {{ request()->routeIs('editorial_assistant.articles.*') ? 'bg-teal-200' : '' }}">
-                            <i data-lucide="check-circle" class="w-4 h-4 text-teal-600"></i>
+                    <!-- Pending Verify (with verify/reject actions) -->
+                    <a href="{{ route('editorial_assistant.articles.pending-verify') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-purple-700 transition-colors duration-300 group btn-modern border border-transparent hover:border-purple-100 hover:shadow-md mt-4 {{ request()->routeIs('editorial_assistant.articles.pending-verify') ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 border-purple-100' : '' }}">
+                        <div class="w-7 h-7 bg-purple-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-colors duration-300 {{ request()->routeIs('editorial_assistant.articles.pending-verify') ? 'bg-purple-200' : '' }}">
+                            <i data-lucide="file-check" class="w-4 h-4 text-purple-600"></i>
                         </div>
-                        <span class="font-medium text-sm">Accepted Articles</span>
-                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-teal-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                        <span class="font-medium text-sm">{{ __('Pending Verify') }}</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                    </a>
+
+                    <!-- Not Verified (simple list) -->
+                    <a href="{{ route('editorial_assistant.articles.pending-verify-list') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-amber-700 transition-colors duration-300 group btn-modern border border-transparent hover:border-amber-100 hover:shadow-md mt-2 {{ request()->routeIs('editorial_assistant.articles.pending-verify-list') ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border-amber-100' : '' }}">
+                        <div class="w-7 h-7 bg-amber-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-amber-200 transition-colors duration-300 {{ request()->routeIs('editorial_assistant.articles.pending-verify-list') ? 'bg-amber-200' : '' }}">
+                            <i data-lucide="list" class="w-4 h-4 text-amber-600"></i>
+                        </div>
+                        <span class="font-medium text-sm">{{ __('Not Verified') }}</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-amber-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                    </a>
+
+                    <!-- Verified -->
+                    <a href="{{ route('editorial_assistant.articles.verified') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700 transition-colors duration-300 group btn-modern border border-transparent hover:border-green-100 hover:shadow-md mt-2 {{ request()->routeIs('editorial_assistant.articles.verified') ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-100' : '' }}">
+                        <div class="w-7 h-7 bg-green-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors duration-300 {{ request()->routeIs('editorial_assistant.articles.verified') ? 'bg-green-200' : '' }}">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-green-600"></i>
+                        </div>
+                        <span class="font-medium text-sm">{{ __('Verified') }}</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-green-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
+                    </a>
+
+                    <!-- Messages -->
+                    <a href="{{ route('editorial_assistant.messages.index') }}" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-colors duration-300 group btn-modern border border-transparent hover:border-blue-100 hover:shadow-md mt-4 {{ request()->routeIs('editorial_assistant.messages.*') ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-100' : '' }}">
+                        <div class="w-7 h-7 bg-blue-100 rounded-md flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors duration-300 {{ request()->routeIs('editorial_assistant.messages.*') ? 'bg-blue-200' : '' }}">
+                            <i data-lucide="message-square" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <span class="font-medium text-sm">{{ __('Messages') }}</span>
+                        <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1 ml-auto"></i>
                     </a>
 
                     <!-- Profile Settings -->

@@ -23,17 +23,24 @@
             <div class="flex items-center space-x-3">
                 <h1 class="text-2xl font-bold text-gray-900">{{ __('Submissions Management') }}</h1>
                 @if(isset($statusFilter))
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                    {{ $statusFilter === 'published' ? 'bg-green-100 text-green-800' : 
-                       ($statusFilter === 'under_review' ? 'bg-blue-100 text-blue-800' : 
-                       ($statusFilter === 'submitted' ? 'bg-yellow-100 text-yellow-800' : 
-                       ($statusFilter === 'verified' ? 'bg-emerald-100 text-emerald-800' :
-                       ($statusFilter === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 
-                       ($statusFilter === 'pending_verify' ? 'bg-purple-100 text-purple-800' :
-                       ($statusFilter === 'disc_review' ? 'bg-indigo-100 text-indigo-800' :
-                       ($statusFilter === 'plagiarism' ? 'bg-pink-100 text-pink-800' :
-                       ($statusFilter === 'rejected' ? 'bg-red-100 text-red-800' : 
-                       ($statusFilter === 'revision_required' ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'))))))))) }}">
+                @php
+                    $statusBadgeClass = match($statusFilter ?? '') {
+                        'published' => 'bg-green-100 text-green-800',
+                        'under_review' => 'bg-blue-100 text-blue-800',
+                        'submitted' => 'bg-yellow-100 text-yellow-800',
+                        'verified' => 'bg-emerald-100 text-emerald-800',
+                        'accepted' => 'bg-emerald-100 text-emerald-800',
+                        'chief_editor_review' => 'bg-amber-100 text-amber-800',
+                        'approved_chief_editor' => 'bg-lime-100 text-lime-800',
+                        'pending_verify' => 'bg-purple-100 text-purple-800',
+                        'disc_review' => 'bg-indigo-100 text-indigo-800',
+                        'plagiarism' => 'bg-pink-100 text-pink-800',
+                        'rejected' => 'bg-red-100 text-red-800',
+                        'revision_required' => 'bg-orange-100 text-orange-800',
+                        default => 'bg-gray-100 text-gray-800',
+                    };
+                @endphp
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusBadgeClass }}">
                     {{ __(ucfirst(str_replace('_', ' ', $statusFilter))) }}
                 </span>
                 @endif
@@ -79,17 +86,19 @@
             <!-- Filter Dropdown -->
             <div class="relative">
                 <select id="statusFilter" class="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                    <option value="all">{{ __('All Status') }}</option>
-                    <option value="submitted">{{ __('Submitted') }}</option>
-                    <option value="under_review">{{ __('Under Review') }}</option>
-                    <option value="revision_required">{{ __('Revision Required') }}</option>
-                    <option value="disc_review">{{ __('Disc Review') }}</option>
-                    <option value="pending_verify">{{ __('Pending Verify') }}</option>
-                    <option value="verified">{{ __('Verified') }}</option>
-                    <option value="plagiarism">{{ __('Plagiarism') }}</option>
-                    <option value="accepted">{{ __('Accepted') }}</option>
-                    <option value="published">{{ __('Published') }}</option>
-                    <option value="rejected">{{ __('Rejected') }}</option>
+                    <option value="all" {{ !isset($statusFilter) || $statusFilter === null ? 'selected' : '' }}>{{ __('All Status') }}</option>
+                    <option value="submitted" {{ ($statusFilter ?? '') === 'submitted' ? 'selected' : '' }}>{{ __('Submitted') }}</option>
+                    <option value="under_review" {{ ($statusFilter ?? '') === 'under_review' ? 'selected' : '' }}>{{ __('Under Review') }}</option>
+                    <option value="revision_required" {{ ($statusFilter ?? '') === 'revision_required' ? 'selected' : '' }}>{{ __('Revision Required') }}</option>
+                    <option value="disc_review" {{ ($statusFilter ?? '') === 'disc_review' ? 'selected' : '' }}>{{ __('Disc Review') }}</option>
+                    <option value="pending_verify" {{ ($statusFilter ?? '') === 'pending_verify' ? 'selected' : '' }}>{{ __('Pending Verify') }}</option>
+                    <option value="verified" {{ ($statusFilter ?? '') === 'verified' ? 'selected' : '' }}>{{ __('Verified') }}</option>
+                    <option value="plagiarism" {{ ($statusFilter ?? '') === 'plagiarism' ? 'selected' : '' }}>{{ __('Plagiarism') }}</option>
+                    <option value="accepted" {{ ($statusFilter ?? '') === 'accepted' ? 'selected' : '' }}>{{ __('Accepted') }}</option>
+                    <option value="chief_editor_review" {{ ($statusFilter ?? '') === 'chief_editor_review' ? 'selected' : '' }}>{{ __('Chief Editor Review') }}</option>
+                    <option value="approved_chief_editor" {{ ($statusFilter ?? '') === 'approved_chief_editor' ? 'selected' : '' }}>{{ __('Approved by Chief Editor') }}</option>
+                    <option value="published" {{ ($statusFilter ?? '') === 'published' ? 'selected' : '' }}>{{ __('Published') }}</option>
+                    <option value="rejected" {{ ($statusFilter ?? '') === 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                 </select>
                 <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
             </div>
@@ -109,6 +118,16 @@
                 <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
             </div>
             <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center">
+            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+            </div>
+            <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
         </div>
     </div>
     @endif
@@ -212,31 +231,54 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end space-x-2">
-                        <a href="{{ route('editor.submissions.show', $submission) }}" 
+                                <a href="{{ route('editor.submissions.show', $submission) }}"
                                    class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                                    title="{{ __('View') }}">
-                            <i data-lucide="eye" class="w-4 h-4"></i>
-                        </a>
-                        <a href="{{ route('editor.submissions.edit', $submission) }}" 
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </a>
+                                <a href="{{ route('editor.submissions.edit', $submission) }}"
                                    class="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200"
                                    title="{{ __('Edit') }}">
-                            <i data-lucide="edit" class="w-4 h-4"></i>
-                        </a>
-                        <a href="{{ route('editor.submissions.assign-reviewer', $submission) }}" 
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </a>
+                                @if($submission->status === 'accepted')
+                                <form action="{{ route('editor.submissions.send-to-chief-editor', $submission) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
+                                            title="{{ __('Send to Chief Editor') }}">
+                                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                                @elseif($submission->status === 'approved_chief_editor')
+                                <form action="{{ route('editor.submissions.send-to-editorial-assistant', $submission) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="p-2 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors duration-200"
+                                            title="{{ __('Send to Editorial Assistant') }}">
+                                        <i data-lucide="send" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                                @elseif(!in_array($submission->status, ['chief_editor_review', 'approved_chief_editor', 'published']))
+                                <a href="{{ route('editor.submissions.assign-reviewer', $submission) }}"
                                    class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
                                    title="{{ __('Send to Reviewer') }}">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        </a>
-                        <form action="{{ route('editor.submissions.destroy', $submission) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('Are you sure you want to delete this submission?') }}')">
-                            @csrf
-                            @method('DELETE')
-                                    <button type="submit" 
+                                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                </a>
+                                @endif
+                                @if(!in_array($submission->status, ['accepted', 'chief_editor_review', 'approved_chief_editor', 'published']))
+                                <form action="{{ route('editor.submissions.destroy', $submission) }}" method="POST" class="inline" onsubmit="return confirm(this.dataset.confirm)"
+                                      data-confirm="{{ __('Are you sure you want to delete this submission?') }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
                                             class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                                             title="{{ __('Delete') }}">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </form>
-                    </div>
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
         @empty

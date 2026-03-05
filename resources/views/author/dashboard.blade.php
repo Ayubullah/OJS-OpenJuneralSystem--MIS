@@ -42,17 +42,19 @@
                 @foreach($allMessages as $message)
                 <div class="bg-white rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors">
                     <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 {{ $message->sender_type === 'admin' ? 'bg-indigo-600' : 'bg-blue-600' }} rounded-full flex items-center justify-center flex-shrink-0">
+                        <div class="w-8 h-8 {{ $message->sender_type === 'admin' ? 'bg-indigo-600' : ($message->sender_type === 'editorial_assistant' ? 'bg-teal-600' : 'bg-blue-600') }} rounded-full flex items-center justify-center flex-shrink-0">
                             <i data-lucide="{{ $message->sender_type === 'admin' ? 'shield' : 'user-check' }}" class="w-4 h-4 text-white"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="text-sm font-semibold text-gray-900">
-                                        {{ $message->sender_type === 'admin' ? __('Admin') : __('Editor') }}
+                                        {{ $message->sender_type === 'admin' ? __('Admin') : ($message->sender_type === 'editorial_assistant' ? __('Editorial Assistant') : __('Editor')) }}
                                     </span>
                                     @if($message->sender_type === 'admin')
                                     <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">Admin</span>
+                                    @elseif($message->sender_type === 'editorial_assistant')
+                                    <span class="px-1.5 py-0.5 bg-teal-100 text-teal-700 text-xs font-bold rounded">Editorial Assistant</span>
                                     @endif
                                     @if($message->article_id)
                                     <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>

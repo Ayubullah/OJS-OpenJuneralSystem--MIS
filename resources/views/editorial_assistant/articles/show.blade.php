@@ -21,6 +21,27 @@
 
 @section('content')
 <div class="space-y-6">
+    @if(session('success'))
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center">
+            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+            </div>
+            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center">
+            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+            </div>
+            <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+        </div>
+    </div>
+    @endif
+
     @if($submission)
     <!-- Submission Header -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
@@ -142,6 +163,79 @@
                 @endif
             </div>
 
+            <!-- Pending Verification File (when author has uploaded for verification) -->
+            @if($submission->approval_status === 'pending' && $submission->approval_pending_file)
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i data-lucide="file-check" class="w-5 h-5 mr-2 text-purple-600"></i>
+                    {{ __('Pending Verification File') }}
+                </h3>
+                <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl mb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="file-text" class="w-5 h-5 text-purple-600"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ basename($submission->approval_pending_file) }}</p>
+                                <p class="text-xs text-gray-500">{{ __('Uploaded by author for verification') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ asset('storage/' . $submission->approval_pending_file) }}" target="_blank" 
+                           class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                            {{ __('Download') }}
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <form action="{{ route('editorial_assistant.articles.approve-verification', $article) }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" 
+                            onclick="return confirm('{{ __('Are you sure you want to verify this article? This will change the status to verified.') }}')"
+                            class="inline-flex items-center px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200 shadow-sm">
+                            <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
+                            {{ __('Verify Article') }}
+                        </button>
+                    </form>
+                    <button type="button" onclick="openEARejectModal()"
+                        class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-sm">
+                        <i data-lucide="x-circle" class="w-4 h-4 mr-2"></i>
+                        {{ __('Reject with Comment') }}
+                    </button>
+                </div>
+                <!-- Reject Modal for article show page -->
+                <div id="eaRejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center mt-0">
+                    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">{{ __('Reject Verification') }}</h3>
+                                <button onclick="closeEARejectModal()" class="text-gray-400 hover:text-gray-600">
+                                    <i data-lucide="x" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-4">{{ __('Please provide a comment. The author will see this and can upload a new file.') }}</p>
+                            <form method="POST" action="{{ route('editorial_assistant.articles.reject-verification', $article) }}">
+                                @csrf
+                                <div class="mb-4">
+                                    <label for="ea_rejection_comment" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Rejection Comment') }} *</label>
+                                    <textarea id="ea_rejection_comment" name="rejection_comment" rows="5" required
+                                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                              placeholder="{{ __('Explain what needs to be corrected...') }}"></textarea>
+                                </div>
+                                <div class="flex items-center justify-end space-x-3">
+                                    <button type="button" onclick="closeEARejectModal()" 
+                                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">{{ __('Cancel') }}</button>
+                                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+                                        <i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i>
+                                        {{ __('Reject Verification') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- Plagiarism Check & Reports Section -->
             @if($submission->plagiarism_percentage !== null || $submission->ai_report_file || $submission->other_resources_report_file)
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -236,16 +330,22 @@
                 </h3>
                 <div class="space-y-4">
                     @foreach($editorMessages->where('recipient_type', 'author')->where('is_approval_request', false) as $message)
-                    <div class="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 rounded-lg p-4">
+                    <div class="rounded-lg p-4 border-2 {{ $message->is_rejection ?? false ? 'bg-red-50 border-red-300' : 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-300' }}">
                         <div class="flex items-start justify-between mb-2">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
-                                    <i data-lucide="message-circle" class="w-4 h-4 text-white"></i>
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $message->is_rejection ?? false ? 'bg-red-600' : 'bg-orange-600' }}">
+                                    <i data-lucide="{{ ($message->is_rejection ?? false) ? 'x-circle' : 'message-circle' }}" class="w-4 h-4 text-white"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900">
-                                        {{ __('Editor') }}
-                                        <span class="ml-2 px-2 py-0.5 bg-orange-600 text-white text-xs rounded-full font-bold">DISC REVIEW</span>
+                                        {{ $message->sender_type === 'editorial_assistant' ? __('Editorial Assistant') : __('Editor') }}
+                                        @if($message->is_rejection ?? false)
+                                            <span class="ml-2 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full font-bold">{{ __('REJECTION') }}</span>
+                                        @elseif($message->sender_type === 'editorial_assistant')
+                                            <span class="ml-2 px-2 py-0.5 bg-teal-600 text-white text-xs rounded-full font-bold">{{ __('DISC REVIEW') }}</span>
+                                        @else
+                                            <span class="ml-2 px-2 py-0.5 bg-orange-600 text-white text-xs rounded-full font-bold">{{ __('DISC REVIEW') }}</span>
+                                        @endif
                                     </p>
                                     <p class="text-xs text-gray-500">{{ $message->created_at->format('M d, Y h:i A') }}</p>
                                 </div>
@@ -1039,6 +1139,69 @@
                 </div>
             </div>
 
+            <!-- Messages (Author ↔ Editorial Assistant) -->
+            <div id="messages" class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center justify-between">
+                    <span class="flex items-center">
+                        <i data-lucide="message-square" class="w-5 h-5 mr-2 text-teal-600"></i>
+                        {{ __('Messages') }}
+                    </span>
+                    @if(isset($messageTimeline) && count($messageTimeline) > 0)
+                    <span class="text-xs font-medium text-teal-600 bg-teal-50 px-2 py-1 rounded-full">{{ count($messageTimeline) }}</span>
+                    @endif
+                </h3>
+                @if(isset($messageTimeline) && count($messageTimeline) > 0)
+                <div id="recentMessagesList" class="space-y-2 max-h-48 overflow-y-auto">
+                    @foreach(array_slice($messageTimeline, 0, 4) as $entry)
+                    @if($entry->type === 'author_upload')
+                    <div class="p-2 bg-green-50 rounded-lg border border-green-100 hover:bg-green-100 transition-colors">
+                        <div class="flex items-start gap-2">
+                            <div class="w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center bg-green-600">
+                                <i data-lucide="upload" class="w-3.5 h-3.5 text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-semibold text-gray-700">{{ __('Author') }}</p>
+                                <p class="text-xs text-gray-600 line-clamp-2">{{ __('Uploaded file') }}: {{ basename($entry->submission->approval_pending_file ?? '') }}{{ $entry->submission->approval_message ? ' — ' . Str::limit($entry->submission->approval_message, 40) : '' }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">{{ $entry->date->format('M d, H:i') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @else
+                    <div class="p-2 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors">
+                        <div class="flex items-start gap-2">
+                            <div class="w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center {{ ($entry->item->is_rejection ?? false) ? 'bg-red-600' : ($entry->item->sender_type === 'editorial_assistant' ? 'bg-teal-600' : ($entry->item->sender_type === 'admin' ? 'bg-indigo-600' : 'bg-blue-600')) }}">
+                                <span class="text-xs font-bold text-white">{{ substr($entry->item->editor->name ?? 'E', 0, 1) }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-semibold text-gray-700">{{ $entry->item->sender_type === 'editorial_assistant' ? __('EA') : ($entry->item->sender_type === 'admin' ? __('Admin') : __('Editor')) }}{{ ($entry->item->is_rejection ?? false) ? ' · ' . __('Rejection') : '' }}</p>
+                                <p class="text-xs text-gray-600 line-clamp-2">{{ Str::limit($entry->item->message, 60) }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">{{ $entry->item->created_at->format('M d, H:i') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    @endforeach
+                </div>
+                <button type="button" onclick="openAllMessagesModal()" class="mt-3 w-full text-sm font-medium text-teal-600 hover:text-teal-700 flex items-center justify-center gap-1">
+                    <i data-lucide="messages-square" class="w-4 h-4"></i>
+                    {{ __('Show all messages') }} ({{ count($messageTimeline) }})
+                </button>
+                @else
+                <p class="text-sm text-gray-500 py-4 text-center">{{ __('No messages yet') }}</p>
+                <p class="text-xs text-gray-400 text-center">{{ __('Send a verification message to start the conversation') }}</p>
+                @endif
+            </div>
+
+            <!-- Send Message to Author for Verification -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Send Message to Author') }}</h3>
+                <p class="text-sm text-gray-600 mb-4">{{ __('Send a message or verification request to the author.') }}</p>
+                <button onclick="openEAMessageModal()" class="w-full flex items-center justify-center px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors duration-200">
+                    <i data-lucide="message-square" class="w-4 h-4 mr-2"></i>
+                    {{ __('Send Message for Verification') }}
+                </button>
+            </div>
+
             <!-- Author Information -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Author Information') }}</h3>
@@ -1088,6 +1251,144 @@
                     </div>
                     @endif
                 </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Send Message Modal -->
+    @if($submission ?? false)
+    <div id="eaMessageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">{{ __('Send Message to Author for Verification') }}</h3>
+                    <button onclick="closeEAMessageModal()" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <form method="POST" action="{{ route('editorial_assistant.articles.send-message', $article) }}">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="eaMessageText" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Message') }} *</label>
+                        <textarea id="eaMessageText" name="message" rows="6" required
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                  placeholder="{{ __('Enter your message to the author...') }}"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('This message will be sent to the author') }}</p>
+                    </div>
+                    
+                    @if((in_array($submission->status, ['accepted', 'verified', 'approved_chief_editor', 'pending_verify']) || in_array($article->status, ['accepted', 'verified', 'approved_chief_editor', 'pending_verify'])) && $submission->approval_status !== 'pending' && $submission->approval_status !== 'verified')
+                    <div class="mb-4">
+                        <div class="flex items-start space-x-3 p-4 bg-teal-50 border border-teal-200 rounded-lg">
+                            <input type="checkbox" id="eaSendForVerification" name="send_for_verification" value="1" 
+                                   class="mt-1 w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                            <div class="flex-1">
+                                <label for="eaSendForVerification" class="block text-sm font-medium text-gray-900 cursor-pointer">
+                                    {{ __('Send for Verification') }}
+                                </label>
+                                <p class="text-xs text-gray-600 mt-1">
+                                    {{ __('When checked, this will change the article status to "Pending Verify" and request the author to upload a revised file for verification.') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                        <p class="text-xs text-blue-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            <strong>{{ __('Article') }}:</strong> {{ $article->title }}
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center justify-end space-x-3">
+                        <button type="button" onclick="closeEAMessageModal()" 
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                            {{ __('Cancel') }}
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors duration-200">
+                            <i data-lucide="send" class="w-4 h-4 inline mr-2"></i>
+                            {{ __('Send Message') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- All Messages Modal -->
+    @if(isset($messageTimeline))
+    <div id="allMessagesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[85vh] flex flex-col">
+            <div class="p-6 border-b border-gray-200 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                        <i data-lucide="messages-square" class="w-5 h-5 mr-2 text-teal-600"></i>
+                        {{ __('All Messages') }} - {{ __('Author') }} & {{ __('Editorial Assistant') }}
+                    </h3>
+                    <button onclick="closeAllMessagesModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Message history for') }}: {{ Str::limit($article->title, 50) }}</p>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                @forelse($messageTimeline ?? [] as $entry)
+                @if($entry->type === 'author_upload')
+                <div class="p-4 rounded-lg border-2 bg-green-50 border-green-200">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-green-600">
+                                <i data-lucide="upload" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ __('Author') }} <span class="ml-2 px-2 py-0.5 bg-green-600 text-white text-xs rounded-full font-bold">{{ __('FILE UPLOADED') }}</span></p>
+                                <p class="text-xs text-gray-500">{{ $entry->date->format('M d, Y h:i A') }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ asset('storage/' . $entry->submission->approval_pending_file) }}" target="_blank" class="text-xs font-medium text-green-600 hover:text-green-700 flex items-center gap-1">
+                            <i data-lucide="download" class="w-3 h-3"></i>
+                            {{ basename($entry->submission->approval_pending_file) }}
+                        </a>
+                    </div>
+                    @if($entry->submission->approval_message)
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed mt-2">{{ $entry->submission->approval_message }}</p>
+                    @endif
+                </div>
+                @else
+                <div class="p-4 rounded-lg border-2 {{ $entry->item->is_rejection ?? false ? 'bg-red-50 border-red-200' : ($entry->item->is_approval_request ? 'bg-purple-50 border-purple-200' : ($entry->item->sender_type === 'editorial_assistant' ? 'bg-teal-50 border-teal-200' : ($entry->item->sender_type === 'admin' ? 'bg-indigo-50 border-indigo-200' : 'bg-blue-50 border-blue-200'))) }}">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center {{ ($entry->item->is_rejection ?? false) ? 'bg-red-600' : ($entry->item->sender_type === 'editorial_assistant' ? 'bg-teal-600' : ($entry->item->sender_type === 'admin' ? 'bg-indigo-600' : 'bg-blue-600')) }}">
+                                <span class="text-xs font-bold text-white">{{ substr($entry->item->editor->name ?? 'E', 0, 1) }}</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ $entry->item->sender_type === 'editorial_assistant' ? __('Editorial Assistant') : ($entry->item->sender_type === 'admin' ? __('Admin') : __('Editor')) }}
+                                    @if($entry->item->is_rejection ?? false)
+                                        <span class="ml-2 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full font-bold">{{ __('REJECTION') }}</span>
+                                    @elseif($entry->item->is_approval_request)
+                                        <span class="ml-2 px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full font-bold">{{ __('Verification Request') }}</span>
+                                    @else
+                                        <span class="ml-2 px-2 py-0.5 bg-teal-600 text-white text-xs rounded-full font-bold">{{ __('DISC REVIEW') }}</span>
+                                    @endif
+                                </p>
+                                <p class="text-xs text-gray-500">{{ $entry->item->created_at->format('M d, Y h:i A') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $entry->item->message }}</p>
+                </div>
+                @endif
+                @empty
+                <div class="text-center py-12">
+                    <i data-lucide="message-square" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                    <p class="text-gray-500">{{ __('No messages yet') }}</p>
+                </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -1202,6 +1503,45 @@
                 icon.style.transform = 'rotate(0deg)';
             }
         }
+    }
+
+    // Modal functions for All Messages
+    function openAllMessagesModal() {
+        const modal = document.getElementById('allMessagesModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
+    function closeAllMessagesModal() {
+        const modal = document.getElementById('allMessagesModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // Modal functions for Reject Verification (on article show page)
+    function openEARejectModal() {
+        const modal = document.getElementById('eaRejectModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
+    function closeEARejectModal() {
+        const modal = document.getElementById('eaRejectModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // Modal functions for Send Message
+    function openEAMessageModal() {
+        const modal = document.getElementById('eaMessageModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
+    function closeEAMessageModal() {
+        const modal = document.getElementById('eaMessageModal');
+        if (modal) modal.classList.add('hidden');
     }
 
     // Initialize Lucide icons

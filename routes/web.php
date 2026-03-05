@@ -99,6 +99,7 @@ Route::middleware('auth')->group(function () {
         // Users Management
         Route::resource('users', UserController::class);
         Route::get('editorial-assistants', [UserController::class, 'editorialAssistants'])->name('editorial-assistants.index');
+        Route::get('chief-editors', [UserController::class, 'chiefEditors'])->name('chief-editors.index');
         
         // Editors Management
         Route::resource('editors', \App\Http\Controllers\Admin\EditorController::class);
@@ -149,6 +150,8 @@ Route::middleware('auth')->group(function () {
          Route::get('submissions/status/plagiarism', [Editor_SubmissionController::class, 'plagiarism'])->name('submissions.plagiarism');
          Route::get('submissions/status/pending-verify', [Editor_SubmissionController::class, 'pendingVerify'])->name('submissions.pending-verify');
          Route::get('submissions/status/verified', [Editor_SubmissionController::class, 'verified'])->name('submissions.verified');
+         Route::get('submissions/status/chief-editor-review', [Editor_SubmissionController::class, 'chiefEditorReview'])->name('submissions.chief-editor-review');
+         Route::get('submissions/status/approved-chief-editor', [Editor_SubmissionController::class, 'approvedByChiefEditor'])->name('submissions.approved-chief-editor');
          Route::get('submissions/status/rejected', [Editor_SubmissionController::class, 'rejected'])->name('submissions.rejected');
          // Assign reviewer routes (must be before resource routes)
          Route::get('submissions/{submission}/assign-reviewer', [Editor_SubmissionController::class, 'assignReviewer'])->name('submissions.assign-reviewer');
@@ -168,6 +171,8 @@ Route::middleware('auth')->group(function () {
          // Approval workflow routes
          Route::post('submissions/{submission}/approve-article', [Editor_SubmissionController::class, 'approveArticle'])->name('submissions.approve-article');
          Route::post('submissions/{submission}/reject-approval', [Editor_SubmissionController::class, 'rejectApproval'])->name('submissions.reject-approval');
+         Route::post('submissions/{submission}/send-to-chief-editor', [Editor_SubmissionController::class, 'sendToChiefEditor'])->name('submissions.send-to-chief-editor');
+         Route::post('submissions/{submission}/send-to-editorial-assistant', [Editor_SubmissionController::class, 'sendToEditorialAssistant'])->name('submissions.send-to-editorial-assistant');
         Route::resource('submissions', Editor_SubmissionController::class);
     });
 // End Editor Role
@@ -235,10 +240,29 @@ Route::middleware('auth')->group(function () {
         Route::delete('profile/image', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantProfileController::class, 'removeImage'])->name('profile.image.remove');
         Route::put('profile/password', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantProfileController::class, 'updatePassword'])->name('profile.password.update');
         
+        // Messages - all sent messages
+        Route::get('messages', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantMessagesController::class, 'index'])->name('messages.index');
+        
         // Accepted Articles Management
+        Route::get('articles/pending-verify', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class, 'pendingVerify'])->name('articles.pending-verify');
+        Route::get('articles/pending-verify-list', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class, 'pendingVerifyList'])->name('articles.pending-verify-list');
+        Route::get('articles/verified', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class, 'verified'])->name('articles.verified');
+        Route::post('articles/{article}/send-message', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class, 'sendMessage'])->name('articles.send-message');
+        Route::post('articles/{article}/approve-verification', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class, 'approveVerification'])->name('articles.approve-verification');
+        Route::post('articles/{article}/reject-verification', [\App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class, 'rejectVerification'])->name('articles.reject-verification');
         Route::resource('articles', \App\Http\Controllers\EditorialAssistant\EditorialAssistantArticleController::class);
     });
 // End Editorial Assistant Role
+
+// Start Chief Editor Role
+    Route::middleware(['auth', 'role:chief_editor'])->prefix('chief-editor')->name('chief_editor.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ChiefEditor\ChiefEditorController::class, 'index'])->name('dashboard');
+        Route::get('articles', [\App\Http\Controllers\ChiefEditor\ChiefEditorController::class, 'articles'])->name('articles');
+        Route::get('articles/{article}', [\App\Http\Controllers\ChiefEditor\ChiefEditorController::class, 'show'])->name('articles.show');
+        Route::post('articles/{article}/accept', [\App\Http\Controllers\ChiefEditor\ChiefEditorController::class, 'accept'])->name('articles.accept');
+        Route::post('articles/{article}/reject', [\App\Http\Controllers\ChiefEditor\ChiefEditorController::class, 'reject'])->name('articles.reject');
+    });
+// End Chief Editor Role
 
 // Download route for review format files
 Route::get('/download/review-format/{file}', function ($file) {

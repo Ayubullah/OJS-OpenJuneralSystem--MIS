@@ -27,14 +27,21 @@
             <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-3 mb-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                            {{ $submission->status === 'published' ? 'bg-green-100 text-green-800' : 
-                               ($submission->status === 'under_review' ? 'bg-blue-100 text-blue-800' : 
-                               ($submission->status === 'submitted' ? 'bg-yellow-100 text-yellow-800' : 
-                               ($submission->status === 'verified' ? 'bg-emerald-100 text-emerald-800' :
-                               ($submission->status === 'accepted' ? 'bg-emerald-100 text-emerald-800' : 
-                               ($submission->status === 'pending_verify' ? 'bg-purple-100 text-purple-800' :
-                               ($submission->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')))))) }}">
+                        @php
+                            $statusBadgeClass = match($submission->status ?? '') {
+                                'published' => 'bg-green-100 text-green-800',
+                                'under_review' => 'bg-blue-100 text-blue-800',
+                                'submitted' => 'bg-yellow-100 text-yellow-800',
+                                'verified' => 'bg-emerald-100 text-emerald-800',
+                                'accepted' => 'bg-emerald-100 text-emerald-800',
+                                'chief_editor_review' => 'bg-amber-100 text-amber-800',
+                                'approved_chief_editor' => 'bg-green-100 text-green-800',
+                                'pending_verify' => 'bg-purple-100 text-purple-800',
+                                'rejected' => 'bg-red-100 text-red-800',
+                                default => 'bg-gray-100 text-gray-800',
+                            };
+                        @endphp
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusBadgeClass }}">
                             {{ ucfirst(str_replace('_', ' ', $submission->status)) }}
                         </span>
                         <span class="text-sm text-gray-500">{{ __('Version') }} {{ $submission->version_number }}</span>
@@ -49,6 +56,28 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
+                    @if($submission->status === 'accepted')
+                    <form action="{{ route('editor.submissions.send-to-chief-editor', $submission) }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" onclick="return confirm(this.dataset.confirm)"
+                                data-confirm="{{ __('Send this article to Chief Editor for review?') }}" 
+                                class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+                            <i data-lucide="shield-check" class="w-4 h-4 mr-2 inline"></i>
+                            {{ __('Send to Chief Editor') }}
+                        </button>
+                    </form>
+                    @endif
+                    @if($submission->status === 'approved_chief_editor')
+                    <form action="{{ route('editor.submissions.send-to-editorial-assistant', $submission) }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" onclick="return confirm(this.dataset.confirm)"
+                                data-confirm="{{ __('Send this article to Editorial Assistant for verification?') }}" 
+                                class="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200">
+                            <i data-lucide="send" class="w-4 h-4 mr-2 inline"></i>
+                            {{ __('Send to Editorial Assistant') }}
+                        </button>
+                    </form>
+                    @endif
                     <a href="{{ route('editor.submissions.edit', $submission) }}" 
                        class="px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
                         <i data-lucide="edit" class="w-4 h-4 mr-2 inline"></i>
@@ -63,6 +92,17 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
+            @if($submission->chief_editor_comment)
+            <!-- Chief Editor Comment (Editor only) -->
+            <div class="bg-amber-50 rounded-2xl shadow-lg border border-amber-200 p-6">
+                <h3 class="text-lg font-bold text-amber-900 mb-2 flex items-center">
+                    <i data-lucide="message-square" class="w-5 h-5 mr-2 text-amber-600"></i>
+                    {{ __('Chief Editor Comment') }}
+                </h3>
+                <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $submission->chief_editor_comment }}</p>
+            </div>
+            @endif
+
             <!-- Article Information -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Article Information') }}</h3>
@@ -73,6 +113,10 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Author') }}</label>
+                            <p class="text-sm font-semibold text-gray-900">{{ $submission->article->author->name ?? $submission->author->name ?? __('N/A') }}</p>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Journal') }}</label>
                             <p class="text-sm font-semibold text-gray-900">{{ $submission->article->journal->name ?? __('Unknown Journal') }}</p>
                         </div>
@@ -80,9 +124,41 @@
                             <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Category') }}</label>
                             <p class="text-sm font-semibold text-gray-900">{{ $submission->article->category->name ?? __('Uncategorized') }}</p>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Manuscript Type') }}</label>
+                            <p class="text-sm font-semibold text-gray-900">{{ $submission->article->manuscript_type ?? __('N/A') }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">{{ __('Word Count') }}</label>
+                            <p class="text-sm font-semibold text-gray-900">{{ number_format($submission->article->word_count ?? 0) }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Abstract -->
+            @if($submission->article->abstract)
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Abstract') }}</h3>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p class="text-gray-700 leading-relaxed">{{ $submission->article->abstract }}</p>
+                </div>
+            </div>
+            @endif
+
+            <!-- Keywords -->
+            @if($submission->article->keywords && $submission->article->keywords->count() > 0)
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Keywords') }}</h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($submission->article->keywords as $keyword)
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-sm font-medium">
+                        {{ $keyword->keyword }}
+                    </span>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             <!-- Submitted File -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -122,6 +198,30 @@
                 </div>
                 @endif
             </div>
+
+            <!-- Pending Verification File (if author uploaded for verification) -->
+            @if($submission->approval_status === 'pending' && $submission->approval_pending_file)
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i data-lucide="file-check" class="w-5 h-5 mr-2 text-orange-600"></i>
+                    {{ __('Pending Verification File') }}
+                </h3>
+                <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-purple-600"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">{{ basename($submission->approval_pending_file) }}</p>
+                            <p class="text-xs text-gray-500">{{ __('Uploaded by author for verification') }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ asset('storage/' . $submission->approval_pending_file) }}" target="_blank"
+                       class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                        {{ __('Download') }}
+                    </a>
+                </div>
+            </div>
+            @endif
 
             <!-- Plagiarism Check & Reports Section -->
             @if($submission->plagiarism_percentage !== null || $submission->ai_report_file || $submission->other_resources_report_file)
@@ -209,24 +309,28 @@
             @endif
 
             <!-- Disc Review Messages Section -->
-            @if(isset($editorMessages) && $editorMessages->where('recipient_type', 'author')->where('is_approval_request', false)->count() > 0)
+            @if(isset($editorMessages) && $editorMessages->whereIn('recipient_type', ['author', 'both'])->where('is_approval_request', false)->count() > 0)
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i data-lucide="message-square" class="w-5 h-5 mr-2 text-orange-600"></i>
                     {{ __('Disc Review Messages') }}
                 </h3>
                 <div class="space-y-4">
-                    @foreach($editorMessages->where('recipient_type', 'author')->where('is_approval_request', false) as $message)
-                    <div class="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 rounded-lg p-4">
+                    @foreach($editorMessages->whereIn('recipient_type', ['author', 'both'])->where('is_approval_request', false) as $message)
+                    <div class="rounded-lg p-4 border-2 {{ $message->is_rejection ?? false ? 'bg-red-50 border-red-300' : 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-300' }}">
                         <div class="flex items-start justify-between mb-2">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
-                                    <i data-lucide="message-circle" class="w-4 h-4 text-white"></i>
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $message->is_rejection ?? false ? 'bg-red-600' : 'bg-orange-600' }}">
+                                    <i data-lucide="{{ ($message->is_rejection ?? false) ? 'x-circle' : 'message-circle' }}" class="w-4 h-4 text-white"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900">
-                                        {{ __('Editor') }}
-                                        <span class="ml-2 px-2 py-0.5 bg-orange-600 text-white text-xs rounded-full font-bold">DISC REVIEW</span>
+                                        {{ $message->sender_type === 'editorial_assistant' ? __('Editorial Assistant') : __('Editor') }}
+                                        @if($message->is_rejection ?? false)
+                                            <span class="ml-2 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full font-bold">{{ __('REJECTION') }}</span>
+                                        @else
+                                            <span class="ml-2 px-2 py-0.5 bg-orange-600 text-white text-xs rounded-full font-bold">{{ __('DISC REVIEW') }}</span>
+                                        @endif
                                     </p>
                                     <p class="text-xs text-gray-500">{{ $message->created_at->format('M d, Y h:i A') }}</p>
                                 </div>
@@ -270,7 +374,7 @@
                                             @endif
                                         </div>
                                         <p class="text-sm text-gray-600 mt-1">
-                                            {{ __('Submitted on') }} {{ $versionSubmission->submission_date->format('F d, Y \a\t h:i A') }}
+                                            {{ __('Submitted on') }} {{ $versionSubmission->submission_date?->format('F d, Y \a\t h:i A') ?? __('N/A') }}
                                         </p>
                                         <div class="mt-2">
                                             @php
@@ -282,6 +386,8 @@
                                                     'pending_verify' => 'bg-purple-100 text-purple-800',
                                                     'verified' => 'bg-emerald-100 text-emerald-800',
                                                     'accepted' => 'bg-green-100 text-green-800',
+                                                    'chief_editor_review' => 'bg-amber-100 text-amber-800',
+                                                    'approved_chief_editor' => 'bg-lime-100 text-lime-800',
                                                     'published' => 'bg-purple-100 text-purple-800',
                                                     'rejected' => 'bg-red-100 text-red-800',
                                                 ];
@@ -689,6 +795,51 @@
                             @endif
                         </div>
                     </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <!-- Current Version Reviews -->
+            @if($submission->reviews->count() > 0)
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">{{ __('Current Version Reviews') }} ({{ $submission->reviews->count() }})</h3>
+                <div class="space-y-4">
+                    @foreach($submission->reviews as $review)
+                    @php $hasReviewData = !empty($review->comments) || !empty($review->originality_comment) || !empty($review->relationship_to_literature_comment) || !empty($review->methodology_comment) || !empty($review->results_comment) || !empty($review->implications_comment) || !empty($review->quality_of_communication_comment) || !empty($review->strengths) || !empty($review->weaknesses) || !empty($review->suggestions_for_improvement) || $review->relevance_score !== null || $review->originality_score !== null || $review->significance_score !== null || $review->technical_soundness_score !== null || $review->clarity_score !== null || $review->documentation_score !== null || $review->total_score !== null || !empty($review->final_evaluation) || !empty($review->recommendation) || $review->rating !== null; @endphp
+                    @if($hasReviewData)
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="p-4 bg-gradient-to-r from-orange-50 to-red-50 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="user-check" class="w-5 h-5 text-white"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">{{ $review->reviewer->user->name ?? __('Unknown Reviewer') }}</p>
+                                        <p class="text-xs text-gray-500">{{ $review->updated_at?->format('F d, Y h:i A') ?? __('N/A') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    @if($review->recommendation)<span class="px-2 py-1 text-xs font-medium rounded-full {{ $review->recommendation === 'acceptance' ? 'bg-green-100 text-green-800' : ($review->recommendation === 'minor_revision' ? 'bg-blue-100 text-blue-800' : ($review->recommendation === 'major_revision' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800')) }}">{{ ucfirst(str_replace('_', ' ', $review->recommendation)) }}</span>@endif
+                                    @if($review->rating)<span class="text-sm font-bold text-gray-900">{{ $review->rating }}/10</span>@endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            @if($review->comments || $review->editor_edited_comments)
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <h6 class="text-xs font-bold text-gray-900 mb-2">{{ __('Review Comments') }}</h6>
+                                <div class="text-sm text-gray-700 leading-relaxed ql-editor">{!! $review->editor_edited_comments ?? $review->comments !!}</div>
+                            </div>
+                            @endif
+                            @if($review->total_score !== null)<p class="text-sm"><span class="font-semibold text-gray-700">{{ __('Total Score') }}:</span> {{ number_format($review->total_score, 1) }}/60</p>@endif
+                            @if($review->strengths)<div class="bg-green-50 border border-green-200 rounded-lg p-3"><h6 class="text-xs font-bold text-gray-900 mb-1">{{ __('Strengths') }}</h6><p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $review->strengths }}</p></div>@endif
+                            @if($review->weaknesses)<div class="bg-red-50 border border-red-200 rounded-lg p-3"><h6 class="text-xs font-bold text-gray-900 mb-1">{{ __('Weaknesses') }}</h6><p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $review->weaknesses }}</p></div>@endif
+                            @if($review->suggestions_for_improvement)<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3"><h6 class="text-xs font-bold text-gray-900 mb-1">{{ __('Suggestions') }}</h6><p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $review->suggestions_for_improvement }}</p></div>@endif
+                        </div>
+                    </div>
+                    @endif
                     @endforeach
                 </div>
             </div>

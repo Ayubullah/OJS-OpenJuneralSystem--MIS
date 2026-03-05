@@ -42,7 +42,7 @@ class UserController extends Controller
             'username' => 'required|string|max:50|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,editor,editorial_assistant,reviewer,author',
+            'role' => 'required|in:admin,editor,chief_editor,editorial_assistant,reviewer,author',
             'status' => 'required|in:active,inactive'
         ];
 
@@ -176,7 +176,7 @@ class UserController extends Controller
             'username' => 'required|string|max:50|unique:users,username,' . $user->id,
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|in:admin,editor,editorial_assistant,reviewer,author',
+            'role' => 'required|in:admin,editor,chief_editor,editorial_assistant,reviewer,author',
             'status' => 'required|in:active,inactive'
         ];
 
@@ -318,6 +318,17 @@ class UserController extends Controller
     public function editorialAssistants()
     {
         $users = User::where('role', 'editorial_assistant')->latest()->paginate(10);
-        return view('admin.users.index', compact('users'));
+        $roleFilter = 'editorial_assistant';
+        return view('admin.users.index', compact('users', 'roleFilter'));
+    }
+
+    /**
+     * Display a listing of chief editors.
+     */
+    public function chiefEditors()
+    {
+        $users = User::where('role', 'chief_editor')->latest()->paginate(10);
+        $roleFilter = 'chief_editor';
+        return view('admin.users.index', compact('users', 'roleFilter'));
     }
 }

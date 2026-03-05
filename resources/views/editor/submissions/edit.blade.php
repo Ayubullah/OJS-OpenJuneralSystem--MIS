@@ -131,6 +131,8 @@
                             <option value="verified" {{ old('status', $submission->status) === 'verified' ? 'selected' : '' }}>{{ __('Verified') }}</option>
                             <option value="plagiarism" {{ old('status', $submission->status) === 'plagiarism' ? 'selected' : '' }}>{{ __('Plagiarism') }}</option>
                             <option value="accepted" {{ old('status', $submission->status) === 'accepted' ? 'selected' : '' }}>{{ __('Accepted') }}</option>
+                            <option value="chief_editor_review" {{ old('status', $submission->status) === 'chief_editor_review' ? 'selected' : '' }}>{{ __('Chief Editor Review') }}</option>
+                            <option value="approved_chief_editor" {{ old('status', $submission->status) === 'approved_chief_editor' ? 'selected' : '' }}>{{ __('Approved by Chief Editor') }}</option>
                             <option value="published" {{ old('status', $submission->status) === 'published' ? 'selected' : '' }}>{{ __('Published') }}</option>
                             <option value="rejected" {{ old('status', $submission->status) === 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                         </select>

@@ -792,18 +792,20 @@
                 @endif
             </div>
             
-            <!-- Editor Messages & Disc Review Section -->
-            @if(isset($editorMessages) && $editorMessages->count() > 0)
+            <!-- Editor Messages & Verification Section (show when pending_verify or has messages) -->
+            @if(isset($editorMessages) && ($editorMessages->count() > 0 || $article->status === 'pending_verify'))
             <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-bold text-gray-900 flex items-center">
                             <i data-lucide="message-square" class="w-5 h-5 mr-2 text-blue-600"></i>
-                            {{ __('Messages from Editor & Disc Review') }}
+                            {{ __('Messages & Verification') }}
                         </h3>
+                        @if($editorMessages->count() > 0)
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white">
                             {{ $editorMessages->count() }} {{ $editorMessages->count() == 1 ? __('Message') : __('Messages') }}
                         </span>
+                        @endif
                     </div>
                 </div>
                 <div class="p-6">
@@ -816,22 +818,45 @@
                                                 (!$latestSubmission || $latestSubmission->approval_status !== 'pending');
                             $hasPendingFile = $latestSubmission && $latestSubmission->approval_status === 'pending' && $latestSubmission->approval_pending_file;
                         @endphp
+
+                        @if($editorMessages->count() === 0 && $article->status === 'pending_verify')
+                        <!-- Pending Verify - awaiting Editorial Assistant verification request -->
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-200 rounded-lg p-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="send" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-900">{{ __('Article with Editorial Assistant') }}</h4>
+                                    <p class="text-sm text-gray-700 mt-2">{{ __('Your article has been sent to the Editorial Assistant for verification. They will send you a verification request with instructions when they need you to upload a revised file. Please check back for messages.') }}</p>
+                                    <p class="text-xs text-teal-600 font-medium mt-3 flex items-center">
+                                        <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                                        {{ __('Awaiting verification request from Editorial Assistant') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                         
                         @foreach($editorMessages as $message)
-                        <div class="bg-gradient-to-r {{ $message->is_approval_request ? 'from-purple-50 to-pink-50 border-purple-300' : ($message->recipient_type === 'author' && !$message->is_approval_request ? 'from-orange-50 to-red-50 border-orange-300' : 'from-blue-50 to-indigo-50 border-blue-200') }} border-2 rounded-lg p-4">
+                        <div class="bg-gradient-to-r {{ ($message->is_rejection ?? false) ? 'from-red-50 to-rose-50 border-red-300' : ($message->is_approval_request ? 'from-purple-50 to-pink-50 border-purple-300' : ($message->recipient_type === 'author' && !$message->is_approval_request ? 'from-orange-50 to-red-50 border-orange-300' : 'from-blue-50 to-indigo-50 border-blue-200')) }} border-2 rounded-lg p-4">
                             <div class="flex items-start justify-between mb-2">
                                 <div class="flex items-center space-x-2">
-                                    <div class="w-8 h-8 {{ $message->is_approval_request ? 'bg-purple-600' : ($message->recipient_type === 'author' && !$message->is_approval_request ? 'bg-orange-600' : ($message->sender_type === 'admin' ? 'bg-indigo-600' : 'bg-blue-600')) }} rounded-full flex items-center justify-center">
-                                        <i data-lucide="{{ $message->sender_type === 'admin' ? 'shield' : ($message->recipient_type === 'author' && !$message->is_approval_request ? 'message-circle' : 'user-check') }}" class="w-4 h-4 text-white"></i>
+                                    <div class="w-8 h-8 {{ ($message->is_rejection ?? false) ? 'bg-red-600' : ($message->is_approval_request ? 'bg-purple-600' : ($message->recipient_type === 'author' && !$message->is_approval_request ? 'bg-orange-600' : ($message->sender_type === 'admin' ? 'bg-indigo-600' : ($message->sender_type === 'editorial_assistant' ? 'bg-teal-600' : 'bg-blue-600')))) }} rounded-full flex items-center justify-center">
+                                        <i data-lucide="{{ ($message->is_rejection ?? false) ? 'x-circle' : ($message->sender_type === 'admin' ? 'shield' : ($message->sender_type === 'editorial_assistant' ? 'user-check' : ($message->recipient_type === 'author' && !$message->is_approval_request ? 'message-circle' : 'user-check'))) }}" class="w-4 h-4 text-white"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm font-semibold text-gray-900">
-                                            {{ $message->sender_type === 'admin' ? __('Admin') : __('Editor') }}
+                                            {{ $message->sender_type === 'admin' ? __('Admin') : ($message->sender_type === 'editorial_assistant' ? __('Editorial Assistant') : __('Editor')) }}
                                             @if($message->sender_type === 'admin')
                                                 <span class="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded-full">Admin</span>
+                                            @elseif($message->sender_type === 'editorial_assistant')
+                                                <span class="ml-2 px-2 py-0.5 bg-teal-100 text-teal-800 text-xs rounded-full">Editorial Assistant</span>
                                             @endif
                                             @if($message->is_approval_request)
                                                 <span class="ml-2 px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full font-bold">VERIFICATION REQUEST</span>
+                                            @elseif($message->is_rejection ?? false)
+                                                <span class="ml-2 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full font-bold">{{ __('REJECTION') }}</span>
                                             @elseif($message->recipient_type === 'author')
                                                 <span class="ml-2 px-2 py-0.5 bg-orange-600 text-white text-xs rounded-full font-bold">DISC REVIEW</span>
                                             @endif
@@ -854,8 +879,8 @@
                                     <i data-lucide="upload" class="w-5 h-5 text-white"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-900">Upload Revised File for Verification</h4>
-                                    <p class="text-sm text-gray-600">Please upload your revised file for editor verification</p>
+                                    <h4 class="text-lg font-bold text-gray-900">{{ __('Upload Revised File for Verification') }}</h4>
+                                    <p class="text-sm text-gray-600">{{ __('Please upload your revised file for editorial assistant verification') }}</p>
                                 </div>
                             </div>
                             
@@ -900,7 +925,7 @@
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-gray-900">File Already Uploaded</h4>
-                                    <p class="text-sm text-gray-600">Your file is pending editor review. You cannot upload another file until the editor reviews this one.</p>
+                                    <p class="text-sm text-gray-600">{{ __('Your file is pending editorial assistant review. You cannot upload another file until it is reviewed.') }}</p>
                                 </div>
                             </div>
                             
@@ -915,7 +940,7 @@
                                 </div>
                                 <p class="text-xs text-yellow-600 mt-2 font-semibold flex items-center">
                                     <i data-lucide="clock" class="w-3 h-3 mr-1"></i>
-                                    ⏳ Waiting for editor review - Uploaded on {{ $latestSubmission->updated_at->format('M d, Y H:i') }}
+                                    ⏳ {{ __('Waiting for editorial assistant review') }} - {{ __('Uploaded on') }} {{ $latestSubmission->updated_at->format('M d, Y H:i') }}
                                 </p>
                             </div>
                         </div>
@@ -924,14 +949,17 @@
                         <!-- Previously Uploaded File (if rejected or approved) -->
                         @if($latestSubmission && $latestSubmission->approval_pending_file && !$hasPendingFile)
                         <div class="mt-4 p-4 bg-white border border-purple-200 rounded-lg">
-                            <p class="text-sm font-semibold text-gray-900 mb-2">Previously Uploaded File:</p>
+                            <p class="text-sm font-semibold text-gray-900 mb-2">{{ __('Previously Uploaded File') }}:</p>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">{{ basename($latestSubmission->approval_pending_file) }}</span>
                                 <a href="{{ asset('storage/' . $latestSubmission->approval_pending_file) }}" target="_blank"
                                    class="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                                    Download
+                                    {{ __('Download') }}
                                 </a>
                             </div>
+                            @if($latestSubmission->approval_message)
+                            <p class="text-xs text-gray-600 mt-2 italic">{{ __('Your note') }}: {{ $latestSubmission->approval_message }}</p>
+                            @endif
                                 @if($latestSubmission->approval_status === 'rejected')
                                 <p class="text-xs text-red-600 mt-2 font-semibold">❌ Verification rejected. Please upload a new file.</p>
                                 @elseif($latestSubmission->approval_status === 'verified')

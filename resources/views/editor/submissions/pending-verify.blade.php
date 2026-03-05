@@ -31,7 +31,7 @@
                 </span>
             </div>
             <p class="mt-1 text-sm text-gray-600">
-                {{ __('Review files uploaded by authors for verification') }}
+                {{ __('Articles sent to Editorial Assistant and files uploaded by authors for verification') }}
             </p>
         </div>
     </div>
@@ -63,16 +63,17 @@
     @if($submissions->count() > 0)
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
-            <h2 class="text-lg font-bold text-gray-900">{{ __('Pending Verification Files') }} ({{ $submissions->total() }})</h2>
+            <h2 class="text-lg font-bold text-gray-900">{{ __('Pending Verification') }} ({{ $submissions->total() }})</h2>
         </div>
         <div class="divide-y divide-gray-200">
             @foreach($submissions as $submission)
+            @php $hasFile = $submission->approval_pending_file && $submission->approval_status === 'pending'; @endphp
             <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <div class="flex items-center space-x-3 mb-3">
                             <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                                <i data-lucide="file-check" class="w-6 h-6 text-white"></i>
+                                <i data-lucide="{{ $hasFile ? 'file-check' : 'send' }}" class="w-6 h-6 text-white"></i>
                             </div>
                             <div class="flex-1">
                                 <h3 class="text-lg font-bold text-gray-900">{{ $submission->article->title ?? 'Untitled Article' }}</h3>
@@ -85,10 +86,20 @@
                                         <i data-lucide="calendar" class="w-4 h-4 mr-1"></i>
                                         {{ $submission->updated_at->format('M d, Y H:i') }}
                                     </span>
+                                    @if($hasFile)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                        {{ __('File uploaded') }}
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-800">
+                                        {{ __('With Editorial Assistant') }}
+                                    </span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
 
+                        @if($hasFile)
                         <!-- File Information -->
                         <div class="ml-15 mt-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
                             <div class="flex items-center justify-between">
@@ -96,7 +107,7 @@
                                     <i data-lucide="file-text" class="w-5 h-5 text-purple-600"></i>
                                     <div>
                                         <p class="text-sm font-semibold text-gray-900">{{ basename($submission->approval_pending_file) }}</p>
-                                        <p class="text-xs text-gray-500">Uploaded for verification</p>
+                                        <p class="text-xs text-gray-500">{{ __('Uploaded for verification') }}</p>
                                     </div>
                                 </div>
                                 <a href="{{ asset('storage/' . $submission->approval_pending_file) }}" target="_blank" 
@@ -133,6 +144,25 @@
                                 {{ __('View Details') }}
                             </a>
                         </div>
+                        @else
+                        <!-- Sent to Editorial Assistant - no file yet -->
+                        <div class="ml-15 mt-4 p-4 bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i data-lucide="send" class="w-5 h-5 text-teal-600"></i>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">{{ __('Sent to Editorial Assistant') }}</p>
+                                        <p class="text-xs text-gray-500">{{ __('Awaiting verification workflow. The Editorial Assistant will send verification request to the author when ready.') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('editor.submissions.show', $submission) }}" 
+                                   class="inline-flex items-center px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors duration-200">
+                                    <i data-lucide="eye" class="w-4 h-4 mr-2"></i>
+                                    {{ __('View Details') }}
+                                </a>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -149,8 +179,8 @@
         <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i data-lucide="file-check" class="w-8 h-8 text-purple-600"></i>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('No Pending Verification Files') }}</h3>
-        <p class="text-sm text-gray-600">{{ __('There are no files waiting for verification at the moment.') }}</p>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('No Pending Verification') }}</h3>
+        <p class="text-sm text-gray-600">{{ __('No articles are pending verification. Articles sent to Editorial Assistant or with uploaded files will appear here.') }}</p>
     </div>
     @endif
 </div>

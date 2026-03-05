@@ -1,65 +1,46 @@
-@extends('layout.app_editorial_assistant')
+@extends('layout.app_chief_editor')
 
-@section('title', __('Articles'))
-@section('page-title', __('Articles'))
-@section('page-description', __('Pending Verify, Not Verified, and Verified articles'))
+@section('title', __('Articles for Review'))
+@section('page-title', __('Articles for Review'))
+@section('page-description', __('Review articles sent by Editor'))
 
 @section('breadcrumb')
 <li class="flex items-center">
     <i data-lucide="home" class="w-4 h-4 text-gray-400"></i>
-    <a href="{{ route('editorial_assistant.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{{ __('Dashboard') }}</a>
+    <a href="{{ route('chief_editor.dashboard') }}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">{{ __('Dashboard') }}</a>
 </li>
 <li class="flex items-center">
     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-    <span class="text-sm font-medium text-gray-500">{{ __('Articles') }}</span>
+    <span class="text-sm font-medium text-gray-500">{{ __('Articles for Review') }}</span>
 </li>
 @endsection
 
 @section('content')
 <div class="bg-white rounded-lg shadow-sm">
     <!-- Header Section -->
-    <div class="bg-gradient-to-r from-teal-50 to-cyan-50 px-6 py-4 rounded-t-lg border-b border-gray-200">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 rounded-t-lg border-b border-gray-200">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">{{ __('Articles (:count)', ['count' => $articles->total()]) }}</h1>
-                <p class="text-sm text-gray-600 mt-1">{{ __('Pending Verify, Not Verified, and Verified articles') }}</p>
+                <h1 class="text-2xl font-bold text-gray-800">{{ __('Articles Pending Review (:count)', ['count' => $articles->total()]) }}</h1>
+                <p class="text-sm text-gray-600 mt-1">{{ __('Review and approve or reject articles sent by editors') }}</p>
             </div>
         </div>
     </div>
 
-    <!-- Status Filter Tabs -->
-    <div class="bg-white border-b border-gray-200 px-6 py-3 flex flex-wrap gap-2">
-        <a href="{{ route('editorial_assistant.articles.index', array_merge(request()->except('status'), ['status' => 'all'])) }}" 
-           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ ($statusFilter ?? 'all') === 'all' ? 'bg-teal-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-            {{ __('All') }}
-        </a>
-        <a href="{{ route('editorial_assistant.articles.index', array_merge(request()->except('status'), ['status' => 'pending_verify'])) }}" 
-           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ ($statusFilter ?? '') === 'pending_verify' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-            {{ __('Pending Verify') }}
-        </a>
-        <a href="{{ route('editorial_assistant.articles.index', array_merge(request()->except('status'), ['status' => 'verified'])) }}" 
-           class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ ($statusFilter ?? '') === 'verified' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-            {{ __('Verified') }}
-        </a>
-    </div>
-
     <!-- Search and Filter Section -->
     <div class="bg-white border-b border-gray-200 px-6 py-4">
-        <form method="GET" action="{{ route('editorial_assistant.articles.index') }}" class="space-y-4">
-            @if(request('status'))
-            <input type="hidden" name="status" value="{{ request('status') }}">
-            @endif
+        <form method="GET" action="{{ route('chief_editor.articles') }}" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Search Input -->
                 <div class="md:col-span-2">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Search') }}</label>
                     <div class="relative">
-                        <input type="text" 
-                               id="search" 
+                        <input type="text"
+                               id="search"
                                name="search"
                                value="{{ request('search') }}"
-                               placeholder="{{ __('Search by title, author, or journal...') }}" 
-                               class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                               placeholder="{{ __('Search by title, author, or journal...') }}"
+                               class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
                         <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                     </div>
                 </div>
@@ -67,9 +48,9 @@
                 <!-- Journal Filter -->
                 <div>
                     <label for="journal_id" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Journal') }}</label>
-                    <select id="journal_id" 
+                    <select id="journal_id"
                             name="journal_id"
-                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
                         <option value="">{{ __('All Journals') }}</option>
                         @foreach($journals as $journal)
                         <option value="{{ $journal->id }}" {{ request('journal_id') == $journal->id ? 'selected' : '' }}>{{ $journal->name }}</option>
@@ -80,9 +61,9 @@
                 <!-- Category Filter -->
                 <div>
                     <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Category') }}</label>
-                    <select id="category_id" 
+                    <select id="category_id"
                             name="category_id"
-                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
                         <option value="">{{ __('All Categories') }}</option>
                         @foreach($categories as $category)
                         <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
@@ -93,13 +74,13 @@
 
             <!-- Action Buttons -->
             <div class="flex items-center justify-end space-x-3">
-                <a href="{{ route('editorial_assistant.articles.index') }}" 
-                   class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-200">
+                <a href="{{ route('chief_editor.articles') }}"
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200">
                     <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
                     {{ __('Clear') }}
                 </a>
-                <button type="submit" 
-                        class="px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white text-sm font-medium rounded-lg hover:from-teal-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-200">
+                <button type="submit"
+                        class="px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white text-sm font-medium rounded-lg hover:from-amber-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200">
                     <i data-lucide="search" class="w-4 h-4 inline mr-1"></i>
                     {{ __('Search') }}
                 </button>
@@ -116,14 +97,13 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Author') }}</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Journal') }}</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Category') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Status') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Date') }}</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Action') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Sent Date') }}</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Actions') }}</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($articles as $article)
-                <tr class="hover:bg-gray-50 transition-colors">
+                <tr class="hover:bg-amber-50/50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">{{ Str::limit($article->title, 50) }}</div>
                     </td>
@@ -137,28 +117,23 @@
                         <div class="text-sm text-gray-900">{{ $article->category->name ?? __('N/A') }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $article->status === 'verified' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800' }}">
-                            {{ ucfirst(str_replace('_', ' ', $article->status)) }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">{{ $article->updated_at->format('M d, Y') }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('editorial_assistant.articles.show', $article) }}" 
-                           class="text-teal-600 hover:text-teal-900 inline-flex items-center">
+                        <a href="{{ route('chief_editor.articles.show', $article) }}"
+                           class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all duration-200 shadow-sm">
                             <i data-lucide="eye" class="w-4 h-4 mr-1"></i>
-                            {{ __('View') }}
+                            {{ __('Review') }}
                         </a>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-12 text-center">
+                    <td colspan="6" class="px-6 py-12 text-center">
                         <div class="flex flex-col items-center">
                             <i data-lucide="file-x" class="w-12 h-12 text-gray-400 mb-4"></i>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('No articles found') }}</h3>
-                            <p class="text-sm text-gray-500">{{ __('Try adjusting your search or status filter') }}</p>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('No articles pending review') }}</h3>
+                            <p class="text-sm text-gray-500">{{ __('Try adjusting your search filters') }}</p>
                         </div>
                     </td>
                 </tr>
@@ -174,11 +149,5 @@
     </div>
     @endif
 </div>
-
-<script>
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-</script>
+<script>if (typeof lucide !== 'undefined') lucide.createIcons();</script>
 @endsection
-

@@ -5,54 +5,18 @@ namespace App\Http\Controllers\EditorialAssistant;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Submission;
-use App\Models\EditorialAssistant;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EditorialAssistantController extends Controller
 {
     /**
-     * Get journal IDs for the current editorial assistant
-     */
-    protected function getEditorialAssistantJournalIds()
-    {
-        $editorialAssistants = EditorialAssistant::where('user_id', Auth::id())
-            ->where('status', 'active')
-            ->get();
-        
-        // If any record has null journal_id, they have access to all journals
-        $hasAllJournals = $editorialAssistants->contains(function($assistant) {
-            return $assistant->journal_id === null;
-        });
-        
-        if ($hasAllJournals) {
-            return null; // null means all journals
-        }
-        
-        // Otherwise, return array of specific journal IDs
-        $journalIds = $editorialAssistants->pluck('journal_id')->filter()->toArray();
-        return !empty($journalIds) ? $journalIds : null;
-    }
-
-    /**
      * Display the dashboard.
      */
     public function index()
     {
-        $journalIds = $this->getEditorialAssistantJournalIds();
-        
-        // Build query for accepted articles
-        $articlesQuery = Article::where('status', 'accepted');
-        $submissionsQuery = Submission::where('status', 'accepted');
-        
-        // Filter by journal if assigned to specific journals
-        if ($journalIds !== null) {
-            $articlesQuery->whereIn('journal_id', $journalIds);
-            $submissionsQuery->whereHas('article', function($q) use ($journalIds) {
-                $q->whereIn('journal_id', $journalIds);
-            });
-        }
+        // Build query for accepted articles - all accepted and approved_chief_editor articles visible to editorial assistants
+        $articlesQuery = Article::whereIn('status', ['accepted', 'approved_chief_editor']);
+        $submissionsQuery = Submission::whereIn('status', ['accepted', 'approved_chief_editor']);
 
         // Statistics for accepted articles
         $stats = [
@@ -78,47 +42,27 @@ class EditorialAssistantController extends Controller
             ->get();
 
         // Monthly accepted articles trend (last 6 months)
-        $monthlyQuery = Article::select(
+        $monthly_accepted = Article::select(
                 DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
                 DB::raw('count(*) as total')
             )
-            ->where('status', 'accepted')
-            ->where('created_at', '>=', now()->subMonths(6));
-        
-        if ($journalIds !== null) {
-            $monthlyQuery->whereIn('journal_id', $journalIds);
-        }
-        
-        $monthly_accepted = $monthlyQuery
+            ->whereIn('status', ['accepted', 'approved_chief_editor'])
+            ->where('created_at', '>=', now()->subMonths(6))
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
         // Accepted articles by journal
-        $journalStatsQuery = Article::select('journal_id', DB::raw('count(*) as total'))
-            ->where('status', 'accepted');
-        
-        if ($journalIds !== null) {
-            $journalStatsQuery->whereIn('journal_id', $journalIds);
-        }
-        
-        $accepted_by_journal = $journalStatsQuery
+        $accepted_by_journal = Article::select('journal_id', DB::raw('count(*) as total'))
+            ->whereIn('status', ['accepted', 'approved_chief_editor'])
             ->with('journal:id,name')
             ->groupBy('journal_id')
             ->orderBy('total', 'desc')
             ->limit(5)
             ->get();
 
-        // Get journal names for the editorial assistant
-        $journalNames = [];
-        if ($journalIds === null) {
-            $journalNames = ['All Journals'];
-        } else {
-            $journalNames = \App\Models\Journal::whereIn('id', $journalIds)
-                ->where('status', 'active')
-                ->pluck('name')
-                ->toArray();
-        }
+        // All journals - editorial assistants see all accepted articles
+        $journalNames = ['All Journals'];
 
         return view('editorial_assistant.dashboard', compact(
             'stats',
