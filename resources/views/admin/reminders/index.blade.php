@@ -81,6 +81,13 @@
                     <span class="ml-2 px-2 py-0.5 bg-purple-500 text-white text-xs font-bold rounded-full">{{ $editorMessages->count() }}</span>
                     @endif
                 </button>
+                <button onclick="showAdminTab('eaMessages')" id="adminEaMessagesTab" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                    <i data-lucide="message-circle" class="w-4 h-4 inline mr-2"></i>
+                    From Editorial Assistant
+                    @if(isset($eaMessagesToAdmin) && $eaMessagesToAdmin->count() > 0)
+                    <span class="ml-2 px-2 py-0.5 bg-teal-500 text-white text-xs font-bold rounded-full">{{ $eaMessagesToAdmin->count() }}</span>
+                    @endif
+                </button>
             </nav>
         </div>
 
@@ -218,6 +225,46 @@
             <div class="text-center py-8">
                 <i data-lucide="user-cog" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
                 <p class="text-sm text-gray-500">No messages sent to editors yet</p>
+            </div>
+            @endif
+        </div>
+
+        <!-- From Editorial Assistant Tab -->
+        <div id="adminEaMessagesTabContent" class="tab-content p-4 hidden">
+            @if(isset($eaMessagesToAdmin) && $eaMessagesToAdmin->count() > 0)
+            <div class="space-y-2">
+                @foreach($eaMessagesToAdmin as $message)
+                <div class="bg-white rounded-lg border border-teal-200 p-3 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start gap-2">
+                        <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-white">{{ substr($message->editor->name ?? 'EA', 0, 1) }}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? 'Editorial Assistant' }}</span>
+                                    @if($message->article_id)
+                                    <span class="text-xs text-gray-500">• Article ID: {{ $message->article_id }}</span>
+                                    <span class="text-xs text-gray-600 font-medium">{{ Str::limit($message->article->title ?? '', 40) }}</span>
+                                    @endif
+                                </div>
+                                <span class="text-xs text-gray-500 whitespace-nowrap ml-2">{{ $message->created_at->format('M d, h:i A') }}</span>
+                            </div>
+                            <p class="text-xs text-gray-700 line-clamp-2 mb-1">{{ Str::limit($message->message, 120) }}</p>
+                            @if(!empty($message->attachment_path))
+                            <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank" download class="text-xs text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1 mt-1">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> {{ basename($message->attachment_path) }}
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <div class="text-center py-8">
+                <i data-lucide="message-circle" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
+                <p class="text-sm text-gray-500">No messages from Editorial Assistant yet</p>
             </div>
             @endif
         </div>
@@ -382,9 +429,11 @@
         document.getElementById('adminAuthorMessagesTabContent').classList.add('hidden');
         document.getElementById('adminReviewerMessagesTabContent').classList.add('hidden');
         document.getElementById('adminEditorMessagesTabContent').classList.add('hidden');
+        const eaContent = document.getElementById('adminEaMessagesTabContent');
+        if (eaContent) eaContent.classList.add('hidden');
         
         // Remove active class from all tabs
-        const tabs = ['adminAuthorMessagesTab', 'adminReviewerMessagesTab', 'adminEditorMessagesTab'];
+        const tabs = ['adminAuthorMessagesTab', 'adminReviewerMessagesTab', 'adminEditorMessagesTab', 'adminEaMessagesTab'];
         tabs.forEach(tabId => {
             const tab = document.getElementById(tabId);
             if (tab) {
@@ -406,6 +455,10 @@
             document.getElementById('adminEditorMessagesTabContent').classList.remove('hidden');
             document.getElementById('adminEditorMessagesTab').classList.add('active', 'text-indigo-600', 'border-indigo-600');
             document.getElementById('adminEditorMessagesTab').classList.remove('text-gray-500', 'border-transparent');
+        } else if (tabName === 'eaMessages' && document.getElementById('adminEaMessagesTabContent')) {
+            document.getElementById('adminEaMessagesTabContent').classList.remove('hidden');
+            document.getElementById('adminEaMessagesTab').classList.add('active', 'text-indigo-600', 'border-indigo-600');
+            document.getElementById('adminEaMessagesTab').classList.remove('text-gray-500', 'border-transparent');
         }
     }
 

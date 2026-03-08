@@ -813,8 +813,7 @@
                         @php
                             $latestSubmission = $article->submissions->sortByDesc('version_number')->first();
                             $hasApprovalRequest = $editorMessages->where('is_approval_request', true)->count() > 0;
-                            $canUploadApproval = $article->status === 'pending_verify' && 
-                                                (!$latestSubmission || $latestSubmission->approval_status !== 'verified') &&
+                            $canUploadApproval = $article->status === 'pending_verify' &&
                                                 (!$latestSubmission || $latestSubmission->approval_status !== 'pending');
                             $hasPendingFile = $latestSubmission && $latestSubmission->approval_status === 'pending' && $latestSubmission->approval_pending_file;
                         @endphp
@@ -867,6 +866,16 @@
                             </div>
                             <div class="mt-3">
                                 <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ $message->message }}</p>
+                                @if(!empty($message->attachment_path))
+                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                    <p class="text-xs font-medium text-gray-600 mb-1">{{ __('Attached file') }}:</p>
+                                    <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank" download
+                                       class="inline-flex items-center text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                        <i data-lucide="download" class="w-4 h-4 mr-1"></i>
+                                        {{ basename($message->attachment_path) }}
+                                    </a>
+                                </div>
+                                @endif
                             </div>
                         </div>
                         @endforeach

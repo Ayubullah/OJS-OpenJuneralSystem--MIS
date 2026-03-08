@@ -1268,17 +1268,35 @@
                     </button>
                 </div>
                 
-                <form method="POST" action="{{ route('editorial_assistant.articles.send-message', $article) }}">
+                <form method="POST" action="{{ route('editorial_assistant.articles.send-message', $article) }}" enctype="multipart/form-data">
                     @csrf
+                    <div class="mb-4">
+                        <label for="eaRecipientType" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Send To') }} *</label>
+                        <select id="eaRecipientType" name="recipient_type" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                            <option value="author">{{ __('Author') }}</option>
+                            <option value="admin">{{ __('Admin') }}</option>
+                            <option value="editor">{{ __('Editor') }}</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Choose who will receive this message') }}</p>
+                    </div>
                     <div class="mb-4">
                         <label for="eaMessageText" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Message') }} *</label>
                         <textarea id="eaMessageText" name="message" rows="6" required
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                                  placeholder="{{ __('Enter your message to the author...') }}"></textarea>
-                        <p class="text-xs text-gray-500 mt-1">{{ __('This message will be sent to the author') }}</p>
+                                  placeholder="{{ __('Enter your message...') }}"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('This message will be sent to the selected recipient') }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="eaVerificationFile" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Attach file (optional)') }}</label>
+                        <input type="file" id="eaVerificationFile" name="verification_attachment"
+                               accept=".pdf,.doc,.docx"
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700">
+                        <p class="text-xs text-gray-500 mt-1">{{ __('PDF, DOC, DOCX. Max 10MB. Author can download this when you send for verification.') }}</p>
                     </div>
                     
-                    @if((in_array($submission->status, ['accepted', 'verified', 'approved_chief_editor', 'pending_verify']) || in_array($article->status, ['accepted', 'verified', 'approved_chief_editor', 'pending_verify'])) && $submission->approval_status !== 'pending' && $submission->approval_status !== 'verified')
+                    @if((in_array($submission->status, ['accepted', 'verified', 'approved_chief_editor', 'pending_verify']) || in_array($article->status, ['accepted', 'verified', 'approved_chief_editor', 'pending_verify'])) && $submission->approval_status !== 'pending')
                     <div class="mb-4">
                         <div class="flex items-start space-x-3 p-4 bg-teal-50 border border-teal-200 rounded-lg">
                             <input type="checkbox" id="eaSendForVerification" name="send_for_verification" value="1" 

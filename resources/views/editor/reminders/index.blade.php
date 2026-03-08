@@ -281,8 +281,8 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? __('Admin') }}</span>
-                                    <span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-bold rounded">{{ __('Admin') }}</span>
+                                    <span class="text-sm font-semibold text-gray-900">{{ $message->editor->name ?? ($message->sender_type === 'editorial_assistant' ? __('Editorial Assistant') : __('Admin')) }}</span>
+                                    <span class="px-1.5 py-0.5 {{ $message->sender_type === 'editorial_assistant' ? 'bg-teal-100 text-teal-700' : 'bg-indigo-100 text-indigo-700' }} text-xs font-bold rounded">{{ $message->sender_type === 'editorial_assistant' ? __('Editorial Assistant') : __('Admin') }}</span>
                                     @if($message->article_id)
                                     <span class="text-xs text-gray-500">• {{ __('Article ID') }}: {{ $message->article_id }}</span>
                                     <span class="text-xs text-gray-600 font-medium">{{ $message->article->title ?? __('Untitled Article') }}</span>
@@ -291,6 +291,11 @@
                                 <span class="text-xs text-gray-500 whitespace-nowrap">{{ $message->created_at->format('M d, h:i A') }}</span>
                             </div>
                             <p class="text-sm text-gray-700 line-clamp-2">{{ Str::limit($message->message, 150) }}</p>
+                            @if(!empty($message->attachment_path))
+                            <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank" download class="text-xs text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1 mt-1">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> {{ basename($message->attachment_path) }}
+                            </a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -299,7 +304,7 @@
             @else
             <div class="text-center py-8">
                 <i data-lucide="shield" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
-                <p class="text-sm text-gray-500">{{ __('No admin messages yet') }}</p>
+                <p class="text-sm text-gray-500">{{ __('No messages from Admin or Editorial Assistant yet') }}</p>
             </div>
             @endif
         </div>

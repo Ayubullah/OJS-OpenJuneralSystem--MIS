@@ -16,6 +16,7 @@ class EditorMessage extends Model
         'reviewer_id',
         'editor_recipient_id',
         'message',
+        'attachment_path',
         'recipient_type',
         'is_approval_request',
         'is_rejection'

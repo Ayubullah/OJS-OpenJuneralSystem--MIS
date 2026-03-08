@@ -519,8 +519,11 @@ class Editor_SubmissionController extends Controller
             'version_number' => $request->version_number
         ];
 
-        // Handle approval_status if provided
-        if ($request->has('approval_status')) {
+        // Handle approval_status if provided; when setting status to pending_verify, reset approval for new round
+        if ($request->status === 'pending_verify') {
+            $updateData['approval_status'] = null;
+            $updateData['approval_pending_file'] = null;
+        } elseif ($request->has('approval_status')) {
             $updateData['approval_status'] = $request->approval_status ?: null;
         }
 
@@ -994,20 +997,16 @@ class Editor_SubmissionController extends Controller
         $request->validate([
             'message' => 'required|string|min:10|max:2000',
             'recipient_type' => 'required|in:author,reviewer,both',
-            'send_for_approval' => 'nullable|boolean'
+            'send_for_approval' => 'nullable|boolean',
+            'verification_attachment' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
         // Validate approval request
         $sendForApproval = $request->has('send_for_approval') && $request->send_for_approval;
         if ($sendForApproval) {
-            // Check if approval is already pending or approved
             if ($submission->approval_status === 'pending') {
                 return redirect()->back()
                     ->with('error', 'A verification request is already pending. Please wait for the author to upload a file.');
-            }
-            if ($submission->approval_status === 'verified') {
-                return redirect()->back()
-                    ->with('error', 'This article has already been verified.');
             }
             // Approval requests can only be sent to authors
             if ($request->recipient_type !== 'author' && $request->recipient_type !== 'both') {
@@ -1023,22 +1022,35 @@ class Editor_SubmissionController extends Controller
 
             // Store message for author if recipient is author or both
             if ($request->recipient_type === 'author' || $request->recipient_type === 'both') {
+                $attachmentPath = null;
+                if ($request->hasFile('verification_attachment')) {
+                    $file = $request->file('verification_attachment');
+                    $fileName = time() . '_verification_' . $submission->article_id . '_' . $file->getClientOriginalName();
+                    $attachmentPath = $file->storeAs('verification_attachments/' . $submission->article_id, $fileName, 'public');
+                }
+
                 $messageData = [
                     'article_id' => $submission->article_id,
                     'submission_id' => $submission->id,
                     'editor_id' => Auth::id(),
+                    'sender_type' => 'editor',
                     'author_id' => $submission->author_id,
                     'message' => $request->message,
+                    'attachment_path' => $attachmentPath,
                     'recipient_type' => 'author',
                     'is_approval_request' => $sendForApproval,
                 ];
 
                 EditorMessage::create($messageData);
 
-                // If sending for approval, update article and submission status
+                // If sending for approval, update article and submission status and reset approval so author can upload again
                 if ($sendForApproval) {
                     $submission->article->update(['status' => 'pending_verify']);
-                    $submission->update(['status' => 'pending_verify']);
+                    $submission->update([
+                        'status' => 'pending_verify',
+                        'approval_status' => null,
+                        'approval_pending_file' => null,
+                    ]);
                 }
 
                 // Create notification for author if they have a user account
@@ -1235,6 +1247,12 @@ class Editor_SubmissionController extends Controller
                         $q->where('sender_type', 'admin')
                           ->where('recipient_type', 'editor')
                           ->where('editor_recipient_id', Auth::id());
+                    })
+                    // OR editorial assistant messages sent to this editor
+                    ->orWhere(function($q) {
+                        $q->where('sender_type', 'editorial_assistant')
+                          ->where('recipient_type', 'editor')
+                          ->where('editor_recipient_id', Auth::id());
                     });
                 })
                 ->orderBy('article_id', 'asc')
@@ -1250,8 +1268,10 @@ class Editor_SubmissionController extends Controller
                     return $msg->recipient_type === 'reviewer' && $msg->sender_type !== 'admin';
                 });
                 
+                // Messages from Admin or Editorial Assistant (received by this editor)
                 $adminMessages = $allMessages->filter(function($msg) {
-                    return $msg->sender_type === 'admin';
+                    return in_array($msg->sender_type, ['admin', 'editorial_assistant'])
+                        && $msg->editor_recipient_id === Auth::id();
                 });
                 
                 // Keep all messages for backward compatibility

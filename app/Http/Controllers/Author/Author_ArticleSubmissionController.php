@@ -560,8 +560,8 @@ class Author_ArticleSubmissionController extends Controller
                 ->with('error', 'Submission not found.');
         }
 
-        // Check if approval is already verified
-        if ($submission->approval_status === 'verified') {
+        // Block "already verified" only when article is not in a new verification round (pending_verify allows new round)
+        if ($submission->approval_status === 'verified' && $article->status !== 'pending_verify') {
             return redirect()->route('author.articles.show', $article)
                 ->with('error', 'This article has already been verified.');
         }

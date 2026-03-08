@@ -43,6 +43,7 @@ class AdminRemindersController extends Controller
             ->get();
 
         // Get all admin messages sent by this admin
+        $eaMessagesToAdmin = collect([]);
         try {
             if (!Schema::hasTable('editor_messages')) {
                 $authorMessages = collect([]);
@@ -74,14 +75,28 @@ class AdminRemindersController extends Controller
                 $editorMessages = $allMessages->filter(function($msg) {
                     return $msg->recipient_type === 'editor';
                 });
+
+                // Messages received by admin from Editorial Assistant
+                $eaMessagesToAdmin = EditorMessage::with([
+                    'article.journal',
+                    'article.author',
+                    'editor',
+                    'author'
+                ])
+                ->where('editor_recipient_id', Auth::id())
+                ->where('sender_type', 'editorial_assistant')
+                ->where('recipient_type', 'admin')
+                ->orderBy('created_at', 'desc')
+                ->get();
             }
         } catch (\Exception $e) {
             $authorMessages = collect([]);
             $reviewerMessages = collect([]);
             $editorMessages = collect([]);
+            $eaMessagesToAdmin = collect([]);
         }
 
-        return view('admin.reminders.index', compact('submissions', 'editors', 'reviewers', 'authorMessages', 'reviewerMessages', 'editorMessages'));
+        return view('admin.reminders.index', compact('submissions', 'editors', 'reviewers', 'authorMessages', 'reviewerMessages', 'editorMessages', 'eaMessagesToAdmin'));
     }
 
     /**

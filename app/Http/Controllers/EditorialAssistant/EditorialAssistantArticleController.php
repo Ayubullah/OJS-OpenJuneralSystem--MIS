@@ -4,6 +4,7 @@ namespace App\Http\Controllers\EditorialAssistant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\Editor;
 use App\Models\EditorMessage;
 use App\Models\Notification;
 use App\Models\Submission;
@@ -11,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class EditorialAssistantArticleController extends Controller
 {
@@ -170,18 +172,17 @@ class EditorialAssistantArticleController extends Controller
 
         $request->validate([
             'message' => 'required|string|min:10|max:2000',
-            'send_for_verification' => 'nullable|boolean'
+            'recipient_type' => 'required|in:author,admin,editor',
+            'send_for_verification' => 'nullable|boolean',
+            'verification_attachment' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
 
         $sendForVerification = $request->has('send_for_verification') && $request->send_for_verification;
         if ($sendForVerification) {
+            $request->merge(['recipient_type' => 'author']);
             if ($submission->approval_status === 'pending') {
                 return redirect()->back()
                     ->with('error', __('A verification request is already pending. Please wait for the author to upload a file.'));
-            }
-            if ($submission->approval_status === 'verified') {
-                return redirect()->back()
-                    ->with('error', __('This article has already been verified.'));
             }
         }
 
@@ -190,33 +191,99 @@ class EditorialAssistantArticleController extends Controller
             $submission->load(['article', 'author']);
             $assistantName = Auth::user()->name ?? __('Editorial Assistant');
 
-            EditorMessage::create([
-                'article_id' => $article->id,
-                'submission_id' => $submission->id,
-                'editor_id' => Auth::id(),
-                'sender_type' => 'editorial_assistant',
-                'author_id' => $submission->author_id,
-                'message' => $request->message,
-                'recipient_type' => 'author',
-                'is_approval_request' => $sendForVerification,
-            ]);
+            $attachmentPath = null;
+            if ($request->hasFile('verification_attachment')) {
+                $file = $request->file('verification_attachment');
+                $fileName = time() . '_verification_' . $article->id . '_' . $file->getClientOriginalName();
+                $attachmentPath = $file->storeAs('verification_attachments/' . $article->id, $fileName, 'public');
+            }
+
+            $recipientType = $request->recipient_type;
+
+            if ($recipientType === 'author') {
+                EditorMessage::create([
+                    'article_id' => $article->id,
+                    'submission_id' => $submission->id,
+                    'editor_id' => Auth::id(),
+                    'sender_type' => 'editorial_assistant',
+                    'author_id' => $submission->author_id,
+                    'message' => $request->message,
+                    'attachment_path' => $attachmentPath,
+                    'recipient_type' => 'author',
+                    'is_approval_request' => $sendForVerification,
+                ]);
+                $authorUser = User::where('email', $submission->author->email)->first();
+                if ($authorUser) {
+                    $notificationMessage = $sendForVerification
+                        ? __("Verification request from :name for your article: \":title\". Please upload a revised file.", ['name' => $assistantName, 'title' => $submission->article->title])
+                        : __("New message from :name about your article: \":title\"", ['name' => $assistantName, 'title' => $submission->article->title]);
+                    Notification::create([
+                        'user_id' => $authorUser->id,
+                        'type' => 'reminder',
+                        'message' => $notificationMessage,
+                        'status' => 'unread',
+                    ]);
+                }
+            } elseif ($recipientType === 'admin') {
+                $admins = User::where('role', 'admin')->get();
+                if ($admins->isEmpty()) {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', __('No admin user found.'));
+                }
+                foreach ($admins as $admin) {
+                    EditorMessage::create([
+                        'article_id' => $article->id,
+                        'submission_id' => $submission->id,
+                        'editor_id' => Auth::id(),
+                        'sender_type' => 'editorial_assistant',
+                        'author_id' => $submission->author_id,
+                        'message' => $request->message,
+                        'attachment_path' => $attachmentPath,
+                        'recipient_type' => 'admin',
+                        'editor_recipient_id' => $admin->id,
+                        'is_approval_request' => false,
+                    ]);
+                    Notification::create([
+                        'user_id' => $admin->id,
+                        'type' => 'reminder',
+                        'message' => __("Message from Editorial Assistant :name about article \":title\"", ['name' => $assistantName, 'title' => $article->title]),
+                        'status' => 'unread',
+                    ]);
+                }
+            } else {
+                // editor: send to the editor of this article's journal
+                $editor = Editor::where('journal_id', $article->journal_id)->where('status', 'active')->first();
+                if ($editor) {
+                    EditorMessage::create([
+                        'article_id' => $article->id,
+                        'submission_id' => $submission->id,
+                        'editor_id' => Auth::id(),
+                        'sender_type' => 'editorial_assistant',
+                        'author_id' => $submission->author_id,
+                        'message' => $request->message,
+                        'attachment_path' => $attachmentPath,
+                        'recipient_type' => 'editor',
+                        'editor_recipient_id' => $editor->user_id,
+                        'is_approval_request' => false,
+                    ]);
+                    Notification::create([
+                        'user_id' => $editor->user_id,
+                        'type' => 'reminder',
+                        'message' => __("Message from Editorial Assistant :name about article \":title\"", ['name' => $assistantName, 'title' => $article->title]),
+                        'status' => 'unread',
+                    ]);
+                } else {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', __('No editor assigned to this article\'s journal.'));
+                }
+            }
 
             if ($sendForVerification) {
                 $submission->article->update(['status' => 'pending_verify']);
                 $submission->update(['status' => 'pending_verify']);
-            }
-
-            $authorUser = User::where('email', $submission->author->email)->first();
-            if ($authorUser) {
-                $notificationMessage = $sendForVerification
-                    ? __("Verification request from :name for your article: \":title\". Please upload a revised file.", ['name' => $assistantName, 'title' => $submission->article->title])
-                    : __("New message from :name about your article: \":title\"", ['name' => $assistantName, 'title' => $submission->article->title]);
-
-                Notification::create([
-                    'user_id' => $authorUser->id,
-                    'type' => 'reminder',
-                    'message' => $notificationMessage,
-                    'status' => 'unread',
+                $submission->update([
+                    'approval_status' => null,
+                    'approval_pending_file' => null,
                 ]);
             }
 
@@ -224,7 +291,7 @@ class EditorialAssistantArticleController extends Controller
 
             $successMsg = $sendForVerification
                 ? __('Message and verification request sent successfully to the author!')
-                : __('Message sent successfully to the author!');
+                : __('Message sent successfully!');
 
             return redirect()->back()->with('success', $successMsg);
 

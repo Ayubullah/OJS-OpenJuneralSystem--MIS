@@ -1493,7 +1493,7 @@
                 </button>
             </div>
             
-            <form id="messageForm" method="POST" action="{{ route('editor.submissions.send-message', $submission) }}">
+            <form id="messageForm" method="POST" action="{{ route('editor.submissions.send-message', $submission) }}" enctype="multipart/form-data">
                 @csrf
                 @if(request('from') === 'reminders')
                     <input type="hidden" name="redirect_to" value="reminders">
@@ -1515,14 +1515,22 @@
                               placeholder="{{ __('Enter your message here...') }}"></textarea>
                     <p class="text-xs text-gray-500 mt-1">{{ __('This message will be visible to the selected recipients') }}</p>
                 </div>
+
+                <div class="mb-4">
+                    <label for="verificationAttachment" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Attach file (optional)') }}</label>
+                    <input type="file" id="verificationAttachment" name="verification_attachment"
+                           accept=".pdf,.doc,.docx"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+                    <p class="text-xs text-gray-500 mt-1">{{ __('PDF, DOC, DOCX. Max 10MB. Author can download when you send for verification.') }}</p>
+                </div>
                 
-                <!-- Send for Verification Option - Only show when status IS accepted or verified -->
-                @if($submission->status === 'accepted' || $submission->status === 'verified' || $submission->article->status === 'accepted' || $submission->article->status === 'verified')
+                <!-- Send for Verification Option - show when accepted, verified, or pending_verify (new round) -->
+                @if(in_array($submission->status, ['accepted', 'verified', 'pending_verify']) || in_array($submission->article->status, ['accepted', 'verified', 'pending_verify']))
                 <div class="mb-4">
                     <div class="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
                         <input type="checkbox" id="sendForApproval" name="send_for_approval" value="1" 
                                class="mt-1 w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                               @if($submission->approval_status === 'pending' || $submission->approval_status === 'verified') disabled @endif>
+                               @if($submission->approval_status === 'pending') disabled @endif>
                         <div class="flex-1">
                             <label for="sendForApproval" class="block text-sm font-medium text-gray-900 cursor-pointer">
                                 {{ __('Send for Verification') }}
@@ -1534,7 +1542,7 @@
                                 <p class="text-xs text-orange-600 mt-1 font-semibold">
                                     ⚠️ {{ __('A verification request is already pending. Please wait for the author to upload a file.') }}
                                 </p>
-                            @elseif($submission->approval_status === 'verified')
+                            @elseif($submission->approval_status === 'verified' && $submission->status !== 'pending_verify' && $submission->article->status !== 'pending_verify')
                                 <p class="text-xs text-green-600 mt-1 font-semibold">
                                     ✓ {{ __('This article has already been verified.') }}
                                 </p>
